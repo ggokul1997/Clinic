@@ -1,0 +1,960 @@
+<title>The Candidacy-First Front Door</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --paper:      #F3F5F4;
+    --surface:    #FFFFFF;
+    --surface-2:  #E8EEEC;
+    --ink:        #0F1A18;
+    --ink-2:      #3C4A47;
+    --ink-3:      #677672;
+    --rule:       #D2DBD9;
+    --rule-2:     #B9C6C3;
+    --accent:     #124E52;
+    --accent-2:   #0B6B62;
+
+    /* evidence tiers — content encoding, not brand accent */
+    --est:        #1B6B4A;
+    --est-bg:     #E2EFE7;
+    --emerg:      #8A5300;
+    --emerg-bg:   #F8EDD9;
+    --inv:        #A8261B;
+    --inv-bg:     #F7E6E3;
+    /* decision stages */
+    --stage:      #2B4B8C;
+    --stage-bg:   #E4EAF6;
+
+    --f-display: "Zilla Slab", "Bitter", Georgia, serif;
+    --f-body:    "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+    --f-mono:    "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+    --col: 68ch;
+    --wide: 1060px;
+    --sticky-h: 54px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0B1211;
+      --surface:    #121B19;
+      --surface-2:  #182220;
+      --ink:        #E8EFEC;
+      --ink-2:      #B4C2BE;
+      --ink-3:      #8A9A96;
+      --rule:       #24322F;
+      --rule-2:     #35443F;
+      --accent:     #6BC8BB;
+      --accent-2:   #93DACE;
+      --est:        #67C997;
+      --est-bg:     #10261B;
+      --emerg:      #DFA845;
+      --emerg-bg:   #2A1F0D;
+      --inv:        #F0887B;
+      --inv-bg:     #2B1613;
+      --stage:      #93ADEA;
+      --stage-bg:   #131C31;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #0B1211;
+    --surface:    #121B19;
+    --surface-2:  #182220;
+    --ink:        #E8EFEC;
+    --ink-2:      #B4C2BE;
+    --ink-3:      #8A9A96;
+    --rule:       #24322F;
+    --rule-2:     #35443F;
+    --accent:     #6BC8BB;
+    --accent-2:   #93DACE;
+    --est:        #67C997;
+    --est-bg:     #10261B;
+    --emerg:      #DFA845;
+    --emerg-bg:   #2A1F0D;
+    --inv:        #F0887B;
+    --inv-bg:     #2B1613;
+    --stage:      #93ADEA;
+    --stage-bg:   #131C31;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 17px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:hover { color: var(--accent-2); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+
+  .topbar {
+    position: sticky; top: 0; z-index: 50; height: var(--sticky-h);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center;
+  }
+  .topbar-inner {
+    max-width: var(--wide); width: 100%; margin-inline: auto; padding-inline: 20px;
+    display: flex; align-items: center; gap: 18px; overflow-x: auto; scrollbar-width: thin;
+  }
+  .topbar-mark {
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase;
+    color: var(--ink-3); white-space: nowrap; padding-right: 18px; border-right: 1px solid var(--rule);
+  }
+  .topbar a {
+    font-family: var(--f-mono); font-size: 12px; white-space: nowrap; color: var(--ink-2);
+    text-decoration: none; padding: 4px 0; border-bottom: 2px solid transparent;
+  }
+  .topbar a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .sec {
+    display: flex; flex-direction: column; gap: 1.1rem; padding-inline: 20px;
+    scroll-margin-top: calc(var(--sticky-h) + 16px);
+  }
+  .sec > * { max-width: var(--col); margin-inline: auto; width: 100%; }
+  .sec > .wide { max-width: var(--wide); }
+  .band { padding-block: 60px; border-top: 1px solid var(--rule); }
+  .band.first { border-top: 0; padding-top: 34px; }
+
+  h1 {
+    font-family: var(--f-display); font-weight: 700;
+    font-size: clamp(2.2rem, 5.2vw, 3.4rem); line-height: 1.06;
+    letter-spacing: -.02em; text-wrap: balance; margin: 0;
+  }
+  h2 {
+    font-family: var(--f-display); font-weight: 600;
+    font-size: clamp(1.55rem, 3.1vw, 2.05rem); line-height: 1.16;
+    letter-spacing: -.012em; text-wrap: balance; margin: 0;
+  }
+  h3 {
+    font-family: var(--f-display); font-weight: 600; font-size: 1.2rem;
+    line-height: 1.3; margin: 1.1rem 0 0; text-wrap: balance;
+  }
+  h4 { font-family: var(--f-body); font-weight: 700; font-size: 1rem; margin: .8rem 0 0; }
+  p { margin: 0; }
+  .lede { font-size: 1.2rem; line-height: 1.52; color: var(--ink-2); text-wrap: pretty; }
+  .eyebrow {
+    font-family: var(--f-mono); font-size: 11px; font-weight: 500; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--accent); margin: 0;
+  }
+  .secnum {
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  ul, ol { margin: 0; padding-left: 1.35em; }
+  ul li, ol li { margin-block: .38em; }
+  li::marker { color: var(--ink-3); }
+  code, .mono { font-family: var(--f-mono); font-size: .88em; }
+  code { background: var(--surface-2); padding: .1em .35em; border-radius: 3px; color: var(--ink-2); }
+  .caption { font-size: .86rem; line-height: 1.5; color: var(--ink-3); }
+
+  .masthead { padding-block: 56px 42px; }
+  .masthead-meta {
+    display: flex; flex-wrap: wrap; gap: 8px 26px; font-family: var(--f-mono);
+    font-size: 11.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .rule-hair { height: 1px; background: var(--rule-2); }
+  .thesis {
+    border-left: 3px solid var(--accent); padding: 2px 0 2px 20px;
+    font-family: var(--f-display); font-weight: 500; font-size: 1.3rem;
+    line-height: 1.42; color: var(--ink); text-wrap: pretty;
+  }
+  .partof {
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+
+  .ev {
+    display: grid; gap: 1px; background: var(--rule);
+    grid-template-columns: repeat(auto-fit, minmax(206px, 1fr)); border: 1px solid var(--rule);
+  }
+  .ev div { background: var(--surface); padding: 16px 18px 18px; }
+  .ev b {
+    display: block; font-family: var(--f-display); font-weight: 700; font-size: 1.7rem;
+    line-height: 1.05; letter-spacing: -.02em; color: var(--accent); font-variant-numeric: tabular-nums;
+  }
+  .ev span { display: block; font-size: .89rem; line-height: 1.42; color: var(--ink-2); margin-top: 5px; }
+  .ev cite {
+    display: block; font-family: var(--f-mono); font-size: 10px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-3); font-style: normal; margin-top: 8px;
+  }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; font-family: var(--f-mono);
+    font-size: 10.5px; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+    padding: 3px 9px 3px 7px; white-space: nowrap;
+  }
+  .chip::before { content: ""; width: 7px; height: 7px; flex: none; background: currentColor; }
+  .chip.t1 { color: var(--est);   background: var(--est-bg);   border-radius: 3px; }
+  .chip.t2 { color: var(--emerg); background: var(--emerg-bg); border-radius: 999px; }
+  .chip.t2::before { border-radius: 50%; }
+  .chip.t3 { color: var(--inv);   background: var(--inv-bg); }
+  .chip.t3::before { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+  .chip.st { color: var(--stage); background: var(--stage-bg); border-radius: 3px; }
+
+  .note {
+    background: var(--surface); border: 1px solid var(--rule); border-left: 3px solid var(--rule-2);
+    padding: 15px 18px; display: flex; flex-direction: column; gap: .55rem; font-size: .96rem;
+  }
+  .note.acc  { border-left-color: var(--accent); }
+  .note.warn { border-left-color: var(--inv); }
+  .note.keep { border-left-color: var(--est); }
+  .note-h {
+    font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .note.acc  .note-h { color: var(--accent); }
+  .note.warn .note-h { color: var(--inv); }
+  .note.keep .note-h { color: var(--est); }
+
+  .tw { overflow-x: auto; border: 1px solid var(--rule); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: .92rem; }
+  thead th {
+    text-align: left; vertical-align: bottom; font-family: var(--f-mono); font-size: 10.5px;
+    font-weight: 500; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+    padding: 11px 14px; border-bottom: 1px solid var(--rule-2); background: var(--surface-2); white-space: nowrap;
+  }
+  tbody td, tbody th {
+    padding: 12px 14px; border-bottom: 1px solid var(--rule); vertical-align: top;
+    text-align: left; line-height: 1.48;
+  }
+  tbody th { font-weight: 700; }
+  tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+  .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .verdict {
+    font-family: var(--f-mono); font-size: 10.5px; font-weight: 500; letter-spacing: .08em;
+    text-transform: uppercase; white-space: nowrap;
+  }
+  .v-keep    { color: var(--est); }
+  .v-adapt   { color: var(--emerg); }
+  .v-discard { color: var(--inv); }
+
+  figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  figure svg { width: 100%; height: auto; display: block; background: var(--surface); border: 1px solid var(--rule); }
+  .figscroll { overflow-x: auto; }
+  .figscroll svg { min-width: 620px; }
+  figcaption { font-size: .86rem; line-height: 1.5; color: var(--ink-3); }
+  figcaption b { color: var(--ink-2); font-weight: 600; }
+
+  .zones { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .zone { background: var(--surface); padding: 13px 16px; display: grid; grid-template-columns: 54px 1fr; gap: 4px 14px; align-items: start; }
+  .zone .zid { font-family: var(--f-mono); font-size: 12px; font-weight: 500; color: var(--accent); padding-top: 2px; }
+  .zone .zname { font-weight: 700; font-size: 1rem; }
+  .zone .zbody { grid-column: 2; font-size: .93rem; color: var(--ink-2); line-height: 1.5; }
+  .zone .zmeta {
+    grid-column: 2; font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--ink-3); margin-top: 3px;
+  }
+
+  .tree {
+    background: var(--surface); border: 1px solid var(--rule); padding: 20px 22px;
+    font-size: .95rem; display: flex; flex-direction: column; gap: 14px;
+  }
+  .tree > div > b {
+    font-family: var(--f-display); font-size: 1.05rem; font-weight: 600; display: block; margin-bottom: 3px;
+  }
+  .tree ul { list-style: none; padding-left: 0; display: flex; flex-wrap: wrap; gap: 0 4px; }
+  .tree li { margin: 0; color: var(--ink-2); font-size: .92rem; }
+  .tree li:not(:last-child)::after { content: " ·"; color: var(--rule-2); }
+  .tree .util { border-top: 1px dashed var(--rule-2); padding-top: 14px; font-family: var(--f-mono); font-size: .85rem; color: var(--ink-3); }
+
+  .steps { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); counter-reset: st; }
+  .steps > div { background: var(--surface); padding: 14px 16px; display: grid; grid-template-columns: 30px 1fr; gap: 4px 14px; }
+  .steps > div::before {
+    counter-increment: st; content: counter(st);
+    font-family: var(--f-mono); font-size: 12px; color: var(--accent); padding-top: 2px;
+  }
+  .steps .sname { font-weight: 700; font-size: 1rem; }
+  .steps .sbody { grid-column: 2; font-size: .93rem; color: var(--ink-2); line-height: 1.5; }
+
+  .src { display: flex; flex-direction: column; gap: .5rem; font-size: .89rem; color: var(--ink-2); }
+  .src a { word-break: break-word; }
+
+  footer.doc-end {
+    border-top: 1px solid var(--rule); padding: 34px 20px 64px; font-family: var(--f-mono);
+    font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
+  @media print { .topbar { display: none; } }
+  @media (max-width: 640px) {
+    body { font-size: 16.5px; }
+    .zone { grid-template-columns: 1fr; }
+    .zone .zbody, .zone .zmeta { grid-column: 1; }
+  }
+</style>
+
+<nav class="topbar" aria-label="Sections">
+  <div class="topbar-inner">
+    <span class="topbar-mark">Regencare</span>
+    <a href="#reframe">1 · The axis swap</a>
+    <a href="#arrivals">2 · Who arrives</a>
+    <a href="#verdicts">3 · Keep / adapt / discard</a>
+    <a href="#credibility">4 · Credibility architecture</a>
+    <a href="#ia">5 · IA inversion</a>
+    <a href="#booking">6 · Booking</a>
+    <a href="#homepage">7 · Homepage</a>
+    <a href="#india">8 · India layer</a>
+    <a href="#roadmap">9 · Roadmap</a>
+  </div>
+</nav>
+
+<header class="sec masthead">
+  <p class="partof">Companion study to "The Acuity-First Front Door"</p>
+  <p class="eyebrow">UX Architecture Assessment · Regencare · Kochi · Kozhikode · Chennai</p>
+  <h1>The Candidacy-First Front Door</h1>
+  <div class="rule-hair" role="presentation"></div>
+  <p class="lede">Your read is right: Regencare has essentially no acute traffic, and the emergency triage machinery in the parent study should be deleted rather than softened. But the architectural discipline survives the deletion — you simply swap the axis. A general hospital sorts visitors by <em>how urgent</em>. An elective regenerative clinic sorts them by <em>how convinced</em>.</p>
+  <p class="thesis">Candidacy is Regencare's acuity. The front door's job is not "where do I go" but "is this real, is it real for me, and can I trust the person telling me?" — and the site that answers those three in order wins the ₹1.5 lakh decision.</p>
+  <div class="masthead-meta">
+    <span>Assessed September 2026</span>
+    <span>Current site: regencare.in</span>
+    <span>Two clinicians · three centres</span>
+  </div>
+</header>
+
+<!-- ===== 00 ===== -->
+<section class="sec band first" aria-labelledby="ctx-h">
+  <p class="secnum">00 — What changes when the model changes</p>
+  <h2 id="ctx-h">Six numbers that redraw the blueprint</h2>
+  <p>The parent study was calibrated on a US general hospital: mobile-heavy, search-driven, acuity-mixed, portal-centric, HIPAA-bound. Four of those five assumptions break for Regencare, and the ones that replace them push the architecture in a genuinely different direction.</p>
+  <div class="wide ev">
+    <div><b>540M+</b><span>WhatsApp users in India. In urban healthcare demographics it is the dominant channel across every age group — and patients will not install a clinic app.</span><cite>Channel reality</cite></div>
+    <div><b>3.2×</b><span>higher conversion for clinics replying to a WhatsApp enquiry within 4 minutes versus 4 hours. Booking rates fall sharply after 60 minutes.</span><cite>India clinic benchmarks</cite></div>
+    <div><b>30–40%</b><span>more after-hours bookings captured by WhatsApp-native booking than by phone-only. Your current form has no after-hours story at all.</span><cite>India clinic benchmarks</cite></div>
+    <div><b>₹1,50,000</b><span>your own published starting price for knee stem cell therapy. This is a considered, researched, family-consulted purchase — not an impulse booking.</span><cite>regencare.in</cite></div>
+    <div><b>13 May 2027</b><span>when substantive DPDP obligations become enforceable for every Indian data fiduciary, with penalties up to ₹250 crore. Your booking form currently has no consent notice.</span><cite>DPDP Rules 2025</cite></div>
+    <div><b>Investigational</b><span>ICMR's standing classification for any stem cell use in patients other than haematopoietic reconstitution. This single fact should restructure your procedure pages.</span><cite>ICMR 2017 guidelines</cite></div>
+  </div>
+  <p class="caption">The Gulf corridor adds a sixth dynamic that the US blueprint has no equivalent for: an adult child in Dubai or Doha researching on Google in English, coordinating over WhatsApp, and needing a candidacy answer <em>before</em> anyone buys a flight to Kochi.</p>
+</section>
+
+<!-- ===== 01 ===== -->
+<section class="sec band" id="reframe" aria-labelledby="rf-h">
+  <p class="secnum">01 — The axis swap</p>
+  <h2 id="rf-h">Delete the four doors. Build three stages and one fast path.</h2>
+  <p>In the parent study, the homepage's central job was an acuity read: a stressed person classifying their own urgency in under five seconds, using layout rather than labels. Regencare has no such user. Nobody arrives at a regenerative medicine clinic's website mid-crisis — with one exception, addressed below.</p>
+  <p>What replaces it is a <strong>conviction read</strong>. Your visitor arrives somewhere on a three-stage journey, and the stages have requirements as sharply incompatible as the acuity tiers did:</p>
+
+  <figure class="wide figscroll">
+    <svg viewBox="0 0 960 430" role="img" aria-label="Diagram comparing the parent study's four acuity doors with Regencare's replacement architecture: three decision stages — is this real, is it real for me, and book — plus a separate time-sensitive fast path for diabetic foot ulcer.">
+      <defs>
+        <marker id="ra" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <polygon points="0,1 10,5 0,9" fill="currentColor"/>
+        </marker>
+      </defs>
+
+      <g fill="currentColor" font-family="IBM Plex Mono, monospace" font-size="10.5" letter-spacing="1.2" opacity=".55">
+        <text x="24" y="26">GENERAL HOSPITAL · DISCARDED</text>
+        <text x="452" y="26">REGENCARE · ADOPTED</text>
+      </g>
+      <line x1="424" y1="14" x2="424" y2="416" stroke="currentColor" opacity=".25" stroke-dasharray="4 4"/>
+
+      <!-- discarded column -->
+      <g font-family="Source Sans 3, sans-serif" font-size="12">
+        <g opacity=".38">
+          <rect x="24" y="44" width="360" height="42" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="38" y="70" fill="currentColor">Emergency · 911 statement block</text>
+          <line x1="24" y1="65" x2="384" y2="65" stroke="currentColor" stroke-width="1.4"/>
+
+          <rect x="24" y="96" width="360" height="42" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="38" y="122" fill="currentColor">Urgent care · wait times · triage tool</text>
+          <line x1="24" y1="117" x2="384" y2="117" stroke="currentColor" stroke-width="1.4"/>
+
+          <rect x="24" y="148" width="360" height="42" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="38" y="174" fill="currentColor">Routine appointment funnel</text>
+
+          <rect x="24" y="200" width="360" height="42" fill="none" stroke="currentColor" stroke-width="1"/>
+          <text x="38" y="226" fill="currentColor">Patient portal · authenticated tasks</text>
+          <line x1="24" y1="221" x2="384" y2="221" stroke="currentColor" stroke-width="1.4"/>
+        </g>
+        <text x="24" y="268" fill="currentColor" font-size="11" opacity=".7">Three of four doors deleted outright.</text>
+        <text x="24" y="286" fill="currentColor" font-size="11" opacity=".7">Only the routine funnel survives — and it is</text>
+        <text x="24" y="304" fill="currentColor" font-size="11" opacity=".7">rebuilt around candidacy, not availability.</text>
+        <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#ra)" opacity=".7">
+          <path d="M384 169 H 448"/>
+        </g>
+      </g>
+
+      <!-- adopted column -->
+      <g font-family="Source Sans 3, sans-serif">
+        <rect x="452" y="44" width="484" height="76" fill="none" stroke="#2B4B8C" stroke-width="1.5"/>
+        <rect x="452" y="44" width="5" height="76" fill="#2B4B8C"/>
+        <text x="472" y="68" font-size="13" font-weight="700" fill="currentColor">Stage 1 · "Is this real?"</text>
+        <text x="920" y="68" font-size="10" font-family="IBM Plex Mono, monospace" fill="#2B4B8C" text-anchor="end">SKEPTIC</text>
+        <text x="472" y="89" font-size="11.5" fill="currentColor" opacity=".8">Evidence tiers · what we don't treat · outcomes data</text>
+        <text x="472" y="107" font-size="11.5" fill="currentColor" opacity=".55">Has already read the "stem cell clinics are a scam" articles.</text>
+
+        <rect x="452" y="134" width="484" height="76" fill="none" stroke="#2B4B8C" stroke-width="1.5"/>
+        <rect x="452" y="134" width="5" height="76" fill="#2B4B8C"/>
+        <text x="472" y="158" font-size="13" font-weight="700" fill="currentColor">Stage 2 · "Is it real for me?"</text>
+        <text x="920" y="158" font-size="10" font-family="IBM Plex Mono, monospace" fill="#2B4B8C" text-anchor="end">CANDIDATE</text>
+        <text x="472" y="179" font-size="11.5" fill="currentColor" opacity=".8">Condition page · candidacy criteria · report review</text>
+        <text x="472" y="197" font-size="11.5" fill="currentColor" opacity=".55">This is the conversion bottleneck. Almost nothing here today.</text>
+
+        <rect x="452" y="224" width="484" height="76" fill="none" stroke="#1B6B4A" stroke-width="1.5"/>
+        <rect x="452" y="224" width="5" height="76" fill="#1B6B4A"/>
+        <text x="472" y="248" font-size="13" font-weight="700" fill="currentColor">Stage 3 · "Book it"</text>
+        <text x="920" y="248" font-size="10" font-family="IBM Plex Mono, monospace" fill="#1B6B4A" text-anchor="end">COMMIT</text>
+        <text x="472" y="269" font-size="11.5" fill="currentColor" opacity=".8">WhatsApp · report review · video consult · in-person slot</text>
+        <text x="472" y="287" font-size="11.5" fill="currentColor" opacity=".55">The product booked is the assessment — never the procedure.</text>
+
+        <rect x="452" y="326" width="484" height="76" fill="none" stroke="#8A5300" stroke-width="1.5" stroke-dasharray="6 3"/>
+        <rect x="452" y="326" width="5" height="76" fill="#8A5300"/>
+        <text x="472" y="350" font-size="13" font-weight="700" fill="currentColor">Fast path · Diabetic foot ulcer</text>
+        <text x="920" y="350" font-size="10" font-family="IBM Plex Mono, monospace" fill="#8A5300" text-anchor="end">TIME-SENSITIVE</text>
+        <text x="472" y="371" font-size="11.5" fill="currentColor" opacity=".8">Same-day response commitment · bypasses stages 1 and 2</text>
+        <text x="472" y="389" font-size="11.5" fill="currentColor" opacity=".55">The one genuine exception to "no acuity here". Limb, not life.</text>
+      </g>
+
+      <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#ra)" opacity=".55">
+        <path d="M694 120 V 130"/>
+        <path d="M694 210 V 220"/>
+      </g>
+    </svg>
+    <figcaption><b>Figure 1 — The axis swap.</b> Three of the four acuity doors are deleted, not adapted. What replaces them is a sequence rather than a set: stage 2 is gated by stage 1, and stage 3 by stage 2, which is why a conversion-first homepage underperforms here even though it would work for a retail primary-care clinic. The dashed fast path is the exception your brief did not anticipate.</figcaption>
+  </figure>
+
+  <div class="note warn">
+    <span class="note-h">The exception to your premise: diabetic foot ulcer</span>
+    <p>You listed Diabetic Foot Ulcer among your verticals, and it is the one offering where delay has a limb-threatening cost. A patient or caregiver searching "foot ulcer not healing" is closer to the acute-mode user in the parent study than to your elective aesthetics patient: comprehension is degraded by fear, and the correct design response is a short, high-contrast, single-instruction path with a stated same-day response commitment — not a candidacy essay. Keep exactly one acute-mode pattern from the parent study, and apply it only here.</p>
+  </div>
+
+  <h3>Why the sequence matters more than the segments</h3>
+  <p>The parent study's four doors were <em>parallel</em> — a visitor belonged to one and never touched the others. Regencare's three stages are <em>serial</em>: the same person passes through all three, usually across multiple sessions and often across two devices and one family conversation. This has a concrete architectural consequence that no general-hospital pattern covers.</p>
+  <p><strong>Design for resumption, not for a session.</strong> A ₹1.5 lakh elective decision is made over days or weeks. That means: no funnel that assumes single-session completion; a shareable, sendable artefact at every stage (a condition page a daughter can forward to her father, a written candidacy opinion the family can discuss, a cost sheet they can compare); and WhatsApp as the thread that survives across sessions — which is precisely why it functions as your patient portal even though it is not one.</p>
+</section>
+
+<!-- ===== 02 ===== -->
+<section class="sec band" id="arrivals" aria-labelledby="ar-h">
+  <p class="secnum">02 — Who actually arrives</p>
+  <h2 id="ar-h">Five arrival states, re-derived for elective regenerative care</h2>
+  <p>The parent study's five states do not transfer. These do — and they are ordered by lifetime value, which is not the order your current site serves them in.</p>
+  <div class="wide tw">
+    <table>
+      <thead>
+        <tr><th scope="col">State</th><th scope="col">Emotional load</th><th scope="col">What they need</th><th scope="col">What loses them</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row">Surgery avoider<br><span class="caption">Told they need a knee or hip replacement. Age 55–75.</span></th>
+          <td>High. Fear of surgery, fear of permanent loss of mobility, often already has an MRI and a surgeon's recommendation.</td>
+          <td>An honest answer to "can I avoid or delay surgery, and what are the odds?" Report review. Someone to explain the imaging. Malayalam.</td>
+          <td>Cure language. Absence of any statement about who this <em>doesn't</em> work for. Anything that reads like a sales page rather than a clinic.</td>
+        </tr>
+        <tr>
+          <th scope="row">Chronic-pain researcher<br><span class="caption">Osteoarthritis, rheumatoid arthritis, AVN, back pain.</span></th>
+          <td>Moderate to high, plus fatigue from prior failed treatments and accumulated skepticism.</td>
+          <td>Condition-specific depth, evidence honesty, session counts, realistic timelines, total cost including repeats.</td>
+          <td>Procedure-acronym navigation. Being asked to guess whether they want PRP, GFC, SVF or BMAC.</td>
+        </tr>
+        <tr>
+          <th scope="row">Aesthetic patient<br><span class="caption">Hair loss, acne scars, anti-ageing.</span></th>
+          <td>Shame and privacy sensitivity rather than fear. Very high skepticism — this market is saturated with overclaiming.</td>
+          <td>Discretion, realistic expectation-setting, price transparency, and a way to enquire without a phone call.</td>
+          <td>Before-and-after imagery, which simultaneously triggers skepticism and creates regulatory exposure. Phone-only enquiry.</td>
+        </tr>
+        <tr>
+          <th scope="row">Athlete / sports trauma<br><span class="caption">Time-pressured by a season or a career.</span></th>
+          <td>Urgency of a different kind — deadline pressure, not danger.</td>
+          <td>Return-to-play timelines, speed of access, clinician sports credentials, and fast WhatsApp response.</td>
+          <td>Slow enquiry handling. Vague recovery windows. No named sports-medicine authority.</td>
+        </tr>
+        <tr>
+          <th scope="row">NRI / out-of-station proxy<br><span class="caption">Adult child in the Gulf, parent in Kerala.</span></th>
+          <td>Guilt-driven urgency, remote decision-making, coordinating across time zones.</td>
+          <td>Async report review before travel, video consult, total cost in a currency they think in, travel-and-stay logistics, one WhatsApp thread.</td>
+          <td>A booking form that assumes the patient is the person filling it in. No pre-travel pathway. Business-hours-only response.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Two observations about this table. First, <strong>every one of these states is in "considered purchase" mode</strong> — which is why the retail primary-care playbook (frictionless impulse booking) is the wrong model for the procedure and the right model only for the first conversation. Second, <strong>the proxy state is far more prevalent here than in the parent study</strong>, and it breaks a hidden assumption in almost every booking form: that the person typing is the person being treated.</p>
+</section>
+
+<!-- ===== 03 ===== -->
+<section class="sec band" id="verdicts" aria-labelledby="vd-h">
+  <p class="secnum">03 — Keep, adapt, discard</p>
+  <h2 id="vd-h">Explicit verdicts on every model in the parent study</h2>
+  <p>You asked what to ignore completely. This is the full disposition, model by model, with the reason rather than just the verdict.</p>
+  <div class="wide tw">
+    <table>
+      <thead><tr><th scope="col">Model / principle</th><th scope="col">Verdict</th><th scope="col">Reasoning for Regencare</th></tr></thead>
+      <tbody>
+        <tr>
+          <th scope="row">Mayo Clinic — condition-first editorial authority</th>
+          <td><span class="verdict v-keep">Adopt as primary</span></td>
+          <td>The single best-fit model in the set. Your entire demand is condition-shaped ("knee pain without surgery", "AVN treatment", "hair fall treatment Kochi"), and content authority is how a boutique clinic outranks and out-trusts larger hospitals. Adopt the condition-to-specialty bridge; scale it to roughly 20 excellent condition pages rather than an A–Z of thousands.</td>
+        </tr>
+        <tr>
+          <th scope="row">Mayo — austere hamburger-only desktop nav</th>
+          <td><span class="verdict v-discard">Discard</span></td>
+          <td>Works only at Mayo's brand recognition and search dominance. A clinic still building trust needs visible navigation and a visible path to a human.</td>
+        </tr>
+        <tr>
+          <th scope="row">Mayo — differentiated headline discipline</th>
+          <td><span class="verdict v-keep">Adopt</span></td>
+          <td>"The right answers the first time" names a specific claim. Your current "Regenerative Medicine for All. Harness your Body own Healing" names nothing, and every competitor says the same thing. Your defensible claim is volume and dual specialisation, not biology poetry.</td>
+        </tr>
+        <tr>
+          <th scope="row">NHS.uk — acuity separation (999 / 111 / browse)</th>
+          <td><span class="verdict v-discard">Discard entirely</span></td>
+          <td>No acute traffic. No triage function. Delete the emergency statement block, the wait-time badge, the care-setting comparison card and the triage-tool ladder.</td>
+        </tr>
+        <tr>
+          <th scope="row">NHS — enforced plain-language content standard</th>
+          <td><span class="verdict v-keep">Adopt, raise priority</span></td>
+          <td>More important for you than for a general hospital. Reading age 9–11, sentences under 20 words, paragraphs under three, every term glossed, clinician sign-off with a visible review date. This is what makes a regenerative clinic's content read like medicine rather than marketing — which is the whole ballgame for the skeptic in stage 1.</td>
+        </tr>
+        <tr>
+          <th scope="row">NHS 111 — honesty about scope ("we won't diagnose")</th>
+          <td><span class="verdict v-keep">Adopt as tone model</span></td>
+          <td>The exact register your candidacy tool needs: "This won't tell you whether the treatment will work. It will tell you whether you're worth assessing."</td>
+        </tr>
+        <tr>
+          <th scope="row">Cleveland Clinic — "Not sure where to go for care?"</th>
+          <td><span class="verdict v-adapt">Adapt</span></td>
+          <td>Pattern transfers, content inverts: <em>"Not sure if you're a candidate?"</em> A candidacy router rather than an acuity router. Same mechanic — a question instead of a service list, with concrete examples instead of abstract definitions.</td>
+        </tr>
+        <tr>
+          <th scope="row">Cleveland Clinic — "Need Help?" administrative block</th>
+          <td><span class="verdict v-adapt">Adapt</span></td>
+          <td>Becomes a "Practical questions" block: cost ranges, what insurance actually covers, number of sessions, recovery reality, travel and stay, financing. These are your highest-volume WhatsApp questions and they belong on the homepage.</td>
+        </tr>
+        <tr>
+          <th scope="row">UCLA Health — verb-first "Find Care" taxonomy</th>
+          <td><span class="verdict v-adapt">Adapt</span></td>
+          <td>Keep the plain-verb instinct and the promotion of the highest-value path to top level. Your equivalent of "Find a Doctor" as a promoted peer is <strong>"Get your reports reviewed"</strong>.</td>
+        </tr>
+        <tr>
+          <th scope="row">UCLA / any provider directory — filters, facets, result cards</th>
+          <td><span class="verdict v-discard">Discard</span></td>
+          <td>You have two clinicians. Filtering architecture, never-zero-result logic, insurance-match indicators and facet counts are all dead weight. Replace the entire directory layer with two very deep clinician pages.</td>
+        </tr>
+        <tr>
+          <th scope="row">UCLA — "Find Primary Care / Find Immediate Care" pairing</th>
+          <td><span class="verdict v-adapt">Adapt as your top fork</span></td>
+          <td>The pairing mechanic maps cleanly onto <strong>Orthopaedics / Dermatology</strong> — your genuine first decision, currently buried under the institutional label "Our Verticals".</td>
+        </tr>
+        <tr>
+          <th scope="row">One Medical — retail primary care model</th>
+          <td><span class="verdict v-adapt">Adopt the standard, reject the model</span></td>
+          <td>Their frictionless booking standard belongs on your <em>consultation</em>, which is a low-commitment first step. It cannot apply to the procedure: nobody impulse-books ₹1.5 lakh of autologous treatment, and pretending otherwise reads as a sales funnel. Split commitment into two tiers rather than one.</td>
+        </tr>
+        <tr>
+          <th scope="row">Kaiser Permanente — dual-path (member / shopper)</th>
+          <td><span class="verdict v-adapt">Adapt, lightly</span></td>
+          <td>Your two populations are local (Kochi, Kozhikode, Chennai) and out-of-station (rest of India, Gulf NRI). Genuinely different needs. But use a soft path rather than Kaiser's hard region gate — a boutique clinic cannot afford a gate before the value proposition.</td>
+        </tr>
+        <tr>
+          <th scope="row">1177.se — authenticated-tasks-first homepage</th>
+          <td><span class="verdict v-discard">Discard</span></td>
+          <td>No portal, no national e-ID, and low return-visit frequency. Do not build a patient portal. WhatsApp already occupies that architectural slot, and building a portal would move patients to a channel they use less.</td>
+        </tr>
+        <tr>
+          <th scope="row">University of Utah — publishing patient reviews and star ratings</th>
+          <td><span class="verdict v-discard">Discard as designed</span></td>
+          <td>Solicited patient testimonials sit in contested territory under Indian professional-conduct rules and are the weakest possible trust signal to a stage-1 skeptic anyway. Replace with the same <em>strategic move</em> in a defensible form — published outcomes data. See section 04.</td>
+        </tr>
+        <tr>
+          <th scope="row">Sticky utility layer with conversion + re-entry</th>
+          <td><span class="verdict v-keep">Adopt, re-cast</span></td>
+          <td>Keep the two-tier sticky pattern and its constraints. Substitute WhatsApp for "Sign in" as the persistent re-entry control, since WhatsApp is your continuity channel.</td>
+        </tr>
+        <tr>
+          <th scope="row">Ticket scheduling (pre-authorised invitation links)</th>
+          <td><span class="verdict v-keep">Adopt — highest unrealised value</span></td>
+          <td>PRP and GFC are typically session series, and you have 35,000 patients. A pre-authorised link for session 2 of 3, and for annual reassessment of treated joints, is the highest-yield mechanic available to you and is entirely absent today.</td>
+        </tr>
+        <tr>
+          <th scope="row">US legal layer — ADA Title II, Section 1557, HIPAA</th>
+          <td><span class="verdict v-discard">Discard</span></td>
+          <td>Not applicable. Replaced by the DPDP Act and Rules, professional-conduct rules, the Drugs and Magic Remedies Act, ICMR's stem cell position, and the Telemedicine Practice Guidelines. See section 08.</td>
+        </tr>
+        <tr>
+          <th scope="row">WCAG 2.2 AA + the older-adult specification</th>
+          <td><span class="verdict v-keep">Adopt in full</span></td>
+          <td>Your osteoarthritis and AVN cohort is 55–75. Every older-adult guideline in the parent study applies with more force here than it does to a general hospital, and it is a conversion issue before it is an inclusion one.</td>
+        </tr>
+        <tr>
+          <th scope="row">Anti-patterns 3, 6, 9, 10, 12, 13</th>
+          <td><span class="verdict v-keep">Adopt</span></td>
+          <td>Label-mismatched booking buttons, autoplay hero video, address strings instead of location objects, timeouts without autosave, wait times without timestamps, and phone numbers as images all still apply. Anti-patterns 1, 2, 7 and 8 (acuity cards, consent modals on acute paths, insurance filters, zero-result search) do not.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ===== 04 ===== -->
+<section class="sec band" id="credibility" aria-labelledby="cr-h">
+  <p class="secnum">04 — Credibility architecture</p>
+  <h2 id="cr-h">The finding that should reorder your roadmap</h2>
+  <p>I read your stem cell therapy page. It is headlined "Stem Cell Therapy – Your Body's Natural Healing Power", states that stem cells "enable your body to heal itself", claims treatment of arthritis, ligament tears and cartilage degeneration alongside "glowing skin and fuller hair", promises "long-lasting results" that address root causes, quotes ₹1,50,000 as a starting price, carries four first-name patient anecdotes, and offers a free consultation. It contains no evidence citations, no candidacy criteria, no risks, no adverse-effect discussion, and no statement of regulatory status.</p>
+  <p>Set aside marketing judgement for a moment; the structural problem is that this page is the <em>least</em> persuasive asset you own for the visitor who matters most. The person about to spend ₹1.5 lakh on an autologous knee procedure has already read the skeptical coverage of stem cell clinics. To that reader, an unhedged cure page is not evidence of confidence — it is the exact signature of the operators they were warned about. You are being penalised by your own strongest patients for a page written to convert your weakest.</p>
+
+  <div class="note warn">
+    <span class="note-h">Risk flag — not legal advice, and worth putting in front of counsel</span>
+    <p>Three regimes bear on this content, and they point the same way. <strong>ICMR's National Guidelines for Stem Cell Research (2017)</strong> classify any stem cell use in patients other than haematopoietic reconstitution for approved indications as <em>investigational</em>, and include provisions restricting publicity claiming available cures using stem cell products. <strong>The Indian Medical Council (Professional Conduct, Etiquette and Ethics) Regulations, 2002</strong> remain the operative professional-conduct rules — the NMC's 2023 replacement, which would have explicitly barred patient testimonials, was placed in abeyance in August 2023 and is not in force — and clause 6.1.1 prohibits direct or indirect patient solicitation through self-aggrandising advertising. <strong>The Drugs and Magic Remedies (Objectionable Advertisements) Act, 1954</strong> attaches criminal liability to advertising cures for its scheduled conditions. Your "Trusted by Celebrities" page and your named-patient "Success Stories" are the assets most exposed to the second regime; the stem cell and cultured-osteoblast pages to the first.</p>
+    <p>I am not a lawyer and this is a flag rather than an opinion. But it is a flag that should change your build order, because the fix is also the best UX move available to you.</p>
+  </div>
+
+  <h3>4.1 The Evidence Ladder</h3>
+  <p>Your seven "Next-Gen Procedures" are currently presented as one confident tier. They are not one tier. PRP for knee osteoarthritis sits in a large, contested, and — importantly — <em>protocol-dependent</em> literature: the RESTORE trial in JAMA (2021, n=288) found no significant benefit over saline placebo, while a 2025 meta-analysis of roughly 2,000 randomised participants found significant improvement in pain and function at 6 and 12 months, with effect size influenced by platelet concentration, prompting a 2025 Lancet commentary arguing the "no evidence" position is no longer supportable. Autologous cultured osteoblasts and SVF sit somewhere quite different. Presenting both at the same confidence level is what makes the whole set unbelievable.</p>
+  <p>The fix is a standardised component on every procedure and condition page — an honest tier badge plus four fixed fields. It should be authored by your clinical team, not by a marketing writer, and the tier assignments below are illustrative of the <em>method</em>; your clinicians and counsel must set the actual values.</p>
+  <div class="wide tw">
+    <table>
+      <thead><tr><th scope="col">Tier</th><th scope="col">Definition</th><th scope="col">What the page must say</th></tr></thead>
+      <tbody>
+        <tr>
+          <th scope="row"><span class="chip t1">Established</span></th>
+          <td>Routine clinical use with a substantial randomised literature, whatever the residual debate about effect size.</td>
+          <td>What the evidence shows, where it is contested, and — for PRP specifically — <strong>your preparation protocol and platelet concentration</strong>, since that is the variable the meta-analytic signal turns on.</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="chip t2">Emerging</span></th>
+          <td>Promising but thinner evidence; smaller trials, shorter follow-up, or heterogeneous protocols.</td>
+          <td>Explicitly: "the evidence base here is thinner than for PRP." Expected benefit stated as a range, with follow-up duration named.</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="chip t3">Investigational</span></th>
+          <td>Regulatory status in India is investigational — including non-haematopoietic stem cell applications.</td>
+          <td>Regulatory status stated plainly, the governing framework named, no cure or outcome claim, and no price on a page that makes a claim it cannot support.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Counterintuitively, this <em>raises</em> conversion among high-value patients. A clinic that publishes where its own evidence is weak is the only kind of clinic that survives a skeptical reader's scrutiny — and it is the only differentiator in this market that a competitor cannot copy by writing better ad copy.</p>
+
+  <h3>4.2 Trade testimonials for outcomes</h3>
+  <p>This is the strategic recommendation in this study. The University of Utah move in the parent study was not really "publish reviews" — it was "own your own transparency surface rather than ceding it." That move is available to you in a form that is both more persuasive and less exposed.</p>
+  <p>Retire the named-patient "Success Stories" and the "Trusted by Celebrities" page. Replace them with a <strong>Results &amp; Evidence</strong> section publishing, per condition and per procedure:</p>
+  <ul>
+    <li>Number of patients treated and number of procedures, by condition, with the date range.</li>
+    <li>Mean change in a named, standard instrument — WOMAC or KOOS for knee, VAS for pain, and a comparable scale for the dermatology work.</li>
+    <li>Follow-up duration, and the proportion lost to follow-up. Stating the second is what makes the first believable.</li>
+    <li>The proportion who went on to require surgery anyway. Publishing this is the single most credible thing on your website.</li>
+    <li>Known adverse events and their rate.</li>
+    <li>A plainly written <strong>"Who we don't treat"</strong> page — the conditions and patient profiles you decline, and why.</li>
+  </ul>
+  <p>You have 25,000+ procedures and 35,000+ patients over ten years. Almost nobody in Indian regenerative medicine can produce a dataset of that size, and right now you are spending it on three round numbers in a hero strip. Turned into published outcomes, that same dataset becomes the reason a surgery-avoiding patient in Dubai books a video consult with you rather than the clinic down the road.</p>
+
+  <h3>4.3 Clinician credibility, built properly</h3>
+  <p>With two clinicians and no directory to build, all the effort that a hospital spends on filters goes into two pages. Each needs: NMC or state medical council registration number, full qualifications with awarding institutions, fellowship and specific regenerative-medicine training, years in practice, personal procedure volumes by type, publications and talks, professional memberships, languages spoken, and which centres they practise at on which days. Dr Vineeth's orthopaedic surgical credential is a particularly important signal to the surgery-avoider — a surgeon recommending a non-surgical route carries a weight that a non-surgeon cannot — and it deserves to be made explicit rather than left implicit in "MS Ortho".</p>
+</section>
+
+<!-- ===== 05 ===== -->
+<section class="sec band" id="ia" aria-labelledby="ia-h">
+  <p class="secnum">05 — Information architecture</p>
+  <h2 id="ia-h">Invert it: conditions in front, procedures behind</h2>
+  <p>Your navigation currently leads with "Our Verticals" and "Regenerative Procedures", the second of which offers PRP, GFC, SVF, BMAC, ACS, Autologous Cultured Osteoblast and Stem Cell Therapy. This is the parent study's central anti-pattern in a specialist form: it is your capability taxonomy, and it asks a patient in pain to self-prescribe an acronym before you have understood their problem.</p>
+
+  <figure class="wide figscroll">
+    <svg viewBox="0 0 960 372" role="img" aria-label="Diagram showing the IA inversion: patients search by condition, so a procedure-led navigation forces them to guess an acronym and drop out, whereas a condition-led navigation resolves their own words into the right procedure and carries them into candidacy assessment.">
+      <defs>
+        <marker id="rb" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <polygon points="0,1 10,5 0,9" fill="currentColor"/>
+        </marker>
+      </defs>
+
+      <g fill="currentColor" font-family="IBM Plex Mono, monospace" font-size="10.5" letter-spacing="1.2" opacity=".55">
+        <text x="24" y="24">WHAT THE PATIENT TYPES</text>
+        <text x="352" y="24">CURRENT · PROCEDURE-LED</text>
+        <text x="676" y="24">RECOMMENDED · CONDITION-LED</text>
+      </g>
+
+      <!-- query -->
+      <g fill="none" stroke="currentColor" opacity=".45">
+        <rect x="24" y="42" width="280" height="34"/>
+        <rect x="24" y="86" width="280" height="34"/>
+        <rect x="24" y="130" width="280" height="34"/>
+        <rect x="24" y="174" width="280" height="34"/>
+      </g>
+      <g fill="currentColor" font-family="Source Sans 3, sans-serif" font-size="11.5">
+        <text x="38" y="64">"knee pain treatment without surgery"</text>
+        <text x="38" y="108">"alternative to knee replacement"</text>
+        <text x="38" y="152">"avascular necrosis hip treatment"</text>
+        <text x="38" y="196">"hair fall treatment Kochi"</text>
+        <text x="24" y="236" font-size="11" opacity=".6">Nobody searches "SVF" or "autologous</text>
+        <text x="24" y="252" font-size="11" opacity=".6">conditioned serum". Not one person.</text>
+      </g>
+
+      <!-- current path -->
+      <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#rb)" opacity=".6">
+        <path d="M304 125 H 346"/>
+      </g>
+      <g font-family="Source Sans 3, sans-serif">
+        <rect x="352" y="60" width="272" height="52" fill="none" stroke="currentColor" opacity=".45"/>
+        <text x="366" y="82" font-size="11.5" fill="currentColor">Nav: "Regenerative Procedures"</text>
+        <text x="366" y="100" font-size="10.5" fill="currentColor" opacity=".6">PRP · GFC · SVF · BMAC · ACS · ACO</text>
+
+        <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#rb)" opacity=".6"><path d="M488 112 V 138"/></g>
+
+        <rect x="352" y="140" width="272" height="46" fill="none" stroke="#8A5300" stroke-width="1.4"/>
+        <text x="366" y="162" font-size="11.5" fill="currentColor">Patient must guess an acronym</text>
+        <text x="366" y="179" font-size="10.5" fill="#8A5300">SELF-PRESCRIBING BEFORE ASSESSMENT</text>
+
+        <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#rb)" opacity=".6"><path d="M488 186 V 212"/></g>
+
+        <rect x="352" y="214" width="272" height="46" fill="none" stroke="#A8261B" stroke-width="1.6" stroke-dasharray="5 3"/>
+        <text x="366" y="236" font-size="11.5" font-weight="700" fill="#A8261B">Drop-out, or back to Google</text>
+        <text x="366" y="253" font-size="10.5" fill="currentColor" opacity=".6">The condition question was never answered</text>
+      </g>
+
+      <!-- recommended path -->
+      <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#rb)" opacity=".6">
+        <path d="M304 105 C 640 105 636 86 670 86"/>
+      </g>
+      <g font-family="Source Sans 3, sans-serif">
+        <rect x="676" y="60" width="260" height="52" fill="none" stroke="#1B6B4A" stroke-width="1.4"/>
+        <text x="690" y="82" font-size="11.5" fill="currentColor">Condition page, patient's words</text>
+        <text x="690" y="100" font-size="10.5" fill="currentColor" opacity=".6">"Knee osteoarthritis"</text>
+
+        <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#rb)" opacity=".6"><path d="M806 112 V 138"/></g>
+
+        <rect x="676" y="140" width="260" height="60" fill="none" stroke="#1B6B4A" stroke-width="1.4"/>
+        <text x="690" y="160" font-size="11.5" fill="currentColor">What we'd consider for you</text>
+        <text x="690" y="177" font-size="10.5" fill="currentColor" opacity=".6">PRP <tspan font-size="9">▪</tspan> established · BMAC <tspan font-size="9">▪</tspan> emerging</text>
+        <text x="690" y="192" font-size="10.5" fill="currentColor" opacity=".6">+ who this doesn't suit</text>
+
+        <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#rb)" opacity=".6"><path d="M806 200 V 226"/></g>
+
+        <rect x="676" y="228" width="260" height="60" fill="none" stroke="#1B6B4A" stroke-width="1.8"/>
+        <text x="690" y="248" font-size="11.5" font-weight="700" fill="currentColor">Send your reports for review</text>
+        <text x="690" y="265" font-size="10.5" fill="#1B6B4A">CANDIDACY, NOT A PROCEDURE SALE</text>
+        <text x="690" y="281" font-size="10.5" fill="currentColor" opacity=".6">Procedure chosen after assessment</text>
+      </g>
+
+      <g fill="currentColor" font-family="Source Sans 3, sans-serif" font-size="11" opacity=".65">
+        <text x="352" y="308">The procedure pages still exist — they just stop being the entry point.</text>
+        <text x="352" y="326">They become supporting evidence linked <tspan font-style="italic">from</tspan> condition pages, which is</text>
+        <text x="352" y="344">also where the evidence-tier badge does its work.</text>
+      </g>
+    </svg>
+    <figcaption><b>Figure 2 — The inversion.</b> The mechanism is the translation step. A procedure-led entry asks the patient to perform the clinical reasoning; a condition-led entry performs it for them and ends at candidacy assessment rather than at a procedure choice. Procedure pages are not deleted — they are demoted from doors to references, which is also what lets them carry honest evidence tiers without deterring anyone at the entrance.</figcaption>
+  </figure>
+
+  <h3>Recommended navigation</h3>
+  <div class="wide tree">
+    <div><b>1 · Conditions We Treat</b><ul><li>Knee osteoarthritis</li><li>Hip &amp; knee avascular necrosis</li><li>Shoulder pain &amp; rotator cuff</li><li>Rheumatoid arthritis</li><li>Sports injuries &amp; ligament tears</li><li>Back &amp; neck pain</li><li>Hair loss</li><li>Acne scars</li><li>Skin ageing</li><li>Diabetic foot ulcer</li></ul></div>
+    <div><b>2 · Treatments &amp; Evidence</b><ul><li>PRP</li><li>GFC</li><li>BMAC</li><li>ACS</li><li>SVF</li><li>Cultured osteoblasts</li><li>Lasers &amp; MNRF</li><li>How we grade evidence</li></ul></div>
+    <div><b>3 · Our Doctors</b><ul><li>Dr Vineeth M B</li><li>Dr Aswathi Mohan</li><li>Our clinical approach</li><li>Who we don't treat</li></ul></div>
+    <div><b>4 · Results &amp; Evidence</b><ul><li>Outcomes by condition</li><li>Ten years in numbers</li><li>Adverse events</li><li>Published work</li><li>Regencare Academy</li></ul></div>
+    <div><b>5 · Visiting Us</b><ul><li>Kochi</li><li>Kozhikode</li><li>Chennai</li><li>Costs &amp; payment</li><li>Coming from outside Kerala</li><li>Coming from abroad</li><li>Your first visit</li></ul></div>
+    <div class="util">Utility layer: WhatsApp us · Call · Language (EN / ML / TA) · Send reports for review</div>
+  </div>
+  <p>Note three deliberate choices. "Our Verticals" is gone — it is an internal word. "Book Appointment" leaves the primary navigation and becomes a persistent utility control, because a nav item competing with a button for the same job weakens both. And "Results &amp; Evidence" is promoted to top level, which is the navigational expression of the credibility-first thesis: the thing a skeptic needs is one click away, not buried in a blog.</p>
+</section>
+
+<!-- ===== 06 ===== -->
+<section class="sec band" id="booking" aria-labelledby="bk-h">
+  <p class="secnum">06 — Booking architecture</p>
+  <h2 id="bk-h">You are not booking a procedure. You are booking an assessment.</h2>
+  <p>This is the load-bearing distinction, and it resolves the tension between "adopt One Medical's frictionlessness" and "this is a ₹1.5 lakh decision". A procedure cannot be self-booked: it needs imaging review, candidacy assessment and informed consent. So the front door's conversion event is an assessment, and there are four assessment products at four different commitment levels.</p>
+  <p>Say this on the site, plainly: <strong>"Procedures are scheduled after your assessment, not before."</strong> It removes the sales-funnel smell and it is simply true.</p>
+
+  <figure class="wide figscroll">
+    <svg viewBox="0 0 960 400" role="img" aria-label="Diagram of a four-rung commitment ladder: WhatsApp enquiry, report review, video consultation and in-person consultation, all feeding into a clinician assessment which then schedules the procedure and any follow-up session series by pre-authorised invitation.">
+      <defs>
+        <marker id="rc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <polygon points="0,1 10,5 0,9" fill="currentColor"/>
+        </marker>
+      </defs>
+      <g fill="currentColor" font-family="IBM Plex Mono, monospace" font-size="10.5" letter-spacing="1.2" opacity=".55">
+        <text x="24" y="24">COMMITMENT LADDER</text>
+        <text x="512" y="24">GATE</text>
+        <text x="700" y="24">WHAT GETS SCHEDULED</text>
+      </g>
+
+      <g font-family="Source Sans 3, sans-serif">
+        <!-- rung 1 -->
+        <rect x="24" y="42" width="440" height="60" fill="none" stroke="currentColor" opacity=".5"/>
+        <rect x="24" y="42" width="4" height="60" fill="#1B6B4A"/>
+        <text x="42" y="64" font-size="12.5" font-weight="700" fill="currentColor">WhatsApp enquiry</text>
+        <text x="450" y="64" font-size="10" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity=".55" text-anchor="end">ZERO COMMITMENT</text>
+        <text x="42" y="83" font-size="11" fill="currentColor" opacity=".75">Instant, 24/7, no form. Publish a response-time promise.</text>
+        <text x="42" y="97" font-size="10.5" fill="#1B6B4A">4-MIN REPLY CONVERTS 3.2× VS 4-HOUR</text>
+
+        <!-- rung 2 -->
+        <rect x="24" y="114" width="440" height="60" fill="none" stroke="currentColor" opacity=".5"/>
+        <rect x="24" y="114" width="4" height="60" fill="#1B6B4A"/>
+        <text x="42" y="136" font-size="12.5" font-weight="700" fill="currentColor">Report review · async</text>
+        <text x="450" y="136" font-size="10" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity=".55" text-anchor="end">LOW · YOUR KILLER PRODUCT</text>
+        <text x="42" y="155" font-size="11" fill="currentColor" opacity=".75">Upload MRI or X-ray, receive a written candidacy opinion.</text>
+        <text x="42" y="169" font-size="10.5" fill="currentColor" opacity=".6">Honest label: "Request a review" — a human reads it.</text>
+
+        <!-- rung 3 -->
+        <rect x="24" y="186" width="440" height="60" fill="none" stroke="currentColor" opacity=".5"/>
+        <rect x="24" y="186" width="4" height="60" fill="#1B6B4A"/>
+        <text x="42" y="208" font-size="12.5" font-weight="700" fill="currentColor">Video consultation</text>
+        <text x="450" y="208" font-size="10" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity=".55" text-anchor="end">MEDIUM · NRI PATH</text>
+        <text x="42" y="227" font-size="11" fill="currentColor" opacity=".75">Real slots, paid, time-zone aware. Telemedicine rules apply.</text>
+        <text x="42" y="241" font-size="10.5" fill="currentColor" opacity=".6">Label: "Book" — it writes to a real calendar.</text>
+
+        <!-- rung 4 -->
+        <rect x="24" y="258" width="440" height="60" fill="none" stroke="currentColor" opacity=".5"/>
+        <rect x="24" y="258" width="4" height="60" fill="#1B6B4A"/>
+        <text x="42" y="280" font-size="12.5" font-weight="700" fill="currentColor">In-person consultation</text>
+        <text x="450" y="280" font-size="10" font-family="IBM Plex Mono, monospace" fill="currentColor" opacity=".55" text-anchor="end">MEDIUM · GUEST, NO ACCOUNT</text>
+        <text x="42" y="299" font-size="11" fill="currentColor" opacity=".75">Centre and clinician selectable. Real slots. UPI deposit.</text>
+        <text x="42" y="313" font-size="10.5" fill="currentColor" opacity=".6">Label: "Book" — open scheduling, OTP verified.</text>
+      </g>
+
+      <!-- gate -->
+      <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#rc)" opacity=".65">
+        <path d="M464 72  C 496 72  494 180 512 180"/>
+        <path d="M464 144 C 496 144 500 180 512 180"/>
+        <path d="M464 216 C 496 216 500 180 512 180"/>
+        <path d="M464 288 C 496 288 500 180 512 180"/>
+      </g>
+      <rect x="518" y="140" width="150" height="80" fill="none" stroke="#2B4B8C" stroke-width="1.8"/>
+      <g font-family="Source Sans 3, sans-serif" fill="currentColor">
+        <text x="534" y="168" font-size="12.5" font-weight="700">Clinician</text>
+        <text x="534" y="186" font-size="12.5" font-weight="700">assessment</text>
+        <text x="534" y="206" font-size="10" font-family="IBM Plex Mono, monospace" fill="#2B4B8C">THE ONLY GATE</text>
+      </g>
+
+      <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#rc)" opacity=".65">
+        <path d="M668 164 C 690 164 682 104 700 104"/>
+        <path d="M668 196 C 690 196 682 256 700 256"/>
+      </g>
+
+      <g font-family="Source Sans 3, sans-serif">
+        <rect x="706" y="76" width="230" height="58" fill="none" stroke="#1B6B4A" stroke-width="1.6"/>
+        <text x="720" y="98" font-size="12" font-weight="700" fill="currentColor">Procedure scheduled</text>
+        <text x="720" y="116" font-size="10.5" fill="currentColor" opacity=".7">By the clinic, with consent and costing</text>
+        <text x="720" y="130" font-size="10" font-family="IBM Plex Mono, monospace" fill="#1B6B4A">NEVER SELF-BOOKED</text>
+
+        <rect x="706" y="228" width="230" height="58" fill="none" stroke="#1B6B4A" stroke-width="1.6"/>
+        <text x="720" y="250" font-size="12" font-weight="700" fill="currentColor">Session series &amp; recall</text>
+        <text x="720" y="268" font-size="10.5" fill="currentColor" opacity=".7">Pre-authorised link for session 2 of 3</text>
+        <text x="720" y="282" font-size="10" font-family="IBM Plex Mono, monospace" fill="#1B6B4A">HIGHEST UNREALISED VALUE</text>
+      </g>
+
+      <g fill="currentColor" font-family="Source Sans 3, sans-serif" font-size="11" opacity=".65">
+        <text x="24" y="348">Today all four rungs collapse into one 5-field request form — name, phone, email, a</text>
+        <text x="24" y="366">YYYY-MM-DD date, message — with no centre, no clinician, no treatment, no consent</text>
+        <text x="24" y="384">notice, and a submit button reading "SUBMITSubmitting form".</text>
+      </g>
+    </svg>
+    <figcaption><b>Figure 3 — The commitment ladder.</b> Four entry rungs, one gate, two scheduled outcomes. The ladder matters because a single generic form forces every visitor to commit at the same level regardless of where they are in the three stages — which loses the stage-1 skeptic entirely and under-serves the stage-3 patient who is ready to travel from Doha.</figcaption>
+  </figure>
+
+  <h3>What to fix in the current form, concretely</h3>
+  <ol>
+    <li><strong>Add the three fields that determine everything:</strong> which centre, which vertical (orthopaedics or dermatology), and who the enquiry is for (myself / someone I care for). The third is not a nicety — the proxy state is a large share of your traffic and every downstream message is wrong without it.</li>
+    <li><strong>Replace the free-text date.</strong> A required <code>YYYY-MM-DD</code> field is a known mobile failure and it is asking the patient to guess your availability. Show real slots, or ask for a preference range.</li>
+    <li><strong>Fix the submit label.</strong> "SUBMITSubmitting form" is a rendering bug, and the button should say what happens: "Request a callback" if a human calls back, "Book" only if it writes to a calendar.</li>
+    <li><strong>State the response window.</strong> "We reply on WhatsApp within 15 minutes, 8am–9pm IST" converts; silence does not.</li>
+    <li><strong>Add a DPDP-shaped consent notice</strong> — purpose, what you collect, how long you keep it, who it is shared with, and how to withdraw. Health information is personal data, and this applies to the WhatsApp channel as much as the web form.</li>
+    <li><strong>Add file upload for imaging</strong> on the report-review path, with a stated size limit and accepted formats, and a WhatsApp fallback for anyone who finds upload hard.</li>
+    <li><strong>Confirm properly.</strong> On submit: what happens next, when, from which number, and the centre's location object — building, entrance, floor, parking, and an "if you are running late" line.</li>
+  </ol>
+
+  <div class="note acc">
+    <span class="note-h">A recommendation with a real trade-off</span>
+    <p>Charge a modest, refundable consultation fee via UPI rather than offering "free consultation". It reduces enquiry volume — that is the cost, and it is real. What it buys is a materially higher show-rate, a filter against tyre-kickers, and, most importantly, a positioning signal: free consultations are the convention of sales-led aesthetic chains, and a boutique clinic charging for a surgeon's time reads as a clinic rather than a funnel. Given that your credibility problem is the binding constraint, I would take that trade. Keep the WhatsApp enquiry free and instant, so nobody is priced out of asking a question.</p>
+  </div>
+</section>
+
+<!-- ===== 07 ===== -->
+<section class="sec band" id="homepage" aria-labelledby="hp-h">
+  <p class="secnum">07 — Homepage architecture</p>
+  <h2 id="hp-h">The zone stack, re-derived</h2>
+  <p>Nine zones rather than the parent study's twelve. The alert slot, the acuity action band, the care-routing module and the trust-proof-below-the-fold ordering all change or disappear — the last because for Regencare, proof <em>is</em> the value proposition, so it moves up rather than down.</p>
+  <div class="wide zones">
+    <div class="zone"><span class="zid">Z1</span><span class="zname">Utility layer (sticky)</span><span class="zbody">Logo · <strong>WhatsApp</strong> · Call · centre selector · language (EN / ML / TA). WhatsApp takes the position that "Sign in" holds in the parent study, because it is your continuity channel and your de facto portal.</span><span class="zmeta">≤56px · WhatsApp visually distinct from the booking CTA</span></div>
+    <div class="zone"><span class="zid">Z2</span><span class="zname">Primary navigation (sticky)</span><span class="zbody">The five items from section 05, plus a persistent "Send your reports" control — the highest-intent, lowest-commitment action you can offer a stage-2 visitor.</span><span class="zmeta">Collapses with Z1 to a single bar on scroll</span></div>
+    <div class="zone"><span class="zid">Z3</span><span class="zname">The fork</span><span class="zbody">Two large, equal choices — <strong>Orthopaedics</strong> and <strong>Dermatology</strong> — plus a third, smaller: "I already have an MRI or scan report." This is your genuine first decision and it currently sits behind the word "Verticals".</span><span class="zmeta">Replaces the acuity action band entirely</span></div>
+    <div class="zone"><span class="zid">Z4</span><span class="zname">Hero</span><span class="zbody">One specific claim, with the credibility numbers inline rather than in a separate strip. Something closer to "Ten years and 25,000 regenerative procedures in orthopaedics and dermatology — led by an orthopaedic surgeon and a dermatologist" than to "Regenerative Medicine for All." Still image, no autoplay video.</span><span class="zmeta">Specificity is the differentiator; biology poetry is not</span></div>
+    <div class="zone"><span class="zid">Z5</span><span class="zname">Candidacy router</span><span class="zbody">"Not sure if you're a candidate?" — Cleveland Clinic's mechanic with inverted content. Route by condition, with concrete examples, and include who is <em>not</em> a candidate. Adopt NHS 111's honesty register: this tells you whether you're worth assessing, not whether treatment will work.</span><span class="zmeta">Examples, not definitions · no diagnosis language</span></div>
+    <div class="zone"><span class="zid">Z6</span><span class="zname">Condition tiles</span><span class="zbody">Eight to ten tiles in patient language — knee osteoarthritis, hip AVN, shoulder pain, sports injury, back pain, hair loss, acne scars, skin ageing, diabetic foot ulcer. Not PRP, GFC, SVF, BMAC.</span><span class="zmeta">The single highest-leverage change on the site</span></div>
+    <div class="zone"><span class="zid">Z7</span><span class="zname">Results &amp; evidence</span><span class="zbody">Outcomes by condition, evidence tiers, adverse events, and "who we don't treat". This is the block that replaces the testimonials carousel, and it is promoted above the clinician block because the stage-1 skeptic needs it first.</span><span class="zmeta">Your only uncopyable differentiator</span></div>
+    <div class="zone"><span class="zid">Z8</span><span class="zname">The two doctors</span><span class="zbody">Named, credentialed, with registration numbers and procedure volumes. Lead with Dr Vineeth's surgical credential for the orthopaedic path — a surgeon recommending a non-surgical route is your strongest single trust signal.</span><span class="zmeta">Two deep pages replace an entire directory layer</span></div>
+    <div class="zone"><span class="zid">Z9</span><span class="zname">Practical questions</span><span class="zbody">Cost ranges by condition · what insurance does and does not cover · how many sessions · what recovery actually looks like · financing · travel and stay for out-of-station patients · a distinct path for patients arriving from abroad.</span><span class="zmeta">Your highest-volume WhatsApp questions, answered before they are asked</span></div>
+    <div class="zone"><span class="zid">Z10</span><span class="zname">Centres</span><span class="zbody">Kochi, Kozhikode, Chennai as three location objects — building, entrance, floor, parking, which clinician on which days, transit, and a route deep link pinning the entrance rather than the campus.</span><span class="zmeta">Location objects, not address strings</span></div>
+    <div class="zone"><span class="zid">Z11</span><span class="zname">Footer</span><span class="zbody">Modest. Legal, DPDP-compliant privacy notice, terms, grievance contact, Regencare Academy, careers, and a plainly written "what we claim and what we don't" link.</span><span class="zmeta">No audience-segmented mega-footer — you are not an academic centre</span></div>
+  </div>
+  <p>Two removals worth stating explicitly. The <strong>"Trusted by Celebrities"</strong> page should go: it is the highest-risk, lowest-value asset on the site, and to the stage-1 skeptic it actively signals a marketing-led operation. And the <strong>named-patient testimonial carousel</strong> should be retired in favour of Z7 — same persuasive job, defensible construction, better performance with the patient who spends the most.</p>
+</section>
+
+<!-- ===== 08 ===== -->
+<section class="sec band" id="india" aria-labelledby="in-h">
+  <p class="secnum">08 — The India layer</p>
+  <h2 id="in-h">What replaces the US compliance and channel assumptions</h2>
+
+  <h3>8.1 WhatsApp is the architecture, not an add-on</h3>
+  <p>Your site already links WhatsApp, but it is treated as one contact option among several. In the Indian market it is the primary channel, and the numbers are decisive: 540 million-plus users, dominant across age groups in urban healthcare demographics, 30–40% more after-hours bookings than phone-only, and a 3.2× conversion advantage for a four-minute reply over a four-hour one, with booking rates falling sharply after an hour. Patients also will not install a clinic app, which closes off the route a US system would take.</p>
+  <ul>
+    <li>Give WhatsApp utility-bar primacy on every page, with a stated response window.</li>
+    <li>Use WhatsApp Business API with templated flows: enquiry triage, report intake, appointment confirmation, pre-procedure instructions, session-series reminders, and post-procedure follow-up.</li>
+    <li>Route by vertical and centre from the first message, so the patient never repeats themselves — the Redundant Entry principle applies to a chat thread exactly as it applies to a form.</li>
+    <li>Treat the four-minute response target as an operational commitment with staffing behind it. Publishing a promise you cannot keep is worse than publishing none.</li>
+    <li>Bring the same consent discipline to WhatsApp as to the web form. Health data collected in chat is still personal data.</li>
+  </ul>
+
+  <h3>8.2 Language</h3>
+  <p>Malayalam for Kochi and Kozhikode, Tamil for Chennai, English for urban and Gulf NRI traffic. This is a conversion issue before it is an inclusion one: your highest-value segment — the 55-to-75-year-old osteoarthritis patient weighing a knee replacement — is the segment most likely to want Malayalam and least likely to persevere in English. Human-translate the condition pages, the candidacy router and the consent notices; do not machine-translate clinical content. Label the switcher in the target language ("മലയാളം", "தமிழ்"), set <code>lang</code> attributes correctly, and translate the WhatsApp templates and confirmation messages — a Malayalam enquiry answered by an English confirmation has failed at the last step. Arabic is worth considering for the Gulf corridor once the core three are solid.</p>
+
+  <h3>8.3 The regulatory and privacy layer</h3>
+  <div class="wide tw">
+    <table>
+      <thead><tr><th scope="col">Regime</th><th scope="col">What it bears on</th><th scope="col">Action</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">DPDP Act 2023 + DPDP Rules 2025</th><td>Every booking form, upload, newsletter signup and WhatsApp thread. Rules notified 13 November 2025; consent-manager registration opens 13 November 2026; substantive obligations enforceable 13 May 2027, penalties to ₹250 crore.</td><td>Consent notice at every collection point, purpose limitation, retention period, withdrawal mechanism, breach process, and a named grievance contact. Start now — you have a form collecting health data with no notice today.</td></tr>
+        <tr><th scope="row">ICMR National Guidelines for Stem Cell Research (2017)</th><td>Your stem cell, SVF and cultured-osteoblast pages. Non-haematopoietic stem cell use in patients is investigational; publicity claiming available cures using stem cell products is restricted.</td><td>Restructure those pages around the Investigational tier: status stated, framework named, no cure claim, and reconsider publishing a price beside a claim you cannot substantiate.</td></tr>
+        <tr><th scope="row">IMC (Professional Conduct, Etiquette and Ethics) Regulations, 2002</th><td>Operative professional-conduct rules — the NMC's 2023 replacement has been in abeyance since August 2023. Clause 6.1.1 prohibits direct or indirect solicitation via self-aggrandising advertising.</td><td>Retire "Trusted by Celebrities" and the named-patient testimonials. Replace with outcomes data, which does the same persuasive work on firmer ground.</td></tr>
+        <tr><th scope="row">Drugs and Magic Remedies (Objectionable Advertisements) Act, 1954</th><td>Cure and treatment claims for its scheduled conditions, with criminal liability attached.</td><td>Have counsel review claim language across every condition and procedure page, with particular attention to "cure", "long-lasting results" and "addresses root causes".</td></tr>
+        <tr><th scope="row">Telemedicine Practice Guidelines, 2020</th><td>Your video consultation product.</td><td>Consent capture, identity verification, record-keeping, prescription limits, and a stated scope for what can and cannot be handled remotely.</td></tr>
+        <tr><th scope="row">RPwD Act 2016 · WCAG 2.2 AA</th><td>Accessibility. No ADA Title II or Section 1557 exposure, but WCAG 2.2 AA remains the right voluntary target.</td><td>Adopt the parent study's AA+ list in full, and prioritise the older-adult specification — 16–18px body text, 44×44 targets, no hover-only reveals, visible persistent labels, no cognitive-test authentication.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="caption">These are risk flags for your counsel, not legal conclusions. What I can say with confidence is the design consequence: every one of them points toward the same architecture — honest evidence tiers, outcomes instead of testimonials, and consent notices at every collection point.</p>
+
+  <h3>8.4 Performance and device reality</h3>
+  <p>Mobile-dominant, Android-heavy, on networks that vary widely between a Kochi apartment and a Kozhikode village. Set a homepage weight budget and hold it, target largest-contentful-paint under 2.5 seconds on a mid-tier Android over 4G, and treat imaging upload as the most fragile flow on the site — chunked upload, resumable, with a clear WhatsApp fallback for anyone whose connection or confidence gives out.</p>
+</section>
+
+<!-- ===== 09 ===== -->
+<section class="sec band" id="roadmap" aria-labelledby="rm-h">
+  <p class="secnum">09 — Sequence</p>
+  <h2 id="rm-h">What to do, in what order</h2>
+  <p>Ordered by return per unit of effort, with the regulatory exposure pulled forward because it is cheap to fix and expensive to leave.</p>
+  <div class="wide steps">
+    <div><span class="sname">Claim review and page restructure</span><span class="sbody">Take the stem cell, SVF and cultured-osteoblast pages to your counsel and clinical leads. Introduce the three evidence tiers. Retire "Trusted by Celebrities" and the named-patient testimonials. Cheapest fix on this list and the one that unblocks everything else.</span></div>
+    <div><span class="sname">Fix the enquiry form and publish a response promise</span><span class="sbody">Add centre, vertical and "who is this for". Replace the free-text date. Fix the submit label. Add a DPDP consent notice. State the WhatsApp response window and staff it. A week of work against a measurable conversion gain.</span></div>
+    <div><span class="sname">Build the condition-first layer</span><span class="sbody">Ten to twenty condition pages in patient language, each carrying candidacy criteria, an evidence tier, session counts, realistic timelines, cost ranges, and a "send your reports" call to action. Demote the procedure pages to references. This is the structural change and the SEO change at once.</span></div>
+    <div><span class="sname">Ship report review as a named product</span><span class="sbody">Upload path, written candidacy opinion, stated turnaround. Serves the surgery avoider and the entire NRI corridor, and it is the product your competitors are least likely to copy well.</span></div>
+    <div><span class="sname">Publish outcomes</span><span class="sbody">Assemble the ten-year dataset into per-condition outcomes with named instruments, follow-up duration, loss to follow-up, onward-surgery rate and adverse events. Slower than the rest — it needs clinical work, not web work — but it is the differentiator no competitor can write their way to.</span></div>
+    <div><span class="sname">Real slots, then invitation-based follow-up</span><span class="sbody">Open scheduling for in-person and video consultations with guest booking and OTP verification, then pre-authorised links for session series and annual reassessment across your existing 35,000-patient base.</span></div>
+    <div><span class="sname">Malayalam and Tamil, human-translated</span><span class="sbody">Condition pages, candidacy router, consent notices and WhatsApp templates first. Marketing pages last.</span></div>
+  </div>
+
+  <p class="thesis">Judge every proposed change against the stage-1 skeptic with ₹1.5 lakh to spend and a surgeon's recommendation in their bag. If it makes them trust you less, it is not a conversion improvement — however well it performs on the visitors who were already convinced.</p>
+</section>
+
+<section class="sec band" aria-labelledby="src-h">
+  <p class="secnum">Appendix</p>
+  <h2 id="src-h">Sources</h2>
+  <div class="src">
+    <p><strong>Current site, assessed September 2026:</strong> <a href="https://regencare.in/">regencare.in</a>, including the <a href="https://regencare.in/book-appointment/">booking page</a> and the <a href="https://regencare.in/stem-cell-therapy/">stem cell therapy page</a>.</p>
+    <p><strong>Regulatory:</strong> <a href="https://www.mondaq.com/india/food-and-drugs-law/652768/indian-council-of-medical-research-icmr-issues-national-guidelines-for-stem-cell-research-to-curb-rampant-unethical-therapeutic-practices">ICMR National Guidelines for Stem Cell Research, 2017</a> · <a href="https://www.nmc.org.in/rules-regulations/national-medical-commission-registered-medical-practitioner-professional-conduct-regulations-2023-reg/">NMC on the 2023 Professional Conduct Regulations</a> and <a href="https://www.legalitysimplified.com/nmc-keeps-its-registered-medical-practitioner-professional-conduct-regulations-2023-in-abeyance/">their abeyance</a> · <a href="https://www.doublesure.health/medical-advertising-compliance-india">medical advertising compliance in India</a> · <a href="https://www.indiacode.nic.in/bitstream/123456789/1412/1/195421.pdf">Drugs and Magic Remedies (Objectionable Advertisements) Act, 1954</a> · <a href="https://www.mondaq.com/india/data-protection/1830402/dpdp-act-and-rules-2025-the-2026-compliance-milestones-businesses-cant-afford-to-miss">DPDP Act and Rules 2025 compliance milestones</a> and <a href="https://en.wikipedia.org/wiki/Digital_Personal_Data_Protection_Rules,_2025">the DPDP Rules, 2025</a>.</p>
+    <p><strong>Evidence base:</strong> <a href="https://jamanetwork.com/journals/jama/fullarticle/2786501">RESTORE randomised clinical trial, JAMA 2021</a> · <a href="https://pubmed.ncbi.nlm.nih.gov/39751394/">meta-analysis on PRP and platelet concentration in knee osteoarthritis</a> · <a href="https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(25)02072-0/fulltext">Revisiting platelet-rich plasma for knee osteoarthritis, The Lancet 2025</a>.</p>
+    <p><strong>Channel and market behaviour:</strong> <a href="https://hyperleap.ai/blog/whatsapp-clinics-hospitals-india-patient-communication">WhatsApp for clinics in India</a> · <a href="https://ichelonconsulting.com/insights/patient-booking-system-clinic-india">building a patient booking system with WhatsApp and EMR integration</a> · <a href="https://ichelonconsulting.com/insights/medical-tourism-marketing-india-hospitals-2026">medical tourism marketing for Indian hospitals</a> · <a href="https://www.meitra.com/hub/medical-tourism-to-kerala">what Gulf patients weigh when choosing a Kerala hospital</a>.</p>
+    <p><strong>Parent study:</strong> The Acuity-First Front Door — UX architecture study for hospital and multi-specialty clinic platforms, September 2026.</p>
+  </div>
+</section>
+
+<footer class="doc-end">
+  Companion Assessment · The Candidacy-First Front Door · Regencare · September 2026
+</footer>

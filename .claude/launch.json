@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "clinic-poc",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--dir", "clinic-poc", "dev"],
+      "port": 3000
+    },
+    {
+      "name": "designs",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8899"],
+      "port": 8899
+    }
+  ]
+}

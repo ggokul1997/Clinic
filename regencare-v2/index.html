@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+/* ===== Candidacy-First revisions ===== */
+:root{
+  /* evidence tiers: content encoding, deliberately separate from brand */
+  --tier1:#12683F; --tier1-bg:#E3F0E8;
+  --tier2:#7E4A00; --tier2-bg:#F8EEDA;
+  --tier3:#A2231A; --tier3-bg:#F8E7E4;
+  --ok:#12683F;
+}
+
+/* --- accessibility floor --- */
+body{font-size:17px;line-height:1.6}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,
+textarea:focus-visible,[tabindex]:focus-visible{
+  outline:3px solid var(--crimson);outline-offset:2px;border-radius:2px
+}
+.navlink,.navcta{min-height:44px;display:inline-flex;align-items:center}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms !important;animation-iteration-count:1 !important;
+    transition-duration:.001ms !important
+  }
+  .zoomer{transition:none !important}
+}
+/* content must be legible at rest, before any observer fires */
+[data-reveal]{opacity:1;transform:none}
+
+/* --- utility bar --- */
+.ubar{background:var(--wine-2);color:rgba(255,255,255,.74);font-size:12.5px;
+  border-bottom:1px solid rgba(255,255,255,.1)}
+.ubar-in{max-width:1440px;margin:0 auto;padding:0 34px;display:flex;align-items:center;
+  gap:20px;flex-wrap:wrap;min-height:42px}
+.ubar a{color:rgba(255,255,255,.8);min-height:34px;display:inline-flex;align-items:center;gap:7px}
+.ubar a:hover{color:#fff}
+.ubar .wa{color:#fff;font-weight:600}
+.ubar .sla{color:rgba(255,255,255,.58)}
+.ubar .lang{margin-left:auto;display:flex;gap:12px}
+@media (max-width:900px){ .ubar .ubar-drop{display:none} }
+
+/* --- shared section furniture --- */
+.sec-pad{max-width:1440px;margin:0 auto;padding:clamp(64px,7.5vw,116px) 34px}
+.eyebrow{display:flex;align-items:center;gap:11px;font-size:11.5px;letter-spacing:.22em;
+  text-transform:uppercase;font-weight:600;color:var(--ink-3)}
+.eyebrow span.dash{width:26px;height:1px;background:var(--crimson);flex:0 0 26px}
+.h2big{font-family:var(--serif);font-size:clamp(30px,4.2vw,62px);line-height:1.02;
+  letter-spacing:-.03em;margin:22px 0 0;max-width:22ch}
+.lede{font-size:18px;line-height:1.6;color:var(--ink-2);max-width:62ch;margin:20px 0 0}
+.card{background:#fff;border:1px solid var(--line);padding:24px}
+
+/* --- the fork --- */
+.forkgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);margin-top:clamp(30px,4vw,52px)}
+.fork{background:#fff;padding:clamp(26px,3vw,40px);display:flex;flex-direction:column;
+  gap:14px;color:var(--ink);transition:background .3s ease}
+.fork:hover{background:var(--bone-2)}
+.fork h3{font-size:clamp(24px,2.6vw,36px);line-height:1.05}
+.fork p{margin:0;font-size:16px;line-height:1.55;color:var(--ink-2)}
+.fork .go{font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--crimson);
+  display:flex;align-items:center;gap:8px;margin-top:auto}
+.forkthird{background:var(--wine-2);color:#fff;padding:clamp(24px,3vw,34px);
+  display:flex;align-items:center;gap:22px;flex-wrap:wrap;border:1px solid var(--wine-2);
+  border-top:0}
+.forkthird h3{color:#fff;font-size:clamp(20px,2.2vw,28px);line-height:1.1}
+.forkthird p{margin:6px 0 0;color:rgba(255,255,255,.68);font-size:15.5px;max-width:52ch}
+.forkthird a{margin-left:auto;background:var(--crimson);color:#fff;padding:14px 24px;
+  border-radius:2px;font-size:14px;font-weight:600;min-height:48px;display:inline-flex;
+  align-items:center;white-space:nowrap}
+.forkthird a:hover{background:var(--wine-3);color:#fff}
+@media (max-width:860px){ .forkgrid{grid-template-columns:1fr} .forkthird a{margin-left:0} }
+
+/* --- condition tiles --- */
+.condtiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(232px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);margin-top:clamp(30px,4vw,52px)}
+.condtile{background:#fff;padding:22px 22px 24px;display:flex;flex-direction:column;gap:8px;
+  color:var(--ink);min-height:132px;transition:background .28s ease}
+.condtile:hover{background:var(--bone-2)}
+.condtile strong{font-family:var(--serif);font-size:20px;font-weight:500;line-height:1.14;
+  letter-spacing:-.02em}
+.condtile span{font-size:14.5px;line-height:1.5;color:var(--ink-3)}
+.condtile em{font-style:normal;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--crimson);font-weight:600;margin-top:auto}
+
+/* --- evidence tier badges --- */
+.tier{display:inline-flex;align-items:center;gap:7px;font-size:10.5px;font-weight:700;
+  letter-spacing:.11em;text-transform:uppercase;padding:4px 9px;margin-top:10px}
+.tier::before{content:"";width:8px;height:8px;flex:0 0 8px;background:currentColor}
+.tier-1{color:var(--tier1);background:var(--tier1-bg)}
+.tier-2{color:var(--tier2);background:var(--tier2-bg);border-radius:999px}
+.tier-2::before{border-radius:50%}
+.tier-3{color:var(--tier3);background:var(--tier3-bg)}
+.tier-3::before{clip-path:polygon(50% 0,100% 100%,0 100%)}
+.tierlegend{display:flex;gap:26px;flex-wrap:wrap;margin-top:26px;padding-top:22px;
+  border-top:1px solid rgba(255,255,255,.16)}
+.tierlegend div{font-size:14px;line-height:1.5;color:rgba(255,255,255,.66);max-width:30ch}
+.tierlegend b{display:block;margin-bottom:5px}
+
+/* --- fast path (diabetic foot ulcer) --- */
+.fastpath{background:var(--tier2-bg);border-top:3px solid var(--tier2)}
+.fastpath-in{max-width:1440px;margin:0 auto;padding:clamp(30px,4vw,46px) 34px;
+  display:flex;align-items:center;gap:26px;flex-wrap:wrap}
+.fastpath h2{font-family:var(--serif);font-size:clamp(23px,2.6vw,34px);line-height:1.08;
+  letter-spacing:-.025em;color:var(--ink);max-width:24ch}
+.fastpath p{margin:10px 0 0;font-size:16.5px;line-height:1.55;color:#4a3a1c;max-width:56ch}
+.fastpath .acts{margin-left:auto;display:flex;gap:12px;flex-wrap:wrap}
+.fastpath .acts a{background:var(--tier2);color:#fff;padding:15px 26px;border-radius:2px;
+  font-size:15px;font-weight:600;min-height:50px;display:inline-flex;align-items:center}
+.fastpath .acts a.alt{background:transparent;color:var(--tier2);
+  border:1.5px solid var(--tier2)}
+@media (max-width:860px){ .fastpath .acts{margin-left:0;width:100%} }
+
+/* --- candidacy router --- */
+.candgrid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);margin-top:clamp(30px,4vw,52px)}
+.candcol{background:#fff;padding:clamp(24px,3vw,36px)}
+.candcol h3{font-size:22px;line-height:1.15;margin-bottom:6px}
+.candcol ul{margin:16px 0 0;padding-left:0;list-style:none;display:flex;
+  flex-direction:column;gap:12px}
+.candcol li{font-size:16px;line-height:1.5;color:var(--ink-2);padding-left:26px;position:relative}
+.candcol li::before{position:absolute;left:0;top:1px;font-weight:700;font-size:14px}
+.candcol.yes li::before{content:"✓";color:var(--ok)}
+.candcol.no li::before{content:"✕";color:var(--tier3)}
+@media (max-width:860px){ .candgrid{grid-template-columns:1fr} }
+
+/* --- practical questions --- */
+.faqgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(276px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);margin-top:clamp(30px,4vw,52px)}
+.faq{background:#fff;padding:26px}
+.faq h3{font-size:19px;line-height:1.2;margin-bottom:10px}
+.faq p{margin:0;font-size:15.5px;line-height:1.58;color:var(--ink-2)}
+.faq p+p{margin-top:10px}
+.faq .todo{color:var(--tier2);font-weight:600}
+
+/* --- outcomes table --- */
+.outwrap{overflow-x:auto;margin-top:clamp(30px,4vw,52px);border:1px solid rgba(255,255,255,.18)}
+table.out{border-collapse:collapse;width:100%;min-width:660px;font-size:15px}
+table.out th,table.out td{text-align:left;padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,.14);vertical-align:top;line-height:1.45}
+table.out thead th{font-size:11px;letter-spacing:.13em;text-transform:uppercase;
+  color:rgba(255,255,255,.6);font-weight:600;background:rgba(255,255,255,.05)}
+table.out td{color:rgba(255,255,255,.82)}
+table.out tbody tr:last-child th,table.out tbody tr:last-child td{border-bottom:0}
+table.out .fill{color:var(--tier2-bg);background:rgba(126,74,0,.34);padding:2px 7px;
+  font-size:12.5px;font-weight:600;letter-spacing:.04em;white-space:nowrap}
+
+/* --- booking form --- */
+.bookgrid{display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(30px,4vw,64px);
+  align-items:start}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:26px}
+.f-full{grid-column:1/-1}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:13px;font-weight:600;letter-spacing:.02em;color:#fff}
+.field .hint{font-size:12.5px;color:rgba(255,255,255,.55);font-weight:400}
+.field input,.field select,.field textarea{
+  font:inherit;font-size:16px;padding:13px 14px;min-height:50px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.26);
+  color:#fff;border-radius:2px;width:100%}
+.field textarea{min-height:96px;resize:vertical}
+.field select option{background:var(--wine-2);color:#fff}
+.field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,.42)}
+.radios{display:flex;gap:10px;flex-wrap:wrap}
+.radios label{display:inline-flex;align-items:center;gap:9px;font-weight:500;font-size:15px;
+  padding:12px 16px;min-height:48px;border:1px solid rgba(255,255,255,.26);
+  border-radius:2px;cursor:pointer;color:rgba(255,255,255,.86)}
+.radios input{accent-color:var(--crimson);width:18px;height:18px}
+.consent{display:flex;gap:12px;align-items:flex-start;margin-top:22px;
+  font-size:14px;line-height:1.55;color:rgba(255,255,255,.7)}
+.consent input{width:22px;height:22px;flex:0 0 22px;margin-top:1px;accent-color:var(--crimson)}
+.consent a{color:#fff;text-decoration:underline}
+.submitrow{display:flex;align-items:center;gap:20px;flex-wrap:wrap;margin-top:26px}
+button.bookbtn{background:var(--crimson);color:#fff;border:0;padding:17px 34px;
+  border-radius:2px;font:inherit;font-size:16px;font-weight:600;cursor:pointer;
+  min-height:54px;transition:background .28s ease}
+button.bookbtn:hover{background:var(--wine-3)}
+.submitrow .note{font-size:14px;color:rgba(255,255,255,.6);max-width:34ch;line-height:1.5}
+.formstatus{margin-top:22px;padding:16px 18px;font-size:15.5px;line-height:1.55;
+  border-left:3px solid var(--ok);background:rgba(18,104,63,.16);color:#fff}
+.altroutes{margin-top:30px;padding-top:26px;border-top:1px solid rgba(255,255,255,.18);
+  display:flex;flex-direction:column;gap:18px}
+.altroute{display:flex;gap:16px;align-items:flex-start}
+.altroute .n{font-family:var(--serif);font-size:13px;color:var(--crimson);
+  flex:0 0 26px;padding-top:3px}
+.altroute b{display:block;color:#fff;font-size:16.5px;margin-bottom:4px}
+.altroute p{margin:0;font-size:15px;line-height:1.55;color:rgba(255,255,255,.64)}
+@media (max-width:1024px){ .bookgrid{grid-template-columns:1fr} }
+@media (max-width:600px){ .fgrid{grid-template-columns:1fr} }
+
+/* --- mobile menu (replaces the unresolved <sc-if>) --- */
+#mobmenu{display:none;background:var(--wine);padding:14px 34px 30px}
+#mobmenu.open{display:block}
+#mobmenu a{color:#fff;font-family:var(--serif);font-size:26px;padding:14px 0;
+  display:block;border-bottom:1px solid rgba(255,255,255,.14);min-height:48px}
+#mobmenu a:last-child{border-bottom:0}
+
+.editnote{background:var(--tier2-bg);border-left:3px solid var(--tier2);
+  padding:14px 18px;font-size:14.5px;line-height:1.55;color:#4a3a1c;margin-top:24px}
+.editnote b{display:block;margin-bottom:4px;letter-spacing:.04em;font-size:11.5px;
+  text-transform:uppercase}
+@media (max-width:560px){ .sec-pad{padding-left:20px;padding-right:20px}
+  .ubar-in{padding-left:20px;padding-right:20px} .fastpath-in{padding-left:20px;padding-right:20px} }
+</style>
+<title>Regencare &mdash; regenerative orthopaedics and dermatology</title>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>/* vietnamese */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 300;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/1bc880d3-b956-4578-8134-8891f6a03b4e.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 300;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/240abdb1-fe94-4b05-9fce-fe0ace18c55a.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 300;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/f4ada92a-fbd5-4122-b8be-f2c3f24bc93d.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/1bc880d3-b956-4578-8134-8891f6a03b4e.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/240abdb1-fe94-4b05-9fce-fe0ace18c55a.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/f4ada92a-fbd5-4122-b8be-f2c3f24bc93d.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/1bc880d3-b956-4578-8134-8891f6a03b4e.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/240abdb1-fe94-4b05-9fce-fe0ace18c55a.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 500;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/f4ada92a-fbd5-4122-b8be-f2c3f24bc93d.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/1bc880d3-b956-4578-8134-8891f6a03b4e.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/240abdb1-fe94-4b05-9fce-fe0ace18c55a.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/f4ada92a-fbd5-4122-b8be-f2c3f24bc93d.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/1bc880d3-b956-4578-8134-8891f6a03b4e.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/240abdb1-fe94-4b05-9fce-fe0ace18c55a.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Anybody';
+  font-style: normal;
+  font-weight: 700;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url("assets/f4ada92a-fbd5-4122-b8be-f2c3f24bc93d.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/3aa87c1a-732d-40d4-91ad-c786c6c9ef24.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/0ee35732-5992-4761-a295-763ea1a6d31d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/a44ebcbe-f5c8-4be8-a04a-5c32bd73ffc0.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/ae0cddcc-3589-4c21-b213-8f59b5c9ec2e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("assets/45243647-06d8-490e-9e9f-1253939c9b1e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/3aa87c1a-732d-40d4-91ad-c786c6c9ef24.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/0ee35732-5992-4761-a295-763ea1a6d31d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/a44ebcbe-f5c8-4be8-a04a-5c32bd73ffc0.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/ae0cddcc-3589-4c21-b213-8f59b5c9ec2e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("assets/45243647-06d8-490e-9e9f-1253939c9b1e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/3aa87c1a-732d-40d4-91ad-c786c6c9ef24.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/0ee35732-5992-4761-a295-763ea1a6d31d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/a44ebcbe-f5c8-4be8-a04a-5c32bd73ffc0.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/ae0cddcc-3589-4c21-b213-8f59b5c9ec2e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("assets/45243647-06d8-490e-9e9f-1253939c9b1e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/3aa87c1a-732d-40d4-91ad-c786c6c9ef24.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/0ee35732-5992-4761-a295-763ea1a6d31d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/a44ebcbe-f5c8-4be8-a04a-5c32bd73ffc0.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/ae0cddcc-3589-4c21-b213-8f59b5c9ec2e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("assets/45243647-06d8-490e-9e9f-1253939c9b1e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/3aa87c1a-732d-40d4-91ad-c786c6c9ef24.woff2") format('woff2');
+  unicode-range: U+0460-052F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/0ee35732-5992-4761-a295-763ea1a6d31d.woff2") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* vietnamese */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/a44ebcbe-f5c8-4be8-a04a-5c32bd73ffc0.woff2") format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/ae0cddcc-3589-4c21-b213-8f59b5c9ec2e.woff2") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("assets/45243647-06d8-490e-9e9f-1253939c9b1e.woff2") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>
+:root{
+  --wine:#5f4396;
+  --wine-2:#0a0810;
+  --wine-3:#8E1C14;
+  --bone:#f7f5fa;
+  --bone-2:#eeeaf3;
+  --bone-3:#cbbbe1;
+  --ink:#000000;
+  --ink-2:#4b4655;
+  --ink-3:#8a8496;
+  --line:#ded7e8;
+  --crimson:#C0261B;
+  --serif:'Anybody', 'Helvetica Neue', Helvetica, sans-serif;
+  --sans:'Geist', Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:124px}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bone);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+a{color:var(--crimson);text-decoration:none}
+a:hover{color:var(--wine-3)}
+img{display:block;max-width:100%}
+h1,h2,h3{margin:0;font-family:var(--serif);font-weight:500;letter-spacing:-.035em;line-height:1}
+@keyframes maskUp{from{transform:translateY(105%)}to{transform:translateY(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes cueDrift{0%{transform:translateY(0);opacity:.25}50%{transform:translateY(9px);opacity:1}100%{transform:translateY(0);opacity:.25}}
+.rail{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x proximity;scrollbar-width:none;-ms-overflow-style:none;cursor:grab;padding-bottom:4px}
+.rail::-webkit-scrollbar{display:none;height:0}
+.rail.dragging{cursor:grabbing;scroll-snap-type:none}
+.rail.dragging *{pointer-events:none}
+.rail > *{scroll-snap-align:start;flex:0 0 400px}
+.zoomer{transition:transform 1.3s cubic-bezier(.2,.7,.3,1)}
+a:hover .zoomer{transform:scale(1.055)}
+@media (max-width:1180px){ .navlinks{display:none !important} .navtoggle{display:inline-flex !important} }
+@media (max-width:1024px){
+  .g2{grid-template-columns:1fr !important}
+  .g3{grid-template-columns:1fr !important}
+  .g4{grid-template-columns:repeat(2,1fr) !important}
+  .stickycol{position:static !important;padding-bottom:8px !important}
+  .journeypanel{min-height:0 !important;padding:36px 0 !important}
+  .condgrid{grid-template-columns:1fr !important;gap:0 !important}
+  .split{grid-template-columns:1fr !important}
+  .splitimg{min-height:400px !important}
+  .utilhide{display:none !important}
+  .rail > *{flex:0 0 320px}
+  .bigstat{grid-template-columns:1fr !important}
+  .flipme{order:-1}
+  .offsetup{margin-top:0 !important}
+  .docimg{aspect-ratio:4/5 !important}
+  .facband > a{min-height:min(58vh,460px) !important}
+  .facband > a > div:last-child{min-height:min(58vh,460px) !important}
+  .vpanel{min-height:min(66vh,560px) !important}
+  .vpanel > div:last-child{min-height:min(66vh,560px) !important}
+}
+@media (max-width:680px){
+  .navbar{gap:14px !important}
+  .cond img{width:26px !important;height:26px !important;flex-basis:26px !important}
+}
+@media (max-width:560px){
+  .navbar{padding:12px 18px !important;gap:10px !important}
+  #navlogo{width:112px !important;height:21.6px !important}
+  .navcta{padding:11px 15px !important;font-size:12.5px !important}
+  .footcols{gap:26px !important}
+}
+@media (max-width:680px){
+  .g4{grid-template-columns:1fr !important}
+  .rail > *{flex:0 0 82vw}
+  .pad{padding-left:20px !important;padding-right:20px !important}
+  .navbar{padding-left:20px !important;padding-right:20px !important}
+  .heroblock{padding-top:132px !important;padding-bottom:120px !important}
+  .herometa{gap:14px !important;font-size:11.5px !important}
+  .storybig{min-height:440px !important}
+}
+#__bundler_loading{display:none !important}
+#__bundler_placeholder{display:none !important}
+</style>
+
+</helmet>
+
+<div style="background:var(--bone);overflow-x:clip;position:relative">
+
+  <header id="nav" style="position:fixed;top:0;left:0;right:0;z-index:90;transition:background .45s ease,border-color .45s ease,backdrop-filter .45s ease;background:transparent;border-bottom:1px solid transparent">
+    <div class="ubar">
+      <div class="ubar-in">
+        <a class="wa" href="https://wa.me/917306567548">WhatsApp us</a>
+        <span class="sla ubar-drop">We reply within 15 minutes, 8am&ndash;9pm IST</span>
+        <a href="tel:+917306567548">+91 73065 67548</a>
+        <span class="ubar-drop" style="color:rgba(255,255,255,.4)">|</span>
+        <a class="ubar-drop" href="#locations">Kochi</a>
+        <a class="ubar-drop" href="#locations">Kozhikode</a>
+        <a class="ubar-drop" href="#locations">Chennai</a>
+        <span class="lang">
+          <a href="#" aria-current="true" style="color:#fff;font-weight:600">EN</a>
+          <a href="#" hreflang="ml" lang="ml">&#3374;&#3378;&#3375;&#3390;&#3379;&#3390;&#3330;</a>
+          <a href="#" hreflang="ta" lang="ta">&#2980;&#2990;&#3007;&#2996;&#3021;</a>
+        </span>
+      </div>
+    </div>
+    <div class="navbar" style="max-width:1440px;margin:0 auto;padding:16px 34px;display:flex;align-items:center;gap:34px">
+      <a href="https://regencare.in/" style="flex:0 0 auto;display:block;line-height:0">
+        <img id="navlogo" src="assets/3eb6be63-af3f-4b78-8867-32b50ba12207.webp" alt="Regencare" width="140" height="27" style="width:140px;height:27px;max-width:none;filter:brightness(0) invert(1);transition:filter .45s ease">
+      </a>
+      <nav class="navlinks" style="display:flex;align-items:center;gap:28px;margin-left:auto;font-size:13.5px;font-weight:500;letter-spacing:.01em;white-space:nowrap">
+        <a class="navlink" href="#conditions" style="color:rgba(255,255,255,.82);transition:color .3s ease">Conditions</a>
+        <a class="navlink" href="#approach" style="color:rgba(255,255,255,.82);transition:color .3s ease">How it works</a>
+        <a class="navlink" href="#treatments" style="color:rgba(255,255,255,.82);transition:color .3s ease">Treatments &amp; evidence</a>
+        <a class="navlink" href="#evidence" style="color:rgba(255,255,255,.82);transition:color .3s ease">Results</a>
+        <a class="navlink" href="#specialists" style="color:rgba(255,255,255,.82);transition:color .3s ease">Our doctors</a>
+        <a class="navlink" href="#locations" style="color:rgba(255,255,255,.82);transition:color .3s ease">Visiting us</a>
+      </nav>
+      <div style="display:flex;align-items:center;gap:14px;margin-left:auto">
+        <a class="navlink utilhide" href="tel:+917306567548" style="color:rgba(255,255,255,.82);font-size:13.5px;font-weight:500;white-space:nowrap;transition:color .3s ease">+91 73065 67548</a>
+        <a class="navcta" href="#book" style="background:var(--crimson);color:#fff;padding:12px 22px;border-radius:2px;font-size:13.5px;font-weight:600;letter-spacing:.01em;white-space:nowrap;transition:background .3s ease" style-hover="background:var(--wine);color:#fff">Book appointment</a>
+        <button class="navtoggle" type="button" id="navtoggle" aria-label="Menu" style="display:none;align-items:center;justify-content:center;flex-direction:column;gap:5px;width:44px;height:44px;border:0;background:none;cursor:pointer;padding:0">
+          <span id="tg1" style="display:block;width:20px;height:1.5px;background:#fff;transition:background .45s ease"></span>
+          <span id="tg2" style="display:block;width:20px;height:1.5px;background:#fff;transition:background .45s ease"></span>
+        </button>
+      </div>
+    </div>
+    <nav id="mobmenu" aria-label="Menu">
+      <a href="#conditions">Conditions</a>
+      <a href="#approach">How it works</a>
+      <a href="#treatments">Treatments &amp; evidence</a>
+      <a href="#evidence">Results</a>
+      <a href="#specialists">Our doctors</a>
+      <a href="#locations">Visiting us</a>
+      <a href="https://wa.me/917306567548" style="color:#fff;font-family:var(--sans);font-size:16px;font-weight:600;margin-top:16px">WhatsApp us &mdash; reply within 15 min</a>
+      <a href="tel:+917306567548" style="color:rgba(255,255,255,.66);font-family:var(--sans);font-size:15px">+91 73065 67548</a>
+    </nav>
+  </header>
+
+  <section style="position:relative;background:var(--wine-2);color:#fff;overflow:hidden;min-height:auto;display:flex;flex-direction:column">
+    <div style="position:absolute;inset:0;overflow:hidden">
+      <div class="heroslide" data-slide="0" data-parallax="0.14" style="position:absolute;inset:-12% 0;background-image:url(&quot;assets/84878179-d044-4dff-abad-b4009f4bb04e.png&quot;);background-size:cover;background-position:66% 46%;filter:grayscale(.32) contrast(1.06) brightness(.92);opacity:1;transition:opacity 1.2s ease"></div>
+      <div class="heroslide" data-slide="1" data-parallax="0.14" style="position:absolute;inset:-12% 0;background-image:url(&quot;assets/50919101-cd20-4c44-a545-016bcf4e8466.png&quot;);background-size:cover;background-position:62% 46%;filter:grayscale(.32) contrast(1.06) brightness(.92);opacity:0;transition:opacity 1.2s ease"></div>
+      <div style="position:absolute;inset:0;background:var(--wine);mix-blend-mode:color;opacity:.72"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(96deg,rgba(8,6,14,.96) 0%,rgba(12,9,20,.86) 34%,rgba(14,10,24,.5) 66%,rgba(14,10,24,.34) 100%)"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,5,12,.72) 0%,rgba(7,5,12,0) 26%,rgba(7,5,12,.55) 84%,rgba(7,5,12,.86) 100%)"></div>
+      <div aria-hidden="true" style="position:absolute;inset:0;opacity:.16;mix-blend-mode:overlay;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E&quot;)"></div>
+    </div>
+
+    <div class="heroblock pad" style="position:relative;max-width:1440px;width:100%;margin:0 auto;padding:210px 34px 110px;flex:1 1 auto;display:flex;flex-direction:column;justify-content:center">
+      <div style="overflow:hidden;padding-bottom:2px">
+        <div style="display:flex;align-items:center;gap:11px;font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.66);animation:maskUp .9s cubic-bezier(.16,.84,.28,1) both;animation-delay:.15s">
+          <span style="width:26px;height:1px;background:var(--crimson)"></span>
+          South India’s first dedicated regenerative medicine centre
+        </div>
+      </div>
+      <h1 style="margin:30px 0 0;font-size:clamp(46px,8.2vw,142px);line-height:.93;letter-spacing:-.03em;color:#fff;max-width:15ch">
+        <span style="display:block;overflow:hidden;padding-bottom:.04em"><span style="display:block;animation:maskUp 1.05s cubic-bezier(.16,.84,.28,1) both;animation-delay:.3s">Your body</span></span>
+        <span style="display:block;overflow:hidden;padding-bottom:.04em"><span style="display:block;animation:maskUp 1.05s cubic-bezier(.16,.84,.28,1) both;animation-delay:.42s">already knows</span></span>
+        <span style="display:block;overflow:hidden;padding-bottom:.04em"><span style="display:block;animation:maskUp 1.05s cubic-bezier(.16,.84,.28,1) both;animation-delay:.54s">how to <em style="font-style:normal;color:#cbbbe1">heal</em>.</span></span>
+      </h1>
+      <p style="font-size:clamp(16px,1.35vw,19.5px);line-height:1.62;color:rgba(255,255,255,.76);max-width:52ch;margin:34px 0 0;animation:fadeUp 1s cubic-bezier(.16,.84,.28,1) both;animation-delay:.78s">
+        Non-surgical orthopaedic and dermatological care built on your own platelets, growth factors and cells. Ten years of regenerative practice across Kerala and Tamil Nadu.
+      </p>
+      <div style="display:flex;gap:12px;margin-top:40px;flex-wrap:wrap;animation:fadeUp 1s cubic-bezier(.16,.84,.28,1) both;animation-delay:.92s">
+        <a href="https://regencare.in/book-appointment/" style="background:#fff;color:var(--wine);padding:17px 34px;border-radius:2px;font-size:15px;font-weight:600;transition:background .3s ease,color .3s ease" style-hover="background:var(--crimson);color:#fff">Book an appointment</a>
+        <a href="https://regencare.in/book-appointment/" style="border:1px solid rgba(255,255,255,.34);color:#fff;padding:17px 34px;border-radius:2px;font-size:15px;font-weight:600;transition:background .3s ease,border-color .3s ease" style-hover="background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.7)">Virtual consultation</a>
+      </div>
+    </div>
+
+    <div class="pad" style="position:relative;max-width:1440px;width:100%;margin:0 auto;padding:0 34px 34px;animation:fadeIn 1.2s ease both;animation-delay:1.15s">
+      <div class="herometa" style="display:flex;align-items:center;gap:34px;flex-wrap:wrap;padding-top:26px;border-top:1px solid rgba(255,255,255,.17);font-size:12.5px;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.62);font-weight:500">
+        <span>10+ years of practice</span>
+        <span>25,000+ procedures</span>
+        <span>35,000+ patients</span>
+        <span class="utilhide">Kochi · Kozhikode · Chennai</span>
+        <div id="heroNav" style="display:flex;gap:22px;margin-left:auto;align-items:flex-start">
+          <button type="button" class="heropick" data-pick="0" style="appearance:none;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left;font:inherit;letter-spacing:.13em;text-transform:uppercase;color:#fff;display:flex;flex-direction:column;gap:9px;min-width:104px;transition:color .4s ease">
+            Orthopaedics
+            <span style="display:block;height:2px;background:rgba(255,255,255,.22);overflow:hidden"><span class="herofill" style="display:block;height:2px;width:0;background:var(--crimson)"></span></span>
+          </button>
+          <button type="button" class="heropick" data-pick="1" style="appearance:none;background:none;border:0;padding:0;margin:0;cursor:pointer;text-align:left;font:inherit;letter-spacing:.13em;text-transform:uppercase;color:rgba(255,255,255,.5);display:flex;flex-direction:column;gap:9px;min-width:104px;transition:color .4s ease">
+            Dermatology
+            <span style="display:block;height:2px;background:rgba(255,255,255,.22);overflow:hidden"><span class="herofill" style="display:block;height:2px;width:0;background:var(--crimson)"></span></span>
+          </button>
+        </div>
+        <span class="utilhide" style="display:flex;align-items:center;gap:10px"><span style="animation:cueDrift 2.4s ease-in-out infinite;display:inline-block">↓</span> Scroll</span>
+      </div>
+    </div>
+  </section>
+
+  
+  <section id="fork" style="background:var(--bone)">
+    <div class="sec-pad" style="padding-top:clamp(48px,6vw,84px);padding-bottom:0">
+      <p class="eyebrow"><span class="dash"></span>Start here</p>
+      <h2 class="h2big">Which part of you needs looking at?</h2>
+      <p class="lede">Two practices under one clinical standard. Pick the one that matches your problem &mdash; you do not need to know which procedure you want. That is our job, after we have assessed you.</p>
+      <div class="forkgrid">
+        <a class="fork" href="#conditions">
+          <h3>Orthopaedics</h3>
+          <p>Knee and hip osteoarthritis, avascular necrosis, shoulder pain, sports injuries, back and neck pain, rheumatoid arthritis.</p>
+          <span class="go">See orthopaedic conditions &rarr;</span>
+        </a>
+        <a class="fork" href="#conditions">
+          <h3>Dermatology</h3>
+          <p>Hair loss and thinning, acne scars, skin ageing, pigmentation, and scar management with lasers and MNRF.</p>
+          <span class="go">See dermatology conditions &rarr;</span>
+        </a>
+      </div>
+      <div class="forkthird">
+        <div>
+          <h3>Already have an MRI, X-ray or scan report?</h3>
+          <p>Send it to us and one of our clinicians will tell you in writing whether regenerative treatment is worth considering for you &mdash; before you travel, and before you commit to anything.</p>
+        </div>
+        <a href="#book">Get your reports reviewed</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="conditions" style="background:var(--bone)">
+    <div class="sec-pad">
+      <p class="eyebrow"><span class="dash"></span>Conditions we treat</p>
+      <h2 class="h2big">Told you need a knee replacement? Start with the condition, not the procedure.</h2>
+      <p class="lede">Most people arrive here having been offered two options: live with it, or have surgery. These are the conditions where a third option is sometimes &mdash; not always &mdash; worth assessing.</p>
+      <div class="condtiles">
+        <a class="condtile" href="#book"><strong>Knee osteoarthritis</strong><span>Pain, stiffness and cartilage wear, including patients advised to consider replacement.</span><em>Orthopaedics</em></a>
+        <a class="condtile" href="#book"><strong>Avascular necrosis</strong><span>Hip and knee AVN, where blood supply to the bone is compromised.</span><em>Orthopaedics</em></a>
+        <a class="condtile" href="#book"><strong>Shoulder pain</strong><span>Rotator cuff problems, frozen shoulder and tendon injury.</span><em>Orthopaedics</em></a>
+        <a class="condtile" href="#book"><strong>Sports injuries</strong><span>Ligament and tendon trauma, with return-to-play planning.</span><em>Orthopaedics</em></a>
+        <a class="condtile" href="#book"><strong>Back &amp; neck pain</strong><span>Disc and facet joint pain managed without open surgery.</span><em>Orthopaedics</em></a>
+        <a class="condtile" href="#book"><strong>Rheumatoid arthritis</strong><span>Adjunctive management alongside your rheumatologist's care.</span><em>Orthopaedics</em></a>
+        <a class="condtile" href="#book"><strong>Hair loss</strong><span>Thinning and pattern hair loss in men and women.</span><em>Dermatology</em></a>
+        <a class="condtile" href="#book"><strong>Acne scars</strong><span>Textural scarring treated with MNRF, lasers and autologous therapy.</span><em>Dermatology</em></a>
+        <a class="condtile" href="#book"><strong>Skin ageing</strong><span>Fine lines, laxity and sun damage.</span><em>Dermatology</em></a>
+        <a class="condtile" href="#book"><strong>Diabetic foot ulcer</strong><span>Non-healing wounds. Please contact us the same day.</span><em>Time-sensitive</em></a>
+      </div>
+      <div class="editnote"><b>Note for the Regencare team</b>Each tile should link to its own condition page carrying candidacy criteria, session count, realistic timeline, cost range and an evidence tier &mdash; not to the booking form. They point at the form for now so the flow is testable.</div>
+    </div>
+  </section>
+
+  <section style="background:var(--bone);padding:clamp(90px,11vw,170px) 0">
+    <div class="pad" style="max-width:1440px;margin:0 auto;padding:0 34px">
+      <div data-reveal="" style="font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--ink-3)">What regenerative medicine means</div>
+      <h2 data-reveal="" data-delay="80" style="font-size:clamp(30px,4.4vw,72px);line-height:1.1;margin:34px 0 0;max-width:34ch;text-wrap:pretty">
+        It is not a new drug. It is <em style="font-style:normal;color:var(--crimson)">your own biology</em>, concentrated and returned to the place that needs it.
+      </h2>
+      <div class="g2" style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,5vw,86px);margin-top:clamp(48px,6vw,92px);align-items:start">
+        <div data-reveal="" data-delay="120">
+          <p style="font-size:18px;line-height:1.72;color:var(--ink-2);margin:0;max-width:46ch">
+            Regencare is a boutique centre for regenerative therapy, sports medicine and rehabilitation. For over ten years we have treated patients with non-surgical processes in orthopaedics, dermatology, andrology and sports medicine.
+          </p>
+          <p style="font-size:18px;line-height:1.72;color:var(--ink-2);margin:22px 0 0;max-width:46ch">
+            Our Platelet Rich Plasma injections have been used by professional athletes, highly functional individuals and recreational athletes. By tapping biological methods in modern medicine, we reduce treatment cost and avoid side effects to the healing process.
+          </p>
+          <div style="margin-top:40px;border-top:1px solid var(--line)">
+            <div style="display:flex;gap:18px;padding:20px 0;border-bottom:1px solid var(--bone-2)">
+              <span style="font-family:var(--serif);font-size:15px;color:var(--crimson);flex:0 0 24px">01</span>
+              <div><div style="font-size:16.5px;font-weight:600">Non-surgical, day-care</div><div style="font-size:15.5px;color:var(--ink-2);margin-top:4px">Most procedures finish in a single visit.</div></div>
+            </div>
+            <div style="display:flex;gap:18px;padding:20px 0;border-bottom:1px solid var(--bone-2)">
+              <span style="font-family:var(--serif);font-size:15px;color:var(--crimson);flex:0 0 24px">02</span>
+              <div><div style="font-size:16.5px;font-weight:600">Nothing foreign enters you</div><div style="font-size:15.5px;color:var(--ink-2);margin-top:4px">No rejection, and no side effects to the healing process.</div></div>
+            </div>
+            <div style="display:flex;gap:18px;padding:20px 0">
+              <span style="font-family:var(--serif);font-size:15px;color:var(--crimson);flex:0 0 24px">03</span>
+              <div><div style="font-size:16.5px;font-weight:600">Three centres</div><div style="font-size:15.5px;color:var(--ink-2);margin-top:4px">Kochi and Kozhikode in Kerala, Chennai in Tamil Nadu.</div></div>
+            </div>
+          </div>
+        </div>
+        <div data-reveal="" data-delay="200" class="offsetup" style="margin-top:26px">
+          <div style="position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--bone-2)">
+            <div data-parallax="0.09" style="position:absolute;inset:-10% 0;background-image:url(&quot;assets/1e7d3776-38bf-44b3-9171-ffedced7183c.png&quot;);background-size:cover;background-position:44% 48%;filter:grayscale(.14) contrast(1.03)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,10,24,0) 40%,rgba(14,10,24,.42) 100%)"></div>
+          </div>
+          <div style="font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-top:14px;font-weight:500">Regencare clinical floor · Kochi</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="background:var(--wine);color:#fff;padding:clamp(90px,11vw,168px) 0;position:relative;overflow:hidden">
+    <div aria-hidden="true" style="position:absolute;inset:0;opacity:.1;mix-blend-mode:overlay;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n2)'/%3E%3C/svg%3E&quot;)"></div>
+    <div class="pad" style="position:relative;max-width:1440px;margin:0 auto;padding:0 34px">
+      <div class="g2" style="display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(40px,5vw,90px);align-items:center">
+        <div>
+          <div data-reveal="" style="font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.5)">The patient’s dilemma</div>
+          <h2 data-reveal="" data-delay="80" style="font-size:clamp(32px,4.6vw,76px);line-height:1.06;margin:30px 0 0;color:#fff;max-width:22ch">
+            Most people are offered two choices. Live with it, or have surgery.
+          </h2>
+          <p data-reveal="" data-delay="160" style="font-size:19px;line-height:1.65;color:rgba(255,255,255,.72);margin:30px 0 0;max-width:44ch">
+            Painkillers manage a symptom. Surgery replaces a structure. Neither asks the tissue to repair itself. Regenerative medicine is the option in between, and for many of the conditions we treat it is the one that should come first.
+          </p>
+          <a data-reveal="" data-delay="220" href="#approach" style="display:inline-flex;align-items:center;gap:12px;margin-top:38px;color:#fff;font-size:15px;font-weight:600;border-bottom:1px solid rgba(255,255,255,.4);padding-bottom:7px">See how it works <span aria-hidden="true">→</span></a>
+        </div>
+        <div data-reveal="" data-delay="140" style="position:relative;aspect-ratio:1/1;overflow:hidden">
+          <div data-parallax="0.1" style="position:absolute;inset:-11% 0;background-image:url(&quot;assets/f067f223-cb6b-4421-bf29-5d9c859c5d0d.png&quot;);background-size:cover;background-position:50% 24%;filter:grayscale(.4) contrast(1.05)"></div>
+          <div style="position:absolute;inset:0;background:var(--wine-3);mix-blend-mode:color;opacity:.62"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,10,24,.2) 0%,rgba(14,10,24,.62) 100%)"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="approach" style="background:var(--bone);padding:clamp(84px,10vw,150px) 0 clamp(70px,8vw,120px)">
+    <div class="pad" style="max-width:1440px;margin:0 auto;padding:0 34px">
+      <div class="split" style="display:grid;grid-template-columns:.82fr 1.18fr;gap:clamp(36px,5vw,84px);align-items:stretch">
+        <div class="stickycol" style="position:sticky;top:112px;align-self:start">
+          <div style="font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--ink-3)">The Regencare approach</div>
+          <h2 style="font-size:clamp(30px,3.6vw,56px);line-height:1.08;margin:26px 0 0;max-width:17ch">Four visits, and nothing that is not already yours</h2>
+          <p style="font-size:17px;line-height:1.68;color:var(--ink-2);margin:24px 0 0;max-width:38ch">
+            Every treatment follows the same discipline: understand the tissue, take what the body already produces, concentrate it, and place it precisely.
+          </p>
+          <div id="jsteps" style="display:flex;flex-direction:column;margin-top:40px;border-top:1px solid var(--line)">
+            <div class="jstep" data-step="0" style="display:flex;align-items:baseline;gap:16px;padding:16px 0;border-bottom:1px solid var(--bone-2);transition:color .4s ease;color:var(--ink)">
+              <span style="font-family:var(--serif);font-size:13px;color:var(--crimson);flex:0 0 22px">01</span>
+              <span style="font-size:16.5px;font-weight:500">Consultation and imaging</span>
+            </div>
+            <div class="jstep" data-step="1" style="display:flex;align-items:baseline;gap:16px;padding:16px 0;border-bottom:1px solid var(--bone-2);transition:color .4s ease;color:var(--ink-3)">
+              <span style="font-family:var(--serif);font-size:13px;color:var(--crimson);flex:0 0 22px">02</span>
+              <span style="font-size:16.5px;font-weight:500">Drawing your own sample</span>
+            </div>
+            <div class="jstep" data-step="2" style="display:flex;align-items:baseline;gap:16px;padding:16px 0;border-bottom:1px solid var(--bone-2);transition:color .4s ease;color:var(--ink-3)">
+              <span style="font-family:var(--serif);font-size:13px;color:var(--crimson);flex:0 0 22px">03</span>
+              <span style="font-size:16.5px;font-weight:500">Concentration in-house</span>
+            </div>
+            <div class="jstep" data-step="3" style="display:flex;align-items:baseline;gap:16px;padding:16px 0;transition:color .4s ease;color:var(--ink-3)">
+              <span style="font-family:var(--serif);font-size:13px;color:var(--crimson);flex:0 0 22px">04</span>
+              <span style="font-size:16.5px;font-weight:500">Guided placement and recovery</span>
+            </div>
+          </div>
+          <div style="height:2px;background:var(--bone-2);margin-top:26px;overflow:hidden"><div id="jbar" style="height:2px;width:25%;background:var(--crimson);transition:width .5s cubic-bezier(.2,.7,.3,1)"></div></div>
+        </div>
+
+        <div id="jpanels" style="display:flex;flex-direction:column">
+          <div class="journeypanel" data-panel="0" style="min-height:84vh;display:flex;flex-direction:column;justify-content:center;padding:44px 0">
+            <div data-reveal="" style="position:relative;aspect-ratio:16/11;overflow:hidden;background:var(--bone-2)">
+              <div data-parallax="0.07" style="position:absolute;inset:-8% 0;background-image:url(&quot;assets/84878179-d044-4dff-abad-b4009f4bb04e.png&quot;);background-size:cover;background-position:60% 46%;filter:grayscale(.16) contrast(1.03)"></div>
+            </div>
+            <div style="display:flex;gap:26px;margin-top:26px;align-items:flex-start">
+              <span style="font-family:var(--serif);font-size:clamp(34px,3.6vw,54px);line-height:.9;color:var(--bone-3);flex:0 0 auto">01</span>
+              <div>
+                <h3 style="font-size:clamp(22px,2.2vw,32px);line-height:1.14">We start with the tissue, not the prescription</h3>
+                <p style="font-size:16.5px;line-height:1.68;color:var(--ink-2);margin:12px 0 0;max-width:52ch">A specialist examines the joint or the skin, reviews imaging, and establishes whether regenerative therapy is appropriate for the condition in front of them. If it is not, we say so.</p>
+              </div>
+            </div>
+          </div>
+          <div class="journeypanel" data-panel="1" style="min-height:84vh;display:flex;flex-direction:column;justify-content:center;padding:44px 0">
+            <div data-reveal="" style="position:relative;aspect-ratio:16/11;overflow:hidden;background:var(--bone-2)">
+              <div data-parallax="0.07" style="position:absolute;inset:-8% 0;background-image:url(&quot;assets/917a3d8c-f30d-4e7d-bca7-39c5e6e409c3.png&quot;);background-size:cover;background-position:50% 54%;filter:grayscale(.16) contrast(1.03)"></div>
+            </div>
+            <div style="display:flex;gap:26px;margin-top:26px;align-items:flex-start">
+              <span style="font-family:var(--serif);font-size:clamp(34px,3.6vw,54px);line-height:.9;color:var(--bone-3);flex:0 0 auto">02</span>
+              <div>
+                <h3 style="font-size:clamp(22px,2.2vw,32px);line-height:1.14">A small draw of blood, marrow or fat</h3>
+                <p style="font-size:16.5px;line-height:1.68;color:var(--ink-2);margin:12px 0 0;max-width:52ch">The source depends on the therapy: blood for PRP, GFC and conditioned serum, bone marrow for BMAC, adipose tissue for stromal vascular fraction. It is taken in the same visit.</p>
+              </div>
+            </div>
+          </div>
+          <div class="journeypanel" data-panel="2" style="min-height:84vh;display:flex;flex-direction:column;justify-content:center;padding:44px 0">
+            <div data-reveal="" style="position:relative;aspect-ratio:16/11;overflow:hidden;background:var(--bone-2)">
+              <div data-parallax="0.07" style="position:absolute;inset:-8% 0;background-image:url(&quot;assets/3b0c5e03-8ba4-4dca-a909-f06a600a004e.png&quot;);background-size:cover;background-position:52% 50%;filter:grayscale(.16) contrast(1.03)"></div>
+            </div>
+            <div style="display:flex;gap:26px;margin-top:26px;align-items:flex-start">
+              <span style="font-family:var(--serif);font-size:clamp(34px,3.6vw,54px);line-height:.9;color:var(--bone-3);flex:0 0 auto">03</span>
+              <div>
+                <h3 style="font-size:clamp(22px,2.2vw,32px);line-height:1.14">Concentrated on site, within the hour</h3>
+                <p style="font-size:16.5px;line-height:1.68;color:var(--ink-2);margin:12px 0 0;max-width:52ch">Platelets, growth factors or cells are separated and concentrated in our own lab. Nothing is shipped, nothing is stored, and nothing synthetic is added.</p>
+              </div>
+            </div>
+          </div>
+          <div class="journeypanel" data-panel="3" style="min-height:84vh;display:flex;flex-direction:column;justify-content:center;padding:44px 0">
+            <div data-reveal="" style="position:relative;aspect-ratio:16/11;overflow:hidden;background:var(--bone-2)">
+              <div data-parallax="0.07" style="position:absolute;inset:-8% 0;background-image:url(&quot;assets/bc5d49d0-fea5-49b8-b171-e601062c6171.png&quot;);background-size:cover;background-position:58% 44%;filter:grayscale(.16) contrast(1.03)"></div>
+            </div>
+            <div style="display:flex;gap:26px;margin-top:26px;align-items:flex-start">
+              <span style="font-family:var(--serif);font-size:clamp(34px,3.6vw,54px);line-height:.9;color:var(--bone-3);flex:0 0 auto">04</span>
+              <div>
+                <h3 style="font-size:clamp(22px,2.2vw,32px);line-height:1.14">Placed precisely, then you walk out</h3>
+                <p style="font-size:16.5px;line-height:1.68;color:var(--ink-2);margin:12px 0 0;max-width:52ch">The concentrate is injected into the joint, tendon or scalp under guidance. Most procedures are day-care, with comparatively quick recovery and lasting results.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="specialties" style="background:var(--bone)">
+    <div class="pad" style="max-width:1440px;margin:0 auto;padding:0 34px clamp(40px,5vw,64px)">
+      <div data-reveal="" style="font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--ink-3)">Two practices, one principle</div>
+      <h2 data-reveal="" data-delay="80" style="font-size:clamp(30px,4.2vw,68px);line-height:1.08;margin:26px 0 0;max-width:24ch">Orthopaedics and dermatology, under one clinical standard</h2>
+    </div>
+    <div class="g2" style="display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)">
+      <a class="vpanel" href="https://regencare.in/ortho/" style="position:relative;display:block;color:#fff;min-height:min(88vh,760px);overflow:hidden;background:var(--wine-2)">
+        <div style="position:absolute;inset:0;overflow:hidden">
+          <div class="zoomer" data-parallax="0.06" style="position:absolute;inset:-8% 0;background-image:url(&quot;assets/1b412df0-d180-4adc-941b-dfad3999d654.png&quot;);background-size:cover;background-position:50% 42%;filter:grayscale(.34) contrast(1.06)"></div>
+          <div style="position:absolute;inset:0;background:var(--wine);mix-blend-mode:color;opacity:.66"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,5,12,.34) 0%,rgba(7,5,12,.12) 28%,rgba(7,5,12,.82) 62%,rgba(7,5,12,.95) 100%)"></div>
+        </div>
+        <div style="position:relative;padding:clamp(28px,3.2vw,56px);min-height:min(88vh,760px);display:flex;flex-direction:column;justify-content:space-between">
+          <div style="font-family:var(--serif);font-size:clamp(40px,4.6vw,72px);color:rgba(255,255,255,.3);line-height:.9">I</div>
+          <div>
+            <div style="font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.72);font-weight:600">Orthogen P · regenerative therapy</div>
+            <h3 style="font-size:clamp(34px,4vw,62px);margin-top:16px;color:#fff">Orthopaedics</h3>
+            <p style="font-size:17.5px;line-height:1.6;color:rgba(255,255,255,.86);margin:16px 0 0;max-width:42ch">
+              Our PRP injection for major orthopaedic conditions: sports trauma, osteoarthritis, rheumatoid arthritis, tennis elbow and other acute conditions.
+            </p>
+            <span style="display:inline-flex;align-items:center;gap:11px;margin-top:28px;color:#fff;font-size:15px;font-weight:600;border-bottom:1px solid rgba(255,255,255,.45);padding-bottom:7px">Explore Orthogencare <span aria-hidden="true">→</span></span>
+          </div>
+        </div>
+      </a>
+      <a class="vpanel" href="https://regencare.in/dermatology/" style="position:relative;display:block;color:#fff;min-height:min(88vh,760px);overflow:hidden;background:var(--wine-3)">
+        <div style="position:absolute;inset:0;overflow:hidden">
+          <div class="zoomer" data-parallax="0.06" style="position:absolute;inset:-8% 0;background-image:url(&quot;assets/db53c345-a189-4dce-87ca-8309b3438772.png&quot;);background-size:cover;background-position:52% 38%;filter:grayscale(.3) contrast(1.05)"></div>
+          <div style="position:absolute;inset:0;background:#ff0000;mix-blend-mode:color;opacity:.6"></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(150,0,0,.3) 0%,rgba(150,0,0,.1) 28%,rgba(150,0,0,.8) 62%,rgba(150,0,0,.95) 100%)"></div>
+        </div>
+        <div style="position:relative;padding:clamp(28px,3.2vw,56px);min-height:min(88vh,760px);display:flex;flex-direction:column;justify-content:space-between">
+          <div style="font-family:var(--serif);font-size:clamp(40px,4.6vw,72px);color:rgba(255,255,255,.3);line-height:.9">II</div>
+          <div>
+            <div style="font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.72);font-weight:600">Derma P · beauty is natural</div>
+            <h3 style="font-size:clamp(34px,4vw,62px);margin-top:16px;color:#fff">Dermatology</h3>
+            <p style="font-size:17.5px;line-height:1.6;color:rgba(255,255,255,.86);margin:16px 0 0;max-width:42ch">
+              A modern regenerative therapy focused on chronic hair loss and progressive hair loss disorders affecting both sexes, alongside skin and scar care.
+            </p>
+            <span style="display:inline-flex;align-items:center;gap:11px;margin-top:28px;color:#fff;font-size:15px;font-weight:600;border-bottom:1px solid rgba(255,255,255,.45);padding-bottom:7px">Explore Dermatology <span aria-hidden="true">→</span></span>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section style="background:var(--bone);padding:clamp(80px,9vw,140px) 0">
+    <div class="pad" style="max-width:1440px;margin:0 auto;padding:0 34px">
+      <div data-reveal="" style="font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--ink-3)">Conditions we treat</div>
+      <div class="condgrid" style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,4vw,72px);margin-top:44px">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--ink);font-family:var(--serif);font-size:22px">Orthopaedics</div>
+          <div style="display:flex;flex-direction:column">
+            <a href="https://regencare.in/osteoarthritis-treatment-without-surgery/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/5b7ae94c-13ea-4c0f-8ad2-c3462063dae3.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Osteoarthritis</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/sports-injuries-causes-symptoms-diagnosis-and-treatment/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/ce47b97d-9fe5-4c9a-980c-932bae960294.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Sports Injuries</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/living-beyond-ra-understanding-rheumatoid-arthritis-and-regencares-commitment-to-your-care/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/19126a59-e141-41e0-87c8-3d12bca0b4f7.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Rheumatoid Arthritis</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/ortho/avascular-necrosis-treatment/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/5dd80fb3-68b3-4e1d-83ee-d5d835c33c40.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Avascular Necrosis</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/ortho/seronegative-spondyloarthropathy/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/29e9e990-548b-4cdf-ad0f-dcd9e0c5701b.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Seronegative Spondyloarthropathy</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/chronic-tendonitis/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/e559366a-5999-4633-a9ab-9d6958f08dbe.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Chronic Tendonitis</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/ortho/plantar-fasciitis-treatment/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/5c5b7e64-7770-4a90-8879-913787af4e7c.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Plantar Fasciitis</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/ortho/shin-splints-treatment/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/95df2c10-0b8b-4c65-9868-72893f7260bf.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Shin Splints</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/ortho/" style="display:inline-flex;align-items:center;gap:11px;margin-top:24px;color:var(--crimson);font-size:14.5px;font-weight:600">All orthopaedic care <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        <div>
+          <div style="display:flex;align-items:baseline;gap:12px;padding-bottom:10px;border-bottom:1px solid var(--ink);font-family:var(--serif);font-size:22px">Dermatology</div>
+          <div style="display:flex;flex-direction:column">
+            <a href="https://regencare.in/prp-and-gfc-for-hair-and-skin-regenerative-treatments-for-rejuvenation/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/51860c64-462e-4e1a-ad16-0e509fd39207.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Hair Fall</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/acne-treatments-gfc-exosome-pdrn-and-microneedling-with-radio-frequency/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/a16925c7-112c-4146-929b-41ca15a77258.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Acne Scars and Contour defects</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/dermatology/eczema-psoriasis-lichen-planus-treatment-kerala/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/ae8b8bf0-3cbf-4c5f-ad7b-56423ccdf1ef.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Chronic Skin Disorders</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/skin-infections-causes-symptoms-and-treatments-at-regencare-dermatology/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/f70f50d0-8304-4e16-be98-0b8947040fdb.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Skin Infection</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/connective-tissue-disorder-2/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/a6b8d1e5-4118-400c-b604-f13eba02215e.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Connective Tissue</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/dermatology/laser-hair-reduction/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/94020e6c-0f45-4078-8ffe-132473a06074.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Laser Hair Reduction</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/carbon-laser-peel-advanced-skin-rejuvenation-at-regencare-dermatology/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/ecda5c7a-67a2-45d7-b907-dee084cff3cc.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Carbon Peels</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/tattoo-removal-safe-effective-professional-solution/" class="cond" style="display:flex;align-items:center;gap:18px;padding:15px 0;border-bottom:1px solid var(--bone-2);color:var(--ink);transition:color .28s ease,padding-left .28s ease" style-hover="color:var(--crimson);padding-left:8px">
+              <img src="assets/f93f2723-db77-489d-b9c5-f96940f059a1.png" alt="" width="32" height="32" style="width:32px;height:32px;flex:0 0 32px;opacity:.82;transition:opacity .28s ease">
+              <span style="font-family:var(--serif);font-size:clamp(19px,1.7vw,26px);line-height:1.15;flex:1 1 auto">Tattoo Removal</span>
+              <span aria-hidden="true" style="font-size:15px;color:var(--ink-3)">↗</span>
+            </a>
+            <a href="https://regencare.in/dermatology/" style="display:inline-flex;align-items:center;gap:11px;margin-top:24px;color:var(--crimson);font-size:14.5px;font-weight:600">All dermatology care <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  
+  <section class="fastpath" id="dfu">
+    <div class="fastpath-in">
+      <div>
+        <h2>A foot ulcer that is not healing should not wait for a form.</h2>
+        <p>Non-healing diabetic wounds get worse quickly, and delay costs tissue. Message or call us today and we will tell you where to go and how soon &mdash; whether or not you become our patient.</p>
+      </div>
+      <div class="acts">
+        <a href="https://wa.me/917306567548">WhatsApp now</a>
+        <a class="alt" href="tel:+917306567548">Call +91 73065 67548</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="treatments" style="background:var(--wine-2);color:#fff;padding:clamp(80px,9vw,140px) 0;overflow:hidden">
+    <div class="pad" style="max-width:1440px;margin:0 auto;padding:0 34px">
+      <div class="g2" style="display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(28px,4vw,64px);align-items:end">
+        <div>
+          <div data-reveal="" style="font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.5)">Regenerative procedures</div>
+          <h2 data-reveal="" data-delay="80" style="font-size:clamp(30px,4.2vw,68px);line-height:1.06;margin:26px 0 0;color:#fff;max-width:20ch">Seven ways to put your own biology to work</h2>
+        </div>
+        <div data-reveal="" data-delay="140" style="display:flex;flex-direction:column;gap:22px">
+          <p style="font-size:17px;line-height:1.66;color:rgba(255,255,255,.68);margin:0;max-width:46ch">
+            SVF, conditioned serum and cultured osteoblast therapy sit alongside PRP and GFC, covering joint reconstruction, pain and fracture recovery without medication or surgery.
+          </p>
+          <div style="display:flex;gap:10px">
+            <button type="button" aria-label="Previous" style="width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .28s ease,border-color .28s ease" style-hover="background:var(--crimson);border-color:var(--crimson)">←</button>
+            <button type="button" aria-label="Next" style="width:48px;height:48px;border-radius:50%;border:1px solid rgba(255,255,255,.28);background:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .28s ease,border-color .28s ease" style-hover="background:var(--crimson);border-color:var(--crimson)">→</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="position:relative;margin-top:clamp(40px,5vw,68px)">
+      <div class="rail pad" id="procRail" style="padding-left:34px;padding-right:34px">
+        <a href="https://regencare.in/the-human-body-contains-a-miraculous-healing-system-known-as-prp-therapy-which-uses-blood-platelets-as-its-powerful-medicine/" style="display:block;color:#fff">
+          <div style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#0a0810">
+            <div class="zoomer" style="position:absolute;inset:0;background-image:url(&quot;assets/917a3d8c-f30d-4e7d-bca7-39c5e6e409c3.png&quot;);background-size:cover;background-position:50% 55%;filter:grayscale(.3) contrast(1.05)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,6,14,.1) 30%,rgba(8,6,14,.86) 100%)"></div>
+            <div style="position:absolute;left:22px;right:22px;bottom:22px">
+              <div style="font-family:var(--serif);font-size:14px;color:var(--crimson)">01</div>
+              <h3 style="font-size:24px;line-height:1.16;margin-top:8px;color:#fff">Platelet Rich Plasma</h3><span class="tier tier-1">Established</span>
+            </div>
+          </div>
+          <p style="font-size:15.5px;line-height:1.62;color:rgba(255,255,255,.62);margin:16px 0 0">A blood draw becomes a healing fluid that addresses joint discomfort and improves skin appearance.</p>
+        </a>
+        <a href="https://regencare.in/growth-factor-concentrate-gfc-therapy-your-bodys-secret-to-renewal/" style="display:block;color:#fff">
+          <div style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#0a0810">
+            <div class="zoomer" style="position:absolute;inset:0;background-image:url(&quot;assets/3b0c5e03-8ba4-4dca-a909-f06a600a004e.png&quot;);background-size:cover;background-position:55% 50%;filter:grayscale(.3) contrast(1.05)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,6,14,.1) 30%,rgba(8,6,14,.86) 100%)"></div>
+            <div style="position:absolute;left:22px;right:22px;bottom:22px">
+              <div style="font-family:var(--serif);font-size:14px;color:var(--crimson)">02</div>
+              <h3 style="font-size:24px;line-height:1.16;margin-top:8px;color:#fff">Growth Factor Concentrate</h3><span class="tier tier-2">Emerging</span>
+            </div>
+          </div>
+          <p style="font-size:15.5px;line-height:1.62;color:rgba(255,255,255,.62);margin:16px 0 0">A concentrated preparation of your own growth factors, used across hair, skin and joint work.</p>
+        </a>
+        <a href="https://regencare.in/advanced-regenerative-procedures-where-science-meets-healing/" style="display:block;color:#fff">
+          <div style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#0a0810">
+            <div class="zoomer" style="position:absolute;inset:0;background-image:url(&quot;assets/654d402c-fbf5-4d79-aa19-ca8d863b3222.png&quot;);background-size:cover;background-position:50% 45%;filter:grayscale(.3) contrast(1.05)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,6,14,.1) 30%,rgba(8,6,14,.86) 100%)"></div>
+            <div style="position:absolute;left:22px;right:22px;bottom:22px">
+              <div style="font-family:var(--serif);font-size:14px;color:var(--crimson)">03</div>
+              <h3 style="font-size:24px;line-height:1.16;margin-top:8px;color:#fff">Stromal Vascular Fraction</h3><span class="tier tier-3">Investigational</span>
+            </div>
+          </div>
+          <p style="font-size:15.5px;line-height:1.62;color:rgba(255,255,255,.62);margin:16px 0 0">Derived from your own fat tissue. Faster healing, zero rejection, drug-free results.</p>
+        </a>
+        <a href="https://regencare.in/bmac-therapy-harness-your-bone-marrows-healing-genius/" style="display:block;color:#fff">
+          <div style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#0a0810">
+            <div class="zoomer" style="position:absolute;inset:0;background-image:url(&quot;assets/3fb99255-91a1-4bed-bd05-580b6e534253.png&quot;);background-size:cover;background-position:50% 50%;filter:grayscale(.3) contrast(1.05)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,6,14,.1) 30%,rgba(8,6,14,.86) 100%)"></div>
+            <div style="position:absolute;left:22px;right:22px;bottom:22px">
+              <div style="font-family:var(--serif);font-size:14px;color:var(--crimson)">04</div>
+              <h3 style="font-size:24px;line-height:1.16;margin-top:8px;color:#fff">Bone Marrow Aspirate Concentrate</h3><span class="tier tier-2">Emerging</span>
+            </div>
+          </div>
+          <p style="font-size:15.5px;line-height:1.62;color:rgba(255,255,255,.62);margin:16px 0 0">Your own marrow stem cells, platelets and growth factors for resistant joint pain, arthritis and fractures.</p>
+        </a>
+        <a href="https://regencare.in/advanced-regenerative-procedures-where-science-meets-healing/" style="display:block;color:#fff">
+          <div style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#0a0810">
+            <div class="zoomer" style="position:absolute;inset:0;background-image:url(&quot;assets/84009cdc-7fa6-48cd-a548-4cc2003c699e.png&quot;);background-size:cover;background-position:45% 50%;filter:grayscale(.3) contrast(1.05)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,6,14,.1) 30%,rgba(8,6,14,.86) 100%)"></div>
+            <div style="position:absolute;left:22px;right:22px;bottom:22px">
+              <div style="font-family:var(--serif);font-size:14px;color:var(--crimson)">05</div>
+              <h3 style="font-size:24px;line-height:1.16;margin-top:8px;color:#fff">Autologous Conditioned Serum</h3><span class="tier tier-2">Emerging</span>
+            </div>
+          </div>
+          <p style="font-size:15.5px;line-height:1.62;color:rgba(255,255,255,.62);margin:16px 0 0">Blood serum incubated to raise IL-1Ra anti-inflammatory proteins. Your blood’s peacekeeper.</p>
+        </a>
+        <a href="https://regencare.in/advanced-regenerative-procedures-where-science-meets-healing/" style="display:block;color:#fff">
+          <div style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#0a0810">
+            <div class="zoomer" style="position:absolute;inset:0;background-image:url(&quot;assets/0f992dfc-92d6-48b2-badb-50d41ac00760.png&quot;);background-size:cover;background-position:55% 45%;filter:grayscale(.3) contrast(1.05)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,6,14,.1) 30%,rgba(8,6,14,.86) 100%)"></div>
+            <div style="position:absolute;left:22px;right:22px;bottom:22px">
+              <div style="font-family:var(--serif);font-size:14px;color:var(--crimson)">06</div>
+              <h3 style="font-size:24px;line-height:1.16;margin-top:8px;color:#fff">Autologous Cultured Osteoblast</h3><span class="tier tier-3">Investigational</span>
+            </div>
+          </div>
+          <p style="font-size:15.5px;line-height:1.62;color:rgba(255,255,255,.62);margin:16px 0 0">Bone-forming cells cultured to repair non-healing fractures.</p>
+        </a>
+        <a href="https://regencare.in/stem-cell-therapy-your-bodys-natural-healing-power/" style="display:block;color:#fff">
+          <div style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#0a0810">
+            <div class="zoomer" style="position:absolute;inset:0;background-image:url(&quot;assets/8f364a85-db42-403a-ae3e-aa45726b11de.png&quot;);background-size:cover;background-position:50% 40%;filter:grayscale(.3) contrast(1.05)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,6,14,.1) 30%,rgba(8,6,14,.86) 100%)"></div>
+            <div style="position:absolute;left:22px;right:22px;bottom:22px">
+              <div style="font-family:var(--serif);font-size:14px;color:var(--crimson)">07</div>
+              <h3 style="font-size:24px;line-height:1.16;margin-top:8px;color:#fff">Stem cell therapy</h3><span class="tier tier-3">Investigational</span>
+            </div>
+          </div>
+          <p style="font-size:15.5px;line-height:1.62;color:rgba(255,255,255,.62);margin:16px 0 0">From joint pain to ageing skin, stem cells let the body carry out its own repair.</p>
+        </a>
+        <div style="display:flex;flex-direction:column;justify-content:space-between;background:var(--crimson);color:#fff;padding:30px;aspect-ratio:4/5">
+          <div style="font-family:var(--serif);font-size:15px;color:rgba(255,255,255,.7)">—</div>
+          <div>
+            <h3 style="font-size:28px;line-height:1.14;color:#fff">Not sure which one applies to you?</h3>
+            <a href="https://regencare.in/book-appointment/" style="display:inline-flex;align-items:center;gap:11px;margin-top:22px;background:#fff;color:var(--crimson);padding:14px 24px;border-radius:2px;font-size:15px;font-weight:600;transition:background .28s ease,color .28s ease" style-hover="background:var(--wine);color:#fff">Talk to a specialist</a>
+          </div>
+        </div>
+      </div>
+      <div aria-hidden="true" id="fadeL" style="position:absolute;left:0;top:0;bottom:0;width:80px;pointer-events:none;opacity:0;transition:opacity .3s ease;background:linear-gradient(90deg,var(--wine-2) 0%,rgba(14,10,24,.9) 12%,rgba(14,10,24,0) 100%)"></div>
+      <div aria-hidden="true" id="fadeR" style="position:absolute;right:0;top:0;bottom:0;width:80px;pointer-events:none;opacity:1;transition:opacity .3s ease;background:linear-gradient(270deg,var(--wine-2) 0%,rgba(14,10,24,.9) 12%,rgba(14,10,24,0) 100%)"></div>
+    </div>
+  
+      <div class="tierlegend">
+        <div><b style="color:var(--tier1-bg)">Established</b>Routine clinical use with a substantial randomised literature, whatever the residual debate about effect size.</div>
+        <div><b style="color:var(--tier2-bg)">Emerging</b>Promising but thinner evidence &mdash; smaller trials, shorter follow-up, or protocols that vary between centres.</div>
+        <div><b style="color:var(--tier3-bg)">Investigational</b>Regulatory status in India is investigational. We will say so plainly rather than imply a settled treatment.</div>
+        <div style="color:rgba(255,255,255,.5)"><b style="color:rgba(255,255,255,.7)">Tiers are placeholders</b>These must be set by Dr Vineeth and Dr Aswathi with legal review before this page goes live.</div>
+      </div>
+
+  </section>
+
+  <section id="evidence" style="background:var(--bone);padding:clamp(84px,10vw,150px) 0">
+    <div class="pad" style="max-width:1440px;margin:0 auto;padding:0 34px">
+      <div data-reveal="" style="font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--ink-3)">Ten years, measured</div>
+      <h2 data-reveal="" data-delay="80" style="font-size:clamp(30px,4.2vw,68px);line-height:1.08;margin:26px 0 0;max-width:22ch">The record behind the practice</h2>
+      <div style="margin-top:clamp(48px,6vw,90px);border-top:1px solid var(--ink)">
+        <div class="bigstat statrow" style="display:grid;grid-template-columns:.42fr 1.58fr;gap:clamp(16px,3vw,48px);align-items:center;padding:clamp(26px,3vw,44px) 0;border-bottom:1px solid var(--line)">
+          <div class="count" data-count="10" data-suffix="+" style="font-family:var(--serif);font-size:clamp(46px,7vw,110px);line-height:.9;letter-spacing:-.02em">10+</div>
+          <div>
+            <div style="font-size:clamp(17px,1.5vw,21px);font-weight:500">Years of regenerative practice</div>
+            <div style="font-size:15.5px;color:var(--ink-2);margin-top:6px;max-width:56ch">Treating orthopaedic, dermatological, andrological and sports conditions since the practice opened in Kerala.</div>
+            <div style="height:2px;background:var(--bone-2);margin-top:18px;overflow:hidden"><div class="statbar" data-w="26" style="height:2px;width:0;background:var(--crimson);transition:width 1.5s cubic-bezier(.2,.7,.3,1)"></div></div>
+          </div>
+        </div>
+        <div class="bigstat statrow" style="display:grid;grid-template-columns:.42fr 1.58fr;gap:clamp(16px,3vw,48px);align-items:center;padding:clamp(26px,3vw,44px) 0;border-bottom:1px solid var(--line)">
+          <div class="count" data-count="25000" data-suffix="+" style="font-family:var(--serif);font-size:clamp(46px,7vw,110px);line-height:.9;letter-spacing:-.02em">25,000+</div>
+          <div>
+            <div style="font-size:clamp(17px,1.5vw,21px);font-weight:500">Procedures performed</div>
+            <div style="font-size:15.5px;color:var(--ink-2);margin-top:6px;max-width:56ch">PRP, GFC, SVF, BMAC, conditioned serum, cultured osteoblast and stem cell therapy across three centres.</div>
+            <div style="height:2px;background:var(--bone-2);margin-top:18px;overflow:hidden"><div class="statbar" data-w="71" style="height:2px;width:0;background:var(--crimson);transition:width 1.5s cubic-bezier(.2,.7,.3,1)"></div></div>
+          </div>
+        </div>
+        <div class="bigstat statrow" style="display:grid;grid-template-columns:.42fr 1.58fr;gap:clamp(16px,3vw,48px);align-items:center;padding:clamp(26px,3vw,44px) 0;border-bottom:1px solid var(--line)">
+          <div class="count" data-count="35000" data-suffix="+" style="font-family:var(--serif);font-size:clamp(46px,7vw,110px);line-height:.9;letter-spacing:-.02em">35,000+</div>
+          <div>
+            <div style="font-size:clamp(17px,1.5vw,21px);font-weight:500">Patients treated</div>
+            <div style="font-size:15.5px;color:var(--ink-2);margin-top:6px;max-width:56ch">From professional athletes to recreational athletes and highly functional individuals.</div>
+            <div style="height:2px;background:var(--bone-2);margin-top:18px;overflow:hidden"><div class="statbar" data-w="100" style="height:2px;width:0;background:var(--crimson);transition:width 1.5s cubic-bezier(.2,.7,.3,1)"></div></div>
+          </div>
+        </div>
+        <div class="bigstat statrow" style="display:grid;grid-template-columns:.42fr 1.58fr;gap:clamp(16px,3vw,48px);align-items:center;padding:clamp(26px,3vw,44px) 0;border-bottom:1px solid var(--line)">
+          <div class="count" data-count="3" data-suffix="" style="font-family:var(--serif);font-size:clamp(46px,7vw,110px);line-height:.9;letter-spacing:-.02em">3</div>
+          <div>
+            <div style="font-size:clamp(17px,1.5vw,21px);font-weight:500">Centres, fully equipped</div>
+            <div style="font-size:15.5px;color:var(--ink-2);margin-top:6px;max-width:56ch">Kochi and Kozhikode in Kerala, Chennai in Tamil Nadu, each with its own preparation lab.</div>
+            <div style="height:2px;background:var(--bone-2);margin-top:18px;overflow:hidden"><div class="statbar" data-w="12" style="height:2px;width:0;background:var(--crimson);transition:width 1.5s cubic-bezier(.2,.7,.3,1)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+      <div class="outwrap">
+        <table class="out">
+          <caption style="text-align:left;padding:14px 16px;font-size:13.5px;color:rgba(255,255,255,.55);line-height:1.5">What we publish, per condition. Three round numbers are marketing; this is evidence.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Condition</th>
+              <th scope="col">Patients treated</th>
+              <th scope="col">Mean change</th>
+              <th scope="col">Follow-up</th>
+              <th scope="col">Lost to follow-up</th>
+              <th scope="col">Went on to surgery</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row" style="color:#fff">Knee osteoarthritis</th><td><span class="fill">to fill</span></td><td>WOMAC <span class="fill">to fill</span></td><td><span class="fill">to fill</span></td><td><span class="fill">to fill</span></td><td><span class="fill">to fill</span></td></tr>
+            <tr><th scope="row" style="color:#fff">Avascular necrosis</th><td><span class="fill">to fill</span></td><td>VAS <span class="fill">to fill</span></td><td><span class="fill">to fill</span></td><td><span class="fill">to fill</span></td><td><span class="fill">to fill</span></td></tr>
+            <tr><th scope="row" style="color:#fff">Shoulder / rotator cuff</th><td><span class="fill">to fill</span></td><td>VAS <span class="fill">to fill</span></td><td><span class="fill">to fill</span></td><td><span class="fill">to fill</span></td><td><span class="fill">to fill</span></td></tr>
+            <tr><th scope="row" style="color:#fff">Hair loss</th><td><span class="fill">to fill</span></td><td>Density <span class="fill">to fill</span></td><td><span class="fill">to fill</span></td><td><span class="fill">to fill</span></td><td>&mdash;</td></tr>
+            <tr><th scope="row" style="color:#fff">Acne scars</th><td><span class="fill">to fill</span></td><td>Goodman &amp; Baron <span class="fill">to fill</span></td><td><span class="fill">to fill</span></td><td><span class="fill">to fill</span></td><td>&mdash;</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:26px;margin-top:34px">
+        <div><b style="display:block;color:#fff;font-size:16.5px;margin-bottom:7px">Why publish the awkward columns</b><p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,.64)">Loss to follow-up and onward-surgery rate are what make the other numbers believable. A clinic that hides them is asking to be taken on faith.</p></div>
+        <div><b style="display:block;color:#fff;font-size:16.5px;margin-bottom:7px">Adverse events</b><p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,.64)">Published with rates, not omitted. Autologous treatment carries lower rejection risk, not zero risk, and saying so builds more trust than silence.</p></div>
+        <div><b style="display:block;color:#fff;font-size:16.5px;margin-bottom:7px">Our PRP protocol</b><p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,.64)">Platelet concentration and preparation method, stated openly &mdash; because the trial evidence for knee osteoarthritis turns on exactly that variable, and almost nobody in this market discloses it.</p></div>
+      </div>
+
+  </section>
+
+  <section id="specialists" style="background:var(--wine);color:#fff;padding:clamp(84px,10vw,150px) 0;position:relative;overflow:hidden">
+    <div class="pad" style="max-width:1440px;margin:0 auto;padding:0 34px">
+      <div data-reveal="" style="font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.5)">The specialists</div>
+      <h2 data-reveal="" data-delay="80" style="font-size:clamp(30px,4.2vw,68px);line-height:1.08;margin:26px 0 0;color:#fff;max-width:24ch">Two clinicians who took regenerative medicine to the grassroots</h2>
+
+      <div class="g2" style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(36px,4.6vw,80px);margin-top:clamp(48px,6vw,90px);align-items:start">
+        <div data-reveal="" data-delay="120">
+          <div class="docimg" style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#0a0810">
+            <div data-parallax="0.08" style="position:absolute;inset:-9% 0;background-image:url(&quot;assets/d344eedd-4be1-488e-b6ef-23cb6b0d1d16.jpg&quot;);background-size:cover;background-position:50% 26%;filter:grayscale(.42) contrast(1.06)"></div>
+            <div style="position:absolute;inset:0;background:var(--wine);mix-blend-mode:color;opacity:.4"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,9,20,0) 52%,rgba(12,9,20,.78) 100%)"></div>
+          </div>
+          <h3 style="font-size:clamp(26px,2.4vw,38px);margin-top:26px;color:#fff">Dr. Vineeth M B</h3>
+          <div style="font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600;margin-top:10px">MBBS, MS Ortho</div>
+          <p style="font-size:16.5px;line-height:1.7;color:rgba(255,255,255,.7);margin:18px 0 0;max-width:46ch">
+            An orthopaedic surgeon, the first to introduce regenerative medicine to the grassroots in Kerala, providing care through non-surgical therapies for most orthopaedic conditions.
+          </p>
+          <a href="https://regencare.in/dr-vineeth-mb/" style="display:inline-flex;align-items:center;gap:11px;margin-top:20px;color:#fff;font-size:14.5px;font-weight:600;border-bottom:1px solid rgba(255,255,255,.36);padding-bottom:6px">Read bio <span aria-hidden="true">→</span></a>
+        </div>
+        <div data-reveal="" data-delay="200" class="offsetup" style="margin-top:clamp(0px,6vw,92px)">
+          <div class="docimg" style="position:relative;aspect-ratio:4/5;overflow:hidden;background:#0a0810">
+            <div data-parallax="0.08" style="position:absolute;inset:-9% 0;background-image:url(&quot;assets/55dac2f8-ed37-4462-9c0d-470bc88830ad.jpg&quot;);background-size:cover;background-position:56% 28%;filter:grayscale(.42) contrast(1.06)"></div>
+            <div style="position:absolute;inset:0;background:var(--wine);mix-blend-mode:color;opacity:.4"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(12,9,20,0) 52%,rgba(12,9,20,.78) 100%)"></div>
+          </div>
+          <h3 style="font-size:clamp(26px,2.4vw,38px);margin-top:26px;color:#fff">Dr. Aswathi Mohan</h3>
+          <div style="font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);font-weight:600;margin-top:10px">MD Dermatology</div>
+          <p style="font-size:16.5px;line-height:1.7;color:rgba(255,255,255,.7);margin:18px 0 0;max-width:46ch">
+            A dermatologist whose expertise in cosmetic dermatology merges precision with aesthetics, offering skin care that helps patients regain confidence in healthy, glowing skin.
+          </p>
+          <a href="https://regencare.in/about-us/" style="display:inline-flex;align-items:center;gap:11px;margin-top:20px;color:#fff;font-size:14.5px;font-weight:600;border-bottom:1px solid rgba(255,255,255,.36);padding-bottom:6px">Read bio <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+    <section id="stories" style="background:var(--bone)">
+    <div class="sec-pad">
+      <p class="eyebrow"><span class="dash"></span>Are you a candidate?</p>
+      <h2 class="h2big">This will not tell you whether treatment works. It will tell you whether you are worth assessing.</h2>
+      <p class="lede">Regenerative treatment suits some people and not others, and the honest answer often depends on an image we have not seen yet. Here is roughly where the line sits.</p>
+      <div class="candgrid">
+        <div class="candcol yes">
+          <h3>Usually worth assessing</h3>
+          <ul>
+            <li>Early to moderate joint degeneration, where cartilage and joint space remain</li>
+            <li>Pain that has persisted despite physiotherapy and medication</li>
+            <li>You have been offered surgery but want to know whether it can be delayed</li>
+            <li>Sports or tendon injury with a defined recovery deadline</li>
+            <li>Hair thinning that is still active rather than long-established</li>
+            <li>Acne scarring where the skin is otherwise healthy</li>
+          </ul>
+        </div>
+        <div class="candcol no">
+          <h3>Usually not, and we will say so</h3>
+          <ul>
+            <li>End-stage joint destruction with bone-on-bone contact and no joint space</li>
+            <li>Active infection in or near the target area</li>
+            <li>Active malignancy, or blood disorders affecting platelet function</li>
+            <li>An unstable joint that needs mechanical repair, not biological support</li>
+            <li>Complete baldness with no viable follicles remaining</li>
+            <li>Expectations of a permanent cure &mdash; this is management, often repeated</li>
+          </ul>
+        </div>
+      </div>
+      <div class="editnote"><b>Replaces the testimonial carousel</b>Named-patient success stories and the &ldquo;Trusted by Celebrities&rdquo; page have been removed. They sit in contested territory under Indian professional-conduct rules, and they are the weakest possible trust signal to the sceptical patient who spends the most. The published outcomes above do the same persuasive job on firmer ground. Please have counsel confirm the final approach.</div>
+    </div>
+  </section>
+
+  <section style="background:var(--wine-2);color:#fff;padding:clamp(72px,8vw,120px) 0 0">
+    <div class="pad" style="max-width:1440px;margin:0 auto;padding:0 34px">
+      <div class="g2" style="display:grid;grid-template-columns:1.15fr .85fr;gap:clamp(28px,4vw,72px);align-items:end">
+        <div>
+          <div data-reveal="" style="font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:rgba(255,255,255,.5)">The facility</div>
+          <h2 data-reveal="" data-delay="80" style="font-size:clamp(30px,4.2vw,66px);line-height:1.04;margin:26px 0 0;color:#fff;max-width:19ch">Equipment chosen for outcomes, not showrooms</h2>
+        </div>
+        <div data-reveal="" data-delay="140">
+          <p style="font-size:17px;line-height:1.66;color:rgba(255,255,255,.68);margin:0;max-width:42ch">
+            Triple-wavelength lasers, advanced MNRF for scar management and state-of-the-art IV infusion systems, chosen to promote optimal skin health.
+          </p>
+          <a href="https://regencare.in/facilities/" style="display:inline-flex;align-items:center;gap:11px;margin-top:26px;color:#fff;font-size:14.5px;font-weight:600;border-bottom:1px solid rgba(255,255,255,.4);padding-bottom:7px;transition:color .28s ease,border-color .28s ease" style-hover="color:var(--crimson);border-color:var(--crimson)">Explore the technology <span aria-hidden="true">→</span></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="g3 facband" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(255,255,255,.13);margin-top:clamp(44px,5vw,76px)">
+      <a href="https://regencare.in/facilities/" style="position:relative;display:block;color:#fff;min-height:min(72vh,620px);overflow:hidden;background:#0a0810">
+        <div class="zoomer" data-parallax="0.05" style="position:absolute;inset:-7% 0;background-image:url(&quot;assets/27d37e14-a7dd-4785-8926-020d10df0b41.png&quot;);background-size:cover;background-position:50% 45%;filter:grayscale(.5) contrast(1.08) brightness(.86)"></div>
+        <div style="position:absolute;inset:0;background:var(--wine);mix-blend-mode:color;opacity:.5"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,6,14,.62) 0%,rgba(8,6,14,.24) 32%,rgba(8,6,14,.84) 78%,rgba(8,6,14,.95) 100%)"></div>
+        <div style="position:relative;min-height:min(72vh,620px);display:flex;flex-direction:column;justify-content:space-between;padding:clamp(24px,2.4vw,38px)">
+          <div style="font-size:12px;letter-spacing:.2em;color:rgba(255,255,255,.78);font-weight:600">01</div>
+          <div>
+            <h3 style="font-size:clamp(22px,2.1vw,30px);line-height:1.12;color:#fff">Triple-wavelength laser</h3>
+            <p style="font-size:15px;line-height:1.6;color:rgba(255,255,255,.68);margin:12px 0 0;max-width:30ch">Three wavelengths in one platform, so hair, pigment and vascular work are treated on the appropriate depth.</p>
+          </div>
+        </div>
+      </a>
+      <a href="https://regencare.in/facilities/" style="position:relative;display:block;color:#fff;min-height:min(72vh,620px);overflow:hidden;background:#0a0810">
+        <div class="zoomer" data-parallax="0.05" style="position:absolute;inset:-7% 0;background-image:url(&quot;assets/85628f10-79ce-4927-8c38-6641a7b0ec1b.png&quot;);background-size:cover;background-position:48% 42%;filter:grayscale(.5) contrast(1.08) brightness(.86)"></div>
+        <div style="position:absolute;inset:0;background:var(--wine);mix-blend-mode:color;opacity:.5"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,6,14,.62) 0%,rgba(8,6,14,.24) 32%,rgba(8,6,14,.84) 78%,rgba(8,6,14,.95) 100%)"></div>
+        <div style="position:relative;min-height:min(72vh,620px);display:flex;flex-direction:column;justify-content:space-between;padding:clamp(24px,2.4vw,38px)">
+          <div style="font-size:12px;letter-spacing:.2em;color:rgba(255,255,255,.78);font-weight:600">02</div>
+          <div>
+            <h3 style="font-size:clamp(22px,2.1vw,30px);line-height:1.12;color:#fff">MNRF for scar management</h3>
+            <p style="font-size:15px;line-height:1.6;color:rgba(255,255,255,.68);margin:12px 0 0;max-width:30ch">Microneedling with radio frequency, used for effective scar management alongside our regenerative acne work.</p>
+          </div>
+        </div>
+      </a>
+      <a href="https://regencare.in/facilities/" style="position:relative;display:block;color:#fff;min-height:min(72vh,620px);overflow:hidden;background:#0a0810">
+        <div class="zoomer" data-parallax="0.05" style="position:absolute;inset:-7% 0;background-image:url(&quot;assets/a3947657-b98d-45c8-8b3a-53ac99e2227c.png&quot;);background-size:cover;background-position:50% 45%;filter:grayscale(.5) contrast(1.08) brightness(.86)"></div>
+        <div style="position:absolute;inset:0;background:var(--wine);mix-blend-mode:color;opacity:.5"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,6,14,.62) 0%,rgba(8,6,14,.24) 32%,rgba(8,6,14,.84) 78%,rgba(8,6,14,.95) 100%)"></div>
+        <div style="position:relative;min-height:min(72vh,620px);display:flex;flex-direction:column;justify-content:space-between;padding:clamp(24px,2.4vw,38px)">
+          <div style="font-size:12px;letter-spacing:.2em;color:rgba(255,255,255,.78);font-weight:600">03</div>
+          <div>
+            <h3 style="font-size:clamp(22px,2.1vw,30px);line-height:1.12;color:#fff">IV infusion systems</h3>
+            <p style="font-size:15px;line-height:1.6;color:rgba(255,255,255,.68);margin:12px 0 0;max-width:30ch">State-of-the-art delivery for infusion therapy, from skin health protocols to recovery drips.</p>
+          </div>
+        </div>
+      </a>
+    </div>
+  </section>
+
+  <section id="locations" style="background:var(--bone);padding:clamp(80px,9vw,140px) 0">
+    <div class="pad" style="max-width:1440px;margin:0 auto;padding:0 34px">
+      <div data-reveal="" style="font-size:11.5px;letter-spacing:.22em;text-transform:uppercase;font-weight:600;color:var(--ink-3)">Where to find us</div>
+      <h2 data-reveal="" data-delay="80" style="font-size:clamp(30px,4.2vw,68px);line-height:1.08;margin:26px 0 0;max-width:22ch">Three centres, two states</h2>
+      <div class="g3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin-top:clamp(44px,5vw,74px);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+        <a data-reveal="" href="https://www.google.com/maps/place/Regencare+-+Regenerative+Medicine+Centre/@9.994523,76.315092,16z/data=!4m6!3m5!1s0x3b080d625aae45ad:0xe7f070bdbc623937!8m2!3d9.9945234!4d76.3150916" style="background:var(--bone);color:var(--ink);padding:clamp(28px,3vw,44px);display:flex;flex-direction:column;justify-content:space-between;min-height:260px;transition:background .3s ease" style-hover="background:var(--bone-2);color:var(--ink)">
+          <div style="font-family:var(--serif);font-size:clamp(28px,2.6vw,40px)">Kochi</div>
+          <div>
+            <div style="font-size:15px;color:var(--ink-2);line-height:1.6">Kerala · flagship centre and preparation lab</div>
+            <div style="display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-size:14px;font-weight:600;color:var(--crimson)">Open in maps <span aria-hidden="true">↗</span></div>
+          </div>
+        </a>
+        <a data-reveal="" data-delay="80" href="https://www.google.com/maps?ll=11.220443,75.856394&amp;z=16&amp;t=m&amp;hl=en&amp;cid=10465450546884868384" style="background:var(--bone);color:var(--ink);padding:clamp(28px,3vw,44px);display:flex;flex-direction:column;justify-content:space-between;min-height:260px;transition:background .3s ease" style-hover="background:var(--bone-2);color:var(--ink)">
+          <div style="font-family:var(--serif);font-size:clamp(28px,2.6vw,40px)">Kozhikode</div>
+          <div>
+            <div style="font-size:15px;color:var(--ink-2);line-height:1.6">Kerala · orthopaedic and dermatology clinics</div>
+            <div style="display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-size:14px;font-weight:600;color:var(--crimson)">Open in maps <span aria-hidden="true">↗</span></div>
+          </div>
+        </a>
+        <a data-reveal="" data-delay="160" href="https://www.google.com/maps/search/168,+Kodambakkam+High+Rd,+Mahalingapuram,+Nungambakkam,+Chennai" style="background:var(--bone);color:var(--ink);padding:clamp(28px,3vw,44px);display:flex;flex-direction:column;justify-content:space-between;min-height:260px;transition:background .3s ease" style-hover="background:var(--bone-2);color:var(--ink)">
+          <div style="font-family:var(--serif);font-size:clamp(28px,2.6vw,40px)">Chennai</div>
+          <div>
+            <div style="font-size:15px;color:var(--ink-2);line-height:1.6">Tamil Nadu · Kodambakkam High Road, Nungambakkam</div>
+            <div style="display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-size:14px;font-weight:600;color:var(--crimson)">Open in maps <span aria-hidden="true">↗</span></div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  
+  <section id="practical" style="background:var(--bone-2)">
+    <div class="sec-pad">
+      <p class="eyebrow"><span class="dash"></span>Practical questions</p>
+      <h2 class="h2big">The things people actually message us to ask.</h2>
+      <p class="lede">These are the highest-volume questions our team answers on WhatsApp every day, which is exactly why they belong on the homepage rather than buried in an FAQ.</p>
+      <div class="faqgrid">
+        <div class="faq"><h3>What will it cost?</h3><p>Cost depends on the procedure, the joint or area, and the number of sessions. <span class="todo">Publish a range per condition here.</span></p><p>We will give you a written estimate after assessment, before anything is scheduled.</p></div>
+        <div class="faq"><h3>Does insurance cover it?</h3><p>Most regenerative procedures are not covered by Indian health insurance policies. <span class="todo">Confirm the current position per insurer and state it plainly.</span></p><p>We would rather you knew this now than at the billing counter.</p></div>
+        <div class="faq"><h3>How many sessions?</h3><p>Several treatments work as a series rather than a single visit. <span class="todo">State the typical count per procedure.</span></p><p>Your estimate covers the full course, not just the first session.</p></div>
+        <div class="faq"><h3>What is recovery like?</h3><p>Day-care procedures, with most people back to routine activity quickly and heavier exercise restricted for a short period. <span class="todo">Give the real range per procedure.</span></p></div>
+        <div class="faq"><h3>Coming from outside Kerala?</h3><p>Send your reports first so you know whether the trip is worth making. We will tell you how many days to plan for and which centre to attend.</p></div>
+        <div class="faq"><h3>Coming from abroad?</h3><p>Many of our patients are coordinated by family in the Gulf. Start with a report review and a video consultation, then travel only once there is a plan. <span class="todo">Add travel and stay guidance.</span></p></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="book" style="background:var(--wine-2);color:#fff">
+    <div class="sec-pad">
+      <div class="bookgrid">
+        <div>
+          <p class="eyebrow" style="color:rgba(255,255,255,.6)"><span class="dash"></span>Book an assessment</p>
+          <h2 class="h2big" style="color:#fff">We schedule the assessment. The procedure comes after, if it suits you.</h2>
+          <p class="lede" style="color:rgba(255,255,255,.7)">Nobody should book a procedure off a website. Tell us who this is for and what is wrong, and we will come back with the next step &mdash; or tell you honestly that this is not for you.</p>
+          <div class="altroutes">
+            <div class="altroute"><span class="n">01</span><div><b>WhatsApp &mdash; fastest</b><p>Reply within 15 minutes, 8am&ndash;9pm IST. Send photos or reports directly in the chat. <a href="https://wa.me/917306567548" style="color:#fff;text-decoration:underline">Start a chat</a></p></div></div>
+            <div class="altroute"><span class="n">02</span><div><b>Report review &mdash; before you travel</b><p>Send an MRI, X-ray or scan and receive a written opinion on whether assessment is worthwhile.</p></div></div>
+            <div class="altroute"><span class="n">03</span><div><b>Video consultation</b><p>For patients outside Kerala and Tamil Nadu, and for family coordinating from abroad.</p></div></div>
+            <div class="altroute"><span class="n">04</span><div><b>In person</b><p>Kochi, Kozhikode or Chennai, with the clinician who handles your condition.</p></div></div>
+          </div>
+        </div>
+
+        <div>
+          <form id="bookform" novalidate>
+            <div class="fgrid">
+              <div class="field f-full">
+                <label for="bf-for">Who is this for? <span class="hint">A lot of our enquiries come from family members.</span></label>
+                <div class="radios" role="radiogroup" aria-labelledby="bf-for">
+                  <label><input type="radio" name="who" value="self" checked> Myself</label>
+                  <label><input type="radio" name="who" value="proxy"> Someone I care for</label>
+                </div>
+              </div>
+              <div class="field">
+                <label for="bf-name">Your name</label>
+                <input id="bf-name" name="name" type="text" autocomplete="name" required>
+              </div>
+              <div class="field">
+                <label for="bf-phone">Mobile <span class="hint">We reply on WhatsApp.</span></label>
+                <input id="bf-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required>
+              </div>
+              <div class="field">
+                <label for="bf-vertical">What do you need?</label>
+                <select id="bf-vertical" name="vertical" required>
+                  <option value="">Please choose</option>
+                  <option>Orthopaedics &mdash; joints, bones, sports injury</option>
+                  <option>Dermatology &mdash; hair, skin, scars</option>
+                  <option>Diabetic foot ulcer</option>
+                  <option>Not sure &mdash; please advise</option>
+                </select>
+              </div>
+              <div class="field">
+                <label for="bf-centre">Which centre?</label>
+                <select id="bf-centre" name="centre" required>
+                  <option value="">Please choose</option>
+                  <option>Kochi</option>
+                  <option>Kozhikode</option>
+                  <option>Chennai</option>
+                  <option>Video consultation</option>
+                  <option>Report review only</option>
+                </select>
+              </div>
+              <div class="field f-full">
+                <label for="bf-when">When suits you? <span class="hint">A rough window, not an exact slot &mdash; we will confirm a real time.</span></label>
+                <select id="bf-when" name="when">
+                  <option>As soon as possible</option>
+                  <option>This week</option>
+                  <option>Next week</option>
+                  <option>Within the month</option>
+                  <option>Just gathering information for now</option>
+                </select>
+              </div>
+              <div class="field f-full">
+                <label for="bf-msg">What is going on? <span class="hint">Optional. If you have an MRI or X-ray, say so &mdash; we will ask you to send it on WhatsApp.</span></label>
+                <textarea id="bf-msg" name="message" placeholder="For example: right knee pain for two years, orthopaedic surgeon has recommended replacement, MRI done last month."></textarea>
+              </div>
+            </div>
+
+            <label class="consent" for="bf-consent">
+              <input id="bf-consent" name="consent" type="checkbox" required>
+              <span>I agree that Regencare may contact me about this enquiry and store the health information I provide for that purpose. We keep it only as long as needed for your care, never sell it, and you can ask us to delete it at any time. See our <a href="https://regencare.in/privacy-policy/">privacy notice</a>.</span>
+            </label>
+
+            <div class="submitrow">
+              <button class="bookbtn" type="submit">Request a callback</button>
+              <span class="note">A human reads every enquiry. We reply within one working day, and within 15 minutes on WhatsApp during clinic hours.</span>
+            </div>
+            <p id="bookstatus" class="formstatus" hidden></p>
+            <div class="editnote" style="background:rgba(126,74,0,.24);border-left-color:var(--tier2);color:rgba(255,255,255,.78)"><b style="color:var(--tier2-bg)">Note for the Regencare team</b>The button says &ldquo;Request a callback&rdquo; because a person answers it. Only change it to &ldquo;Book&rdquo; once it writes to a real calendar and shows real slots &mdash; the label is a promise. This form needs a backend, a DPDP-compliant retention policy, and file upload for imaging.</div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="position:relative;background:var(--crimson);color:#fff;overflow:hidden">
+    <div style="position:absolute;inset:0;overflow:hidden">
+      <div data-parallax="0.08" style="position:absolute;inset:-9% 0;background-image:url(&quot;assets/bc5d49d0-fea5-49b8-b171-e601062c6171.png&quot;);background-size:cover;background-position:64% 44%;filter:grayscale(.35) contrast(1.05)"></div>
+      <div style="position:absolute;inset:0;background:var(--crimson);mix-blend-mode:color;opacity:.8"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(100deg,rgba(185,0,0,.95) 0%,rgba(205,0,0,.86) 42%,rgba(230,0,0,.5) 74%,rgba(230,0,0,.38) 100%)"></div>
+    </div>
+    <div class="pad" style="position:relative;max-width:1440px;margin:0 auto;padding:clamp(80px,9vw,144px) 34px">
+      <h2 data-reveal="" style="font-size:clamp(32px,5vw,86px);line-height:1.04;color:#fff;max-width:22ch">Bring the pain in. Leave with a plan that uses your own biology.</h2>
+      <p data-reveal="" data-delay="80" style="font-size:19px;line-height:1.62;color:rgba(255,255,255,.88);margin:26px 0 0;max-width:44ch">
+        Expert regenerative care in orthopaedics and dermatology. Book a consultation at Kochi, Kozhikode or Chennai.
+      </p>
+      <div data-reveal="" data-delay="140" style="display:flex;gap:12px;margin-top:38px;flex-wrap:wrap">
+        <a href="https://regencare.in/book-appointment/" style="background:#fff;color:var(--crimson);padding:17px 34px;border-radius:2px;font-size:15px;font-weight:600;transition:background .28s ease,color .28s ease" style-hover="background:var(--wine);color:#fff">Book an appointment</a>
+        <a href="tel:+917306567548" style="border:1px solid rgba(255,255,255,.6);color:#fff;padding:17px 34px;border-radius:2px;font-size:15px;font-weight:600;transition:background .28s ease" style-hover="background:rgba(255,255,255,.14)">+91 73065 67548</a>
+      </div>
+    </div>
+  </section>
+
+  <footer style="background:var(--wine-2);color:rgba(255,255,255,.66);padding:clamp(56px,6vw,86px) 0 28px">
+    <div class="pad" style="max-width:1440px;margin:0 auto;padding:0 34px">
+      <div class="g2" style="display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:center;padding-bottom:38px;border-bottom:1px solid rgba(255,255,255,.14)">
+        <div style="font-family:var(--serif);font-size:clamp(22px,2.2vw,34px);line-height:1.14;color:#fff">Keep up with regenerative practice at Regencare</div>
+        <form style="display:flex;gap:10px;flex-wrap:wrap">
+          <input type="email" placeholder="Your email" style="flex:1 1 220px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.2);border-radius:2px;padding:15px 18px;color:#fff;font-family:var(--sans);font-size:15px;outline:none">
+          <button type="submit" style="background:var(--crimson);color:#fff;border:none;border-radius:2px;padding:15px 28px;font-family:var(--sans);font-size:15px;font-weight:600;cursor:pointer;transition:background .28s ease" style-hover="background:#fff;color:var(--wine)">Subscribe</button>
+        </form>
+      </div>
+      <div class="g4 footcols" style="display:grid;grid-template-columns:repeat(4,1fr);gap:38px;padding:44px 0 40px">
+        <div>
+          <div style="font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:#fff;font-weight:600">Care</div>
+          <div style="display:flex;flex-direction:column;gap:11px;margin-top:18px;font-size:14.5px">
+            <a href="https://regencare.in/ortho/" style="color:rgba(255,255,255,.66)">Orthopaedics</a>
+            <a href="https://regencare.in/dermatology/" style="color:rgba(255,255,255,.66)">Dermatology</a>
+            <a href="https://regencare.in/procedures/" style="color:rgba(255,255,255,.66)">Regenerative procedures</a>
+            <a href="https://regencare.in/diabetic-foot-ulcer-regenerative-medicine/" style="color:rgba(255,255,255,.66)">Diabetic foot care</a>
+            <a href="https://regencare.in/hangover-iv-drip-therapy-for-quick-recovery/" style="color:rgba(255,255,255,.66)">IV therapy</a>
+            <a href="https://regencare.in/book-appointment/" style="color:rgba(255,255,255,.66)">Book appointment</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:#fff;font-weight:600">Quick links</div>
+          <div style="display:flex;flex-direction:column;gap:11px;margin-top:18px;font-size:14.5px">
+            <a href="https://regencare.in/" style="color:rgba(255,255,255,.66)">Home</a>
+            <a href="https://regencare.in/about-us/" style="color:rgba(255,255,255,.66)">About us</a>
+            <a href="https://regencare.in/procedures/" style="color:rgba(255,255,255,.66)">Procedures</a>
+            <a href="https://regencare.in/facilities/" style="color:rgba(255,255,255,.66)">Facilities</a>
+            <a href="https://regencare.in/terms-and-conditions/" style="color:rgba(255,255,255,.66)">Terms of use</a>
+            <a href="https://regencare.in/privacy-policy/" style="color:rgba(255,255,255,.66)">Privacy policy</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:#fff;font-weight:600">Contact</div>
+          <div style="display:flex;flex-direction:column;gap:11px;margin-top:18px;font-size:14.5px;color:rgba(255,255,255,.66)">
+            <a href="tel:+917306567548" style="color:rgba(255,255,255,.66)">+91 73065 67548</a>
+            <span>info@regencare.in</span>
+            <span>www.regencare.in</span>
+          </div>
+          <div style="font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:#fff;font-weight:600;margin-top:28px">Locations</div>
+          <div style="display:flex;flex-direction:column;gap:11px;margin-top:18px;font-size:14.5px">
+            <a href="https://regencare.in/contact-us/" style="color:rgba(255,255,255,.66)">Kochi</a>
+            <a href="https://regencare.in/contact-us/" style="color:rgba(255,255,255,.66)">Kozhikode</a>
+            <a href="https://regencare.in/contact-us/" style="color:rgba(255,255,255,.66)">Chennai</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-size:11.5px;letter-spacing:.18em;text-transform:uppercase;color:#fff;font-weight:600">Follow</div>
+          <div style="display:flex;flex-direction:column;gap:11px;margin-top:18px;font-size:14.5px">
+            <a href="https://www.instagram.com/regencare_/?hl=en" style="color:rgba(255,255,255,.66)">Instagram</a>
+            <a href="https://www.facebook.com/RegenerativeMedicineCentre/" style="color:rgba(255,255,255,.66)">Facebook</a>
+            <a href="https://wa.me/+917306567548" style="color:rgba(255,255,255,.66)">WhatsApp</a>
+            <a href="https://www.youtube.com/c/Regencare" style="color:rgba(255,255,255,.66)">YouTube</a>
+            <a href="https://in.pinterest.com/orthogencare/" style="color:rgba(255,255,255,.66)">Pinterest</a>
+            <a href="https://x.com/regencareindia" style="color:rgba(255,255,255,.66)">Twitter</a>
+          </div>
+        </div>
+      </div>
+      <p style="font-size:14px;line-height:1.68;margin:0;color:rgba(255,255,255,.48);max-width:64ch">
+        RegenCare provides advanced regenerative procedures for orthopaedics, dermatology, pain management, erectile dysfunction and diabetic foot care. Non-surgical treatments with comparatively quick recovery and lasting results, in Kochi, Kozhikode and Chennai.
+      </p>
+      <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;align-items:center;margin-top:30px;padding-top:22px;border-top:1px solid rgba(255,255,255,.14);font-size:13px;color:rgba(255,255,255,.44)">
+        <div style="display:flex;gap:22px;flex-wrap:wrap">
+          <a href="https://regencare.in/terms-and-conditions/" style="color:rgba(255,255,255,.44)">Terms of service</a>
+          <a href="https://regencare.in/privacy-policy/" style="color:rgba(255,255,255,.44)">Privacy policy</a>
+        </div>
+        <div>© Copyright 2025 regencare.in</div>
+      </div>
+      <div style="margin-top:clamp(40px,6vw,84px)">
+        <img src="assets/c8018ac8-1434-404c-bed1-21696f05e29b.svg" alt="Regencare" width="949" height="182" style="width:100%;height:auto;max-width:none;display:block">
+      </div>
+    </div>
+  </footer>
+</div>
+
+</x-dc>
+<script>
+(function(){
+  "use strict";
+  var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+
+  /* nav: transparent over the hero, solid once past it */
+  var nav = document.getElementById("nav"), logo = document.getElementById("navlogo");
+  if (nav){
+    var solid = null;
+    var paint = function(){
+      var want = window.scrollY > 90;
+      if (want === solid) return;
+      solid = want;
+      nav.style.background = want ? "var(--bone)" : "transparent";
+      nav.style.borderBottomColor = want ? "var(--line)" : "transparent";
+      nav.style.backdropFilter = want ? "saturate(140%) blur(8px)" : "none";
+      if (logo) logo.style.filter = want ? "none" : "brightness(0) invert(1)";
+      var dark = want ? "var(--ink-2)" : "rgba(255,255,255,.82)";
+      Array.prototype.forEach.call(document.querySelectorAll(".navbar .navlink"), function(a){
+        a.style.color = dark;
+      });
+      Array.prototype.forEach.call(document.querySelectorAll("#tg1,#tg2"), function(s){
+        s.style.background = want ? "#000" : "#fff";
+      });
+    };
+    window.addEventListener("scroll", paint, {passive:true});
+    paint();
+  }
+
+  /* mobile menu */
+  var tg = document.getElementById("navtoggle"), mob = document.getElementById("mobmenu");
+  if (tg && mob){
+    tg.setAttribute("aria-expanded","false");
+    tg.setAttribute("aria-controls","mobmenu");
+    tg.addEventListener("click", function(){
+      var open = mob.classList.toggle("open");
+      tg.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    Array.prototype.forEach.call(mob.querySelectorAll("a"), function(a){
+      a.addEventListener("click", function(){
+        mob.classList.remove("open");
+        tg.setAttribute("aria-expanded","false");
+      });
+    });
+  }
+
+  /* hero cross-fade, paired with the orthopaedics / dermatology picker */
+  var slides = [].slice.call(document.querySelectorAll(".heroslide"));
+  var picks  = [].slice.call(document.querySelectorAll(".heropick"));
+  if (slides.length > 1 && picks.length){
+    var fills = picks.map(function(p){ return p.querySelector(".herofill"); });
+    var secs = reduce ? 0 : 7, i = 0, timer = null;
+    var show = function(n){
+      i = ((n % slides.length) + slides.length) % slides.length;
+      slides.forEach(function(s,k){ s.style.opacity = k === i ? "1" : "0"; });
+      picks.forEach(function(p,k){
+        p.style.color = k === i ? "#fff" : "rgba(255,255,255,.5)";
+        p.setAttribute("aria-pressed", k === i ? "true" : "false");
+      });
+      fills.forEach(function(f,k){
+        if (!f) return;
+        f.style.transition = "none";
+        f.style.width = k < i ? "100%" : "0%";
+        if (k === i){
+          if (secs){ void f.offsetWidth; f.style.transition = "width " + secs + "s linear"; }
+          f.style.width = "100%";
+        }
+      });
+    };
+    var start = function(){
+      if (!secs) return;
+      clearInterval(timer);
+      timer = setInterval(function(){ show(i+1); }, secs*1000);
+    };
+    picks.forEach(function(p,k){
+      p.addEventListener("click", function(){ show(k); start(); });
+    });
+    show(0); start();
+  }
+
+  /* reveals: visible at rest, animated only if motion is welcome */
+  var rv = [].slice.call(document.querySelectorAll("[data-reveal]"));
+  if (rv.length && !reduce && "IntersectionObserver" in window){
+    rv.forEach(function(n){
+      n.style.opacity = "0";
+      n.style.transform = "translateY(22px)";
+    });
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var n = e.target, d = Number(n.getAttribute("data-delay") || 0);
+        n.style.transition = "opacity 760ms cubic-bezier(.16,.84,.28,1) " + d +
+                             "ms, transform 760ms cubic-bezier(.16,.84,.28,1) " + d + "ms";
+        n.style.opacity = "1";
+        n.style.transform = "none";
+        io.unobserve(n);
+      });
+    }, {rootMargin:"0px 0px -8% 0px", threshold:0.05});
+    rv.forEach(function(n){ io.observe(n); });
+    /* safety net: if anything is still hidden after 3s, show it */
+    setTimeout(function(){
+      rv.forEach(function(n){
+        if (n.style.opacity === "0"){ n.style.opacity = "1"; n.style.transform = "none"; }
+      });
+    }, 3000);
+  }
+
+  /* counters */
+  var rows = [].slice.call(document.querySelectorAll(".count"));
+  if (rows.length){
+    var fmt = function(n){ return n.toLocaleString("en-IN"); };
+    var run = function(el){
+      if (el.getAttribute("data-done")) return;
+      el.setAttribute("data-done","1");
+      var target = Number(el.getAttribute("data-count")) || 0;
+      var suffix = el.getAttribute("data-suffix") || "";
+      if (reduce){ el.textContent = fmt(target) + suffix; return; }
+      var t0 = performance.now(), dur = 1500;
+      var tick = function(now){
+        var p = Math.min(1, (now - t0)/dur);
+        var eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt(Math.round(target * eased)) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    };
+    if ("IntersectionObserver" in window){
+      var cio = new IntersectionObserver(function(es){
+        es.forEach(function(e){ if (e.isIntersecting){ run(e.target); cio.unobserve(e.target); } });
+      }, {threshold:0.3});
+      rows.forEach(function(el){ cio.observe(el); });
+    } else { rows.forEach(run); }
+    [].slice.call(document.querySelectorAll(".statbar")).forEach(function(b){
+      var w = b.getAttribute("data-w");
+      if (w) setTimeout(function(){ b.style.width = w + "%"; }, 200);
+    });
+  }
+
+  /* procedure rail: edge fades + drag to scroll */
+  var rail = document.getElementById("procRail");
+  if (rail){
+    var fl = document.getElementById("fadeL"), fr = document.getElementById("fadeR");
+    var fades = function(){
+      var max = rail.scrollWidth - rail.clientWidth;
+      if (fl) fl.style.opacity = rail.scrollLeft <= 2 ? "0" : "1";
+      if (fr) fr.style.opacity = rail.scrollLeft >= max - 2 ? "0" : "1";
+    };
+    rail.addEventListener("scroll", fades, {passive:true});
+    window.addEventListener("resize", fades, {passive:true});
+    fades();
+    var down = false, sx = 0, sl = 0, moved = 0;
+    rail.addEventListener("pointerdown", function(e){
+      if (e.pointerType === "touch") return;
+      down = true; moved = 0; sx = e.clientX; sl = rail.scrollLeft;
+      rail.classList.add("dragging");
+    });
+    rail.addEventListener("pointermove", function(e){
+      if (!down) return;
+      var dx = e.clientX - sx; moved = Math.max(moved, Math.abs(dx));
+      rail.scrollLeft = sl - dx;
+    });
+    var up = function(){ down = false; rail.classList.remove("dragging"); };
+    rail.addEventListener("pointerup", up);
+    rail.addEventListener("pointercancel", up);
+    rail.addEventListener("pointerleave", up);
+    rail.addEventListener("click", function(e){
+      if (moved > 8){ e.preventDefault(); e.stopPropagation(); }
+    }, true);
+    var step = function(dir){
+      var card = rail.querySelector("a");
+      var w = card ? card.getBoundingClientRect().width + 20 : 400;
+      rail.scrollBy({left: dir*w, behavior: reduce ? "auto" : "smooth"});
+    };
+    var pv = document.getElementById("railPrev"), nx = document.getElementById("railNext");
+    if (pv) pv.addEventListener("click", function(){ step(-1); });
+    if (nx) nx.addEventListener("click", function(){ step(1); });
+  }
+
+  /* booking form: honest client-side handling */
+  var form = document.getElementById("bookform");
+  if (form){
+    var status = document.getElementById("bookstatus");
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var missing = [];
+      ["bf-name","bf-phone","bf-vertical","bf-centre"].forEach(function(id){
+        var el = document.getElementById(id);
+        if (el && !el.value.trim()) missing.push(el);
+      });
+      var consent = document.getElementById("bf-consent");
+      if (consent && !consent.checked) missing.push(consent);
+      [].slice.call(form.querySelectorAll("input,select,textarea")).forEach(function(el){
+        el.style.borderColor = "rgba(255,255,255,.26)";
+      });
+      if (missing.length){
+        missing.forEach(function(el){ el.style.borderColor = "var(--crimson)"; });
+        if (status){
+          status.hidden = false;
+          status.style.borderLeftColor = "var(--crimson)";
+          status.style.background = "rgba(192,38,27,.2)";
+          status.textContent = "Please complete the highlighted fields so we can reply to you properly.";
+        }
+        missing[0].focus();
+        return;
+      }
+      var name = (document.getElementById("bf-name").value || "").trim().split(" ")[0];
+      if (status){
+        status.hidden = false;
+        status.style.borderLeftColor = "var(--ok)";
+        status.style.background = "rgba(18,104,63,.18)";
+        status.textContent = "Thank you" + (name ? ", " + name : "") +
+          ". This demo form is not yet connected to a backend \u2014 in production you would " +
+          "get a confirmation here naming who will call you, when, and from which number, " +
+          "plus the centre address, entrance and parking.";
+        status.setAttribute("role","status");
+      }
+    });
+  }
+})();
+</script>
+
+
+</body></html>

@@ -1,0 +1,680 @@
+<title>RegenCare Subagent Roster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+
+<style>
+  :root {
+    --paper:       #f7f7fa;
+    --surface:     #ffffff;
+    --sunk:        #eeeef4;
+    --ink:         #16161d;
+    --ink-soft:    #494955;
+    --ink-faint:   #74747f;
+    --rule:        #dededf;
+    --rule-firm:   #bfbfc6;
+
+    --accent:      #4b3f72;
+    --accent-wash: #ecebf3;
+
+    /* four-step risk ramp — semantic, not decorative */
+    --r4:      #a33a24;   --r4-wash: #f7e9e5;   /* highest */
+    --r3:      #9a6510;   --r3-wash: #f8efdf;   /* high    */
+    --r2:      #5a6472;   --r2-wash: #ecedf0;   /* low     */
+    --r1:      #2b6a5e;   --r1-wash: #e4f0ed;   /* lowest  */
+
+    --display: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+    --body:    'Source Sans 3', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    --mono:    'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    --measure: 68ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:       #131318;
+      --surface:     #1a1a21;
+      --sunk:        #212129;
+      --ink:         #e8e8ee;
+      --ink-soft:    #adadb9;
+      --ink-faint:   #81818d;
+      --rule:        #2e2e38;
+      --rule-firm:   #424250;
+
+      --accent:      #a99bd8;
+      --accent-wash: #241f38;
+
+      --r4:  #e8917a;  --r4-wash: #331c16;
+      --r3:  #d9a86a;  --r3-wash: #332715;
+      --r2:  #9aa4b2;  --r2-wash: #22262d;
+      --r1:  #74c3b3;  --r1-wash: #142b27;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:       #131318;
+    --surface:     #1a1a21;
+    --sunk:        #212129;
+    --ink:         #e8e8ee;
+    --ink-soft:    #adadb9;
+    --ink-faint:   #81818d;
+    --rule:        #2e2e38;
+    --rule-firm:   #424250;
+
+    --accent:      #a99bd8;
+    --accent-wash: #241f38;
+
+    --r4:  #e8917a;  --r4-wash: #331c16;
+    --r3:  #d9a86a;  --r3-wash: #332715;
+    --r2:  #9aa4b2;  --r2-wash: #22262d;
+    --r1:  #74c3b3;  --r1-wash: #142b27;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--body);
+    font-size: 16.5px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 64rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3.25rem;
+  }
+
+  /* ---------- header ---------- */
+
+  .masthead { display: flex; flex-direction: column; gap: 1rem; }
+
+  .kicker {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    display: flex; flex-wrap: wrap; gap: 0.4rem 1.25rem;
+  }
+
+  h1 {
+    font-family: var(--display);
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .lede {
+    font-size: clamp(1rem, 2vw, 1.15rem);
+    color: var(--ink-soft);
+    max-width: var(--measure);
+    margin: 0;
+  }
+
+  .removed {
+    display: flex; gap: 0.75rem; align-items: baseline;
+    padding: 0.85rem 1.1rem;
+    background: var(--sunk);
+    border-left: 3px solid var(--rule-firm);
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+  }
+  .removed strong { color: var(--ink); }
+
+  /* ---------- sections ---------- */
+
+  section { display: flex; flex-direction: column; gap: 1.4rem; }
+
+  h2 {
+    font-family: var(--display);
+    font-weight: 600;
+    font-size: clamp(1.35rem, 3vw, 1.7rem);
+    letter-spacing: -0.015em;
+    line-height: 1.2;
+    margin: 0;
+  }
+  .sec-head { display: flex; flex-direction: column; gap: 0.4rem; }
+  .sec-head p { margin: 0; color: var(--ink-soft); max-width: var(--measure); }
+
+  /* ---------- containment chain ---------- */
+
+  .chain {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    padding: 1.75rem 1.5rem;
+    display: flex; flex-direction: column; gap: 1.5rem;
+  }
+  .lane { display: flex; flex-direction: column; gap: 0.6rem; }
+  .lane-label {
+    font-family: var(--mono);
+    font-size: 0.65rem; letter-spacing: 0.13em; text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .flow {
+    display: flex; flex-wrap: wrap; align-items: stretch; gap: 0.5rem;
+  }
+  .node {
+    flex: 1 1 8.5rem;
+    min-width: 8.5rem;
+    padding: 0.7rem 0.85rem;
+    background: var(--sunk);
+    border-top: 3px solid var(--rule-firm);
+    display: flex; flex-direction: column; gap: 0.15rem;
+  }
+  .node-name { font-weight: 600; font-size: 0.88rem; line-height: 1.3; }
+  .node-note { font-size: 0.76rem; color: var(--ink-faint); font-family: var(--mono); }
+  .node.untrusted { border-top-color: var(--r4); background: var(--r4-wash); }
+  .node.agent     { border-top-color: var(--r3); background: var(--r3-wash); }
+  .node.gate      { border-top-color: var(--accent); background: var(--accent-wash); }
+  .node.live      { border-top-color: var(--r1); background: var(--r1-wash); }
+  .node.offchain  { border-top-color: var(--r2); background: var(--r2-wash); }
+
+  .arrow {
+    align-self: center;
+    font-family: var(--mono);
+    color: var(--ink-faint);
+    font-size: 1rem;
+    flex: 0 0 auto;
+  }
+
+  /* ---------- registry table ---------- */
+
+  .table-scroll { overflow-x: auto; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    min-width: 40rem;
+  }
+  thead th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    font-weight: 500;
+    padding: 0 0.8rem 0.6rem;
+    border-bottom: 1px solid var(--rule-firm);
+  }
+  tbody td {
+    padding: 0.8rem;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+    color: var(--ink-soft);
+  }
+  tbody td:first-child { color: var(--ink); font-weight: 600; }
+  tbody tr td:first-child { border-left: 3px solid transparent; padding-left: 0.7rem; }
+  tr.t4 td:first-child { border-left-color: var(--r4); }
+  tr.t3 td:first-child { border-left-color: var(--r3); }
+  tr.t2 td:first-child { border-left-color: var(--r2); }
+  tr.t1 td:first-child { border-left-color: var(--r1); }
+  .num {
+    font-family: var(--mono); color: var(--ink-faint);
+    font-size: 0.78rem; font-variant-numeric: tabular-nums;
+  }
+
+  .chip {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.65rem; font-weight: 600;
+    letter-spacing: 0.07em; text-transform: uppercase;
+    padding: 0.22rem 0.45rem;
+    white-space: nowrap;
+  }
+  .chip.t4 { background: var(--r4-wash); color: var(--r4); }
+  .chip.t3 { background: var(--r3-wash); color: var(--r3); }
+  .chip.t2 { background: var(--r2-wash); color: var(--r2); }
+  .chip.t1 { background: var(--r1-wash); color: var(--r1); }
+
+  .yes { color: var(--r1); font-weight: 600; }
+  .no  { color: var(--ink-faint); }
+  .partial { color: var(--r3); font-weight: 600; }
+
+  /* ---------- agent cards ---------- */
+
+  .agents { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .agent {
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-left-width: 4px;
+    padding: 1.5rem;
+    display: flex; flex-direction: column; gap: 1.1rem;
+  }
+  .agent.t4 { border-left-color: var(--r4); }
+  .agent.t3 { border-left-color: var(--r3); }
+  .agent.t2 { border-left-color: var(--r2); }
+  .agent.t1 { border-left-color: var(--r1); }
+
+  .agent-top {
+    display: flex; flex-wrap: wrap; gap: 0.6rem 1rem;
+    align-items: baseline; justify-content: space-between;
+  }
+  .agent-name {
+    font-family: var(--display); font-weight: 600;
+    font-size: 1.18rem; letter-spacing: -0.01em;
+    display: flex; align-items: baseline; gap: 0.6rem;
+  }
+  .agent-name .num { font-size: 0.9rem; }
+
+  .quote {
+    margin: 0;
+    font-style: italic;
+    color: var(--ink-soft);
+    font-size: 0.92rem;
+    border-left: 2px solid var(--rule-firm);
+    padding-left: 0.9rem;
+    max-width: var(--measure);
+  }
+
+  .facts {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.5rem 1.1rem;
+    font-size: 0.88rem;
+    align-items: baseline;
+  }
+  .facts dt {
+    font-family: var(--mono);
+    font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--ink-faint);
+    white-space: nowrap;
+    padding-top: 0.15rem;
+  }
+  .facts dd { margin: 0; color: var(--ink-soft); }
+  .facts dd code, .scope code {
+    font-family: var(--mono); font-size: 0.84em;
+    background: var(--sunk); padding: 0.08em 0.32em;
+    color: var(--ink);
+  }
+  .facts ul { margin: 0; padding-left: 1.1rem; }
+  .facts li { margin-bottom: 0.15rem; }
+
+  .note {
+    margin: 0;
+    font-size: 0.9rem;
+    color: var(--ink-soft);
+    max-width: var(--measure);
+  }
+  .note strong { color: var(--ink); }
+  .note.warn {
+    background: var(--r4-wash);
+    border-left: 3px solid var(--r4);
+    padding: 0.8rem 1rem;
+  }
+  .note.change {
+    background: var(--r3-wash);
+    border-left: 3px solid var(--r3);
+    padding: 0.8rem 1rem;
+  }
+
+  /* ---------- build order ---------- */
+
+  .steps { display: flex; flex-direction: column; gap: 1rem; counter-reset: s; }
+  .step {
+    display: grid; grid-template-columns: auto 1fr; gap: 0 1rem;
+    align-items: baseline;
+  }
+  .step-n {
+    font-family: var(--mono); font-weight: 600; font-size: 0.8rem;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .step-body { display: flex; flex-direction: column; gap: 0.2rem; }
+  .step-title { font-weight: 600; }
+  .step-body p { margin: 0; color: var(--ink-soft); font-size: 0.9rem; max-width: var(--measure); }
+
+  /* ---------- footer ---------- */
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 1.4rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--ink-faint);
+    display: flex; flex-direction: column; gap: 0.45rem;
+  }
+  footer strong { color: var(--ink-soft); font-weight: 500; }
+
+  @media (max-width: 40rem) {
+    .facts { grid-template-columns: 1fr; gap: 0.25rem; }
+    .facts dt { padding-top: 0.5rem; }
+    .arrow { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="kicker">
+      <span>RegenCare content platform</span>
+      <span>Subagent roster</span>
+      <span>v1 · 11 Sep 2026</span>
+    </div>
+    <h1>Four agents, one gate</h1>
+    <p class="lede">
+      What each autonomous agent does, what it is allowed to touch, and where the human
+      approval sits. Only one of the four can produce anything a patient might read —
+      and only as a draft.
+    </p>
+    <div class="removed">
+      <strong>Removed:</strong>
+      <span>The Front-Desk &amp; Booking Agent is out of scope following the pivot away from
+      appointment booking. Patient data stays outside the CMS entirely.</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <h2>The containment chain</h2>
+      <p>
+        Two agents sit on the path that ends at a public page. Two do not touch it at all.
+        The gate between draft and live is always a person.
+      </p>
+    </div>
+
+    <div class="chain">
+      <div class="lane">
+        <span class="lane-label">On the publishing path</span>
+        <div class="flow">
+          <div class="node untrusted">
+            <span class="node-name">Competitor sites</span>
+            <span class="node-note">untrusted</span>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="node agent">
+            <span class="node-name">1 · Competitor Intel</span>
+            <span class="node-note">reports only</span>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="node agent">
+            <span class="node-name">3 · Marketing &amp; SEO</span>
+            <span class="node-note">drafts only</span>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="node gate">
+            <span class="node-name">Clinician + marketer</span>
+            <span class="node-note">two-key approval</span>
+          </div>
+          <span class="arrow" aria-hidden="true">→</span>
+          <div class="node live">
+            <span class="node-name">Live page</span>
+            <span class="node-note">patient-facing</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane">
+        <span class="lane-label">Off the path — internal collections only</span>
+        <div class="flow">
+          <div class="node offchain">
+            <span class="node-name">2 · Product &amp; Discovery</span>
+            <span class="node-note">→ specs</span>
+          </div>
+          <div class="node offchain">
+            <span class="node-name">4 · Observability &amp; QA</span>
+            <span class="node-note">→ qa-reports</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Registry</h2>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Agent</th>
+            <th>Reads</th>
+            <th>Writes</th>
+            <th>Reaches public site</th>
+            <th>Risk</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="t4">
+            <td><span class="num">01</span> Competitor Intelligence</td>
+            <td>External competitor sites <em>(untrusted)</em></td>
+            <td><code>research-reports</code></td>
+            <td class="no">Never</td>
+            <td><span class="chip t4">Highest</span></td>
+          </tr>
+          <tr class="t2">
+            <td><span class="num">02</span> Product &amp; Discovery</td>
+            <td>Internal docs, content model</td>
+            <td><code>specs</code></td>
+            <td class="no">Never</td>
+            <td><span class="chip t2">Low</span></td>
+          </tr>
+          <tr class="t3">
+            <td><span class="num">03</span> Marketing &amp; SEO</td>
+            <td>Keyword data, agent 01's reports</td>
+            <td><code>articles</code> — draft</td>
+            <td class="partial">Draft only</td>
+            <td><span class="chip t3">High</span></td>
+          </tr>
+          <tr class="t1">
+            <td><span class="num">04</span> Observability &amp; QA</td>
+            <td>Staging site</td>
+            <td><code>qa-reports</code></td>
+            <td class="no">Read-only</td>
+            <td><span class="chip t1">Lowest</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>The agents in detail</h2>
+    </div>
+
+    <div class="agents">
+
+      <article class="agent t4">
+        <div class="agent-top">
+          <span class="agent-name"><span class="num">01</span> Competitor Intelligence</span>
+          <span class="chip t4">Highest risk</span>
+        </div>
+        <p class="quote">
+          "Autonomously monitors domestic and international clinic competitors to extract pricing
+          trends, new clinical offerings, and high-performing healthcare content topics."
+        </p>
+        <dl class="facts">
+          <dt>Runs</dt>
+          <dd>Scheduled — nightly or weekly, as a jobs-queue workflow</dd>
+          <dt>Reads</dt>
+          <dd>Competitor websites — <strong>content written by people outside your organisation</strong></dd>
+          <dt>Writes</dt>
+          <dd><code>research-reports</code> only — internal, staff-read, never rendered publicly</dd>
+          <dt>Scope</dt>
+          <dd>Create on <code>research-reports</code>. No access to articles, pages, clinicians or media</dd>
+          <dt>Output</dt>
+          <dd>A dated report: pricing movements, new service lines, topics competitors rank for</dd>
+        </dl>
+        <p class="note warn">
+          <strong>Why it is the highest risk despite writing nothing public:</strong> it is the only
+          agent that ingests untrusted external content. A competitor could place hidden instructions
+          on their page. If its output flows onward unlabelled, that is a path from a rival's website
+          into your drafts.
+          <br><br>
+          <strong>Required control:</strong> everything it produces is tagged
+          <code>provenance: untrusted-external</code>, applied by the ingestion layer — never
+          self-reported by the agent. The tag travels downstream.
+        </p>
+        <p class="note">
+          Still the sensible first build: no publish path, so it needs no approval machinery, and it
+          produces the topic list agent 03 consumes.
+        </p>
+      </article>
+
+      <article class="agent t2">
+        <div class="agent-top">
+          <span class="agent-name"><span class="num">02</span> Product &amp; Discovery</span>
+          <span class="chip t2">Low risk</span>
+        </div>
+        <p class="quote">
+          "Challenges product assumptions, uncovers missing clinical edge cases, and drafts
+          technical specifications."
+        </p>
+        <dl class="facts">
+          <dt>Runs</dt>
+          <dd>On demand, when a team member asks</dd>
+          <dt>Reads</dt>
+          <dd>Internal documents, the existing content model, the codebase</dd>
+          <dt>Writes</dt>
+          <dd><code>specs</code> — internal only</dd>
+          <dt>Scope</dt>
+          <dd>Create and update on <code>specs</code>. No content access</dd>
+          <dt>Output</dt>
+          <dd>Specification drafts, edge-case lists, challenges to stated assumptions</dd>
+        </dl>
+        <p class="note">
+          Internal inputs, internal outputs, engineers as readers. Nothing it writes is
+          patient-facing. The realistic failure is a wrong spec, caught in review.
+        </p>
+      </article>
+
+      <article class="agent t3">
+        <div class="agent-top">
+          <span class="agent-name"><span class="num">03</span> Marketing &amp; SEO</span>
+          <span class="chip t3">High risk</span>
+        </div>
+        <p class="quote">
+          "Tracks regional healthcare keywords and drafts educational medical blogs for doctors
+          to review."
+        </p>
+        <dl class="facts">
+          <dt>Runs</dt>
+          <dd>Scheduled for keyword tracking; on demand for drafting</dd>
+          <dt>Reads</dt>
+          <dd>Keyword and search data, existing articles, <strong>agent 01's reports</strong></dd>
+          <dt>Writes</dt>
+          <dd><code>articles</code> — <strong>drafts only</strong></dd>
+          <dt>Scope</dt>
+          <dd>
+            <ul>
+              <li>Create on <code>articles</code>, constrained to <code>_status: draft</code></li>
+              <li>Cannot set <code>_status: published</code></li>
+              <li>Cannot write <code>medicalReviewer</code>, <code>slug</code> or the canonical URL</li>
+            </ul>
+          </dd>
+          <dt>Output</dt>
+          <dd>Draft articles in the review queue, carrying their provenance tag</dd>
+        </dl>
+        <p class="note">
+          <strong>The most valuable agent, and the most dangerous.</strong> The pivot made content the
+          product, so this moved from nice-to-have to the centre — and it is the only agent with a
+          route, however gated, to a patient's screen.
+        </p>
+        <p class="note">
+          <strong>Two-key approval applies to its output.</strong> A marketer checks tone and SEO; a
+          clinician checks the medical claims. Anything carrying <code>untrusted-external</code>
+          provenance needs the clinical signature regardless of topic. The agent that drafts is
+          never an approver.
+        </p>
+      </article>
+
+      <article class="agent t1">
+        <div class="agent-top">
+          <span class="agent-name"><span class="num">04</span> Observability &amp; Sandbox QA</span>
+          <span class="chip t1">Lowest risk</span>
+        </div>
+        <p class="quote">
+          "Simulates synthetic patient flows in a staging environment to detect broken links,
+          latency spikes, or failed booking states."
+        </p>
+        <p class="note change">
+          <strong>Scope change from the pivot:</strong> "failed booking states" no longer applies.
+          Its remit narrows and re-points at content-platform concerns.
+        </p>
+        <dl class="facts">
+          <dt>Runs</dt>
+          <dd>Scheduled against <strong>staging</strong>, never production</dd>
+          <dt>Reads</dt>
+          <dd>The staging site — output you control</dd>
+          <dt>Writes</dt>
+          <dd><code>qa-reports</code></dd>
+          <dt>Scope</dt>
+          <dd><strong>Read-only</strong> on all content; create on <code>qa-reports</code></dd>
+          <dt>Output</dt>
+          <dd>
+            <ul>
+              <li>Broken links, latency regressions, rendering failures</li>
+              <li>Missing metadata or absent JSON-LD</li>
+              <li>Articles published without a reviewer</li>
+              <li>Orphaned pages</li>
+            </ul>
+          </dd>
+        </dl>
+        <p class="note">
+          It reads a site you control and writes an internal report. It is also the natural place to
+          catch a governance failure — an article that slipped live without credentials.
+        </p>
+      </article>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Build order</h2>
+      <p>Sequential, and the order matters — the gate has to exist before the agent that needs it.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <span class="step-n">01</span>
+        <div class="step-body">
+          <span class="step-title">Competitor Intelligence</span>
+          <p>No publish path, so no approval machinery needed. Proves the agent harness works end to end.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-n">02</span>
+        <div class="step-body">
+          <span class="step-title">Observability &amp; QA</span>
+          <p>Read-only, immediately useful, and it tells you when anything else breaks.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-n">03</span>
+        <div class="step-body">
+          <span class="step-title">Marketing &amp; SEO</span>
+          <p>Build only after the review queue and dual sign-off exist. This is the one that needs the gate already in place.</p>
+        </div>
+      </div>
+      <div class="step">
+        <span class="step-n">04</span>
+        <div class="step-body">
+          <span class="step-title">Product &amp; Discovery</span>
+          <p>Lowest urgency. Valuable, but not on the critical path.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span><strong>Source:</strong> PROJECT_BRIEF.md §3C — subagent ecosystem, less the Front-Desk &amp; Booking agent.</span>
+    <span><strong>Platform:</strong> Payload CMS 3.x. See WORDPRESS_VS_PAYLOAD_COMPARISON.md and PROJECT_DETAILS.txt.</span>
+    <span><strong>On enforcement:</strong> draft-only scope is declared once on the collection, so it applies to every route in — not just the button in the interface.</span>
+  </footer>
+
+</div>

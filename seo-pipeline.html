@@ -1,0 +1,659 @@
+<title>RegenCare SEO Agent Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+
+<style>
+  :root {
+    --paper:#f7f7fa; --surface:#ffffff; --sunk:#eeeef4;
+    --ink:#16161d; --ink-soft:#494955; --ink-faint:#74747f;
+    --rule:#dededf; --rule-firm:#bfbfc6;
+    --accent:#4b3f72; --accent-wash:#ecebf3;
+    --warn:#9a6510; --warn-wash:#f8efdf;
+    --stop:#a33a24; --stop-wash:#f7e9e5;
+    --go:#2b6a5e; --go-wash:#e4f0ed;
+    --display:'Archivo',ui-sans-serif,system-ui,sans-serif;
+    --body:'Source Sans 3',ui-sans-serif,system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+    --measure:68ch;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:#131318; --surface:#1a1a21; --sunk:#212129;
+      --ink:#e8e8ee; --ink-soft:#adadb9; --ink-faint:#81818d;
+      --rule:#2e2e38; --rule-firm:#424250;
+      --accent:#a99bd8; --accent-wash:#241f38;
+      --warn:#d9a86a; --warn-wash:#332715;
+      --stop:#e8917a; --stop-wash:#331c16;
+      --go:#74c3b3; --go-wash:#142b27;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper:#131318; --surface:#1a1a21; --sunk:#212129;
+    --ink:#e8e8ee; --ink-soft:#adadb9; --ink-faint:#81818d;
+    --rule:#2e2e38; --rule-firm:#424250;
+    --accent:#a99bd8; --accent-wash:#241f38;
+    --warn:#d9a86a; --warn-wash:#332715;
+    --stop:#e8917a; --stop-wash:#331c16;
+    --go:#74c3b3; --go-wash:#142b27;
+  }
+
+  body { background:var(--paper); color:var(--ink); font-family:var(--body);
+         font-size:16.5px; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .wrap { max-width:66rem; margin:0 auto; padding:3rem 1.5rem 5rem;
+          display:flex; flex-direction:column; gap:3.25rem; }
+
+  .masthead { display:flex; flex-direction:column; gap:1rem; }
+  .kicker { font-family:var(--mono); font-size:0.7rem; letter-spacing:0.15em;
+            text-transform:uppercase; color:var(--ink-faint);
+            display:flex; flex-wrap:wrap; gap:0.4rem 1.25rem; }
+  h1 { font-family:var(--display); font-weight:700; font-size:clamp(2rem,5vw,2.9rem);
+       line-height:1.05; letter-spacing:-0.025em; margin:0; text-wrap:balance; }
+  .lede { font-size:clamp(1rem,2vw,1.15rem); color:var(--ink-soft); max-width:var(--measure); margin:0; }
+
+  .counts { display:grid; grid-template-columns:repeat(auto-fit,minmax(9rem,1fr));
+            gap:1px; background:var(--rule); border:1px solid var(--rule); }
+  .count { background:var(--surface); padding:1rem 1.1rem; display:flex; flex-direction:column; gap:0.15rem; }
+  .count-v { font-family:var(--mono); font-size:1.7rem; font-weight:600; line-height:1;
+             color:var(--accent); font-variant-numeric:tabular-nums; }
+  .count-l { font-size:0.8rem; color:var(--ink-soft); }
+
+  section { display:flex; flex-direction:column; gap:1.4rem; }
+  h2 { font-family:var(--display); font-weight:600; font-size:clamp(1.35rem,3vw,1.7rem);
+       letter-spacing:-0.015em; line-height:1.2; margin:0; }
+  .sec-head { display:flex; flex-direction:column; gap:0.4rem; }
+  .sec-head p { margin:0; color:var(--ink-soft); max-width:var(--measure); }
+
+  .stage { display:flex; flex-direction:column; gap:0.9rem; }
+  .stage-head { display:flex; align-items:baseline; gap:0.75rem; flex-wrap:wrap;
+                border-bottom:2px solid var(--accent); padding-bottom:0.5rem; }
+  .stage-n { font-family:var(--mono); font-size:0.75rem; font-weight:600;
+             color:var(--accent); letter-spacing:0.1em; }
+  .stage-title { font-family:var(--display); font-weight:600; font-size:1.22rem; letter-spacing:-0.01em; }
+  .stage-q { color:var(--ink-faint); font-size:0.9rem; font-style:italic; }
+
+  .table-scroll { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:0.85rem; min-width:44rem; }
+  thead th { text-align:left; font-family:var(--mono); font-size:0.62rem;
+             letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-faint);
+             font-weight:500; padding:0 0.7rem 0.5rem; border-bottom:1px solid var(--rule-firm); }
+  tbody td { padding:0.7rem; border-bottom:1px solid var(--rule); vertical-align:top; color:var(--ink-soft); }
+  tbody td.id { font-family:var(--mono); font-size:0.75rem; color:var(--accent); font-weight:600; white-space:nowrap; }
+  tbody td.nm { color:var(--ink); font-weight:600; }
+  code { font-family:var(--mono); font-size:0.84em; background:var(--sunk);
+         padding:0.08em 0.32em; color:var(--ink); }
+
+  .tag { display:inline-block; font-family:var(--mono); font-size:0.6rem; font-weight:600;
+         letter-spacing:0.07em; text-transform:uppercase; padding:0.18rem 0.4rem; white-space:nowrap; }
+  .tag.ai   { background:var(--accent-wash); color:var(--accent); }
+  .tag.code { background:var(--sunk); color:var(--ink-faint); }
+  .tag.hy   { background:var(--warn-wash); color:var(--warn); }
+  .tag.hum  { background:var(--stop-wash); color:var(--stop); }
+
+  .call { padding:1rem 1.2rem; display:flex; flex-direction:column; gap:0.4rem;
+          background:var(--surface); border-left:3px solid var(--rule-firm); }
+  .call.warn { background:var(--warn-wash); border-left-color:var(--warn); }
+  .call.stop { background:var(--stop-wash); border-left-color:var(--stop); }
+  .call.go   { background:var(--go-wash);   border-left-color:var(--go); }
+  .call-t { font-weight:600; font-size:0.92rem; }
+  .call p { margin:0; font-size:0.9rem; color:var(--ink-soft); max-width:var(--measure); }
+
+  .gate-block { border:1px solid var(--stop); background:var(--stop-wash);
+                padding:1.5rem; display:flex; flex-direction:column; gap:0.9rem; }
+  .gate-block h3 { font-family:var(--display); font-size:1.1rem; margin:0; }
+  .gate-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(14rem,1fr)); gap:1rem 1.75rem; }
+  .gate-item { display:flex; flex-direction:column; gap:0.2rem; }
+  .gate-who { font-family:var(--mono); font-size:0.66rem; letter-spacing:0.1em;
+              text-transform:uppercase; color:var(--stop); font-weight:600; }
+  .gate-what { font-size:0.88rem; color:var(--ink-soft); }
+
+  .open { border:1px solid var(--warn); background:var(--warn-wash);
+          padding:1.5rem; display:flex; flex-direction:column; gap:1rem; }
+  .open h3 { font-family:var(--display); font-size:1.1rem; margin:0; }
+  .open-item { display:flex; flex-direction:column; gap:0.25rem; padding-bottom:0.9rem;
+               border-bottom:1px solid var(--rule-firm); }
+  .open-item:last-child { border-bottom:0; padding-bottom:0; }
+  .open-q { font-weight:600; font-size:0.95rem; }
+  .open-item p { margin:0; font-size:0.88rem; color:var(--ink-soft); max-width:var(--measure); }
+
+  footer { border-top:1px solid var(--rule); padding-top:1.4rem;
+           font-family:var(--mono); font-size:0.74rem; color:var(--ink-faint);
+           display:flex; flex-direction:column; gap:0.4rem; }
+  footer strong { color:var(--ink-soft); font-weight:500; }
+
+  @media (prefers-reduced-motion: reduce) { * { animation:none !important; transition:none !important; } }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="kicker">
+      <span>RegenCare content platform</span>
+      <span>Agent 03 — decomposed</span>
+      <span>v2 · 14 Sep 2026</span>
+    </div>
+    <h1>Inside the Marketing &amp; SEO agent</h1>
+    <p class="lede">
+      "Marketing &amp; SEO" is not one agent. It is a nineteen-component pipeline — but only
+      <strong>six of those components are genuine agents</strong>. The rest is ordinary code, and
+      saying so is the point of this version.
+    </p>
+  </header>
+
+  <div class="counts">
+    <div class="count"><span class="count-v">6</span><span class="count-l">true agents (need a model)</span></div>
+    <div class="count"><span class="count-v">3</span><span class="count-l">hybrid (one model call + code)</span></div>
+    <div class="count"><span class="count-v">10</span><span class="count-l">deterministic functions</span></div>
+    <div class="count"><span class="count-v">2</span><span class="count-l">human sign-offs</span></div>
+  </div>
+
+  <section>
+    <div class="sec-head">
+      <h2>What changed in v2, and why</h2>
+      <p>This version was rewritten against a hostile review of v1. Four criticisms were accepted and fixed.</p>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Criticism of v1</th><th>Fix in v2</th></tr></thead>
+        <tbody>
+          <tr><td class="nm">"Most of these aren't agents, they're functions with a costume on."</td>
+              <td>Every component is now labelled <span class="tag ai">Agent</span> <span class="tag hy">Hybrid</span> or <span class="tag code">Code</span> against a stated test. Six are agents. Ten are plain code.</td></tr>
+          <tr><td class="nm">"Your build order doesn't run."</td>
+              <td>Correct — Phase&nbsp;1 called for a brief generator whose input came from a component scheduled in Phase&nbsp;5. Rebuilt so Phase&nbsp;1 executes, with the gap filled by a human choosing the topic.</td></tr>
+          <tr><td class="nm">"Every headline statistic comes from a vendor selling the solution."</td>
+              <td>The load-bearing figure now cites the underlying study with its methodology and confidence interval. Every other figure is labelled by source quality.</td></tr>
+          <tr><td class="nm">"Happy path only. No failure handling, no evaluation, no compliance."</td>
+              <td>Three new sections, plus a nineteenth component: a compliance check.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="call go">
+      <span class="call-t">The honest count is a stronger argument, not a weaker one.</span>
+      <p>Nineteen "agents" reads as inflation. Six agents and ten deterministic functions reads as engineering — and it is cheaper, faster and easier to test.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>The test for what counts as an agent</h2>
+      <p>
+        <strong>A component is an agent only if it must make a judgement under uncertainty that we
+        cannot write down as a rule.</strong> If the behaviour can be specified — a threshold, a
+        template, a query, a validation — it is code, and should be built as code: cheaper, faster,
+        deterministic, and testable.
+      </p>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead><tr><th>Type</th><th>Count</th><th>Which</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag ai">Agent</span></td><td class="nm">6</td>
+              <td>M03, M05, M07, M08, M09, M17</td>
+              <td>Synthesis, generation, diagnosis — genuine judgement.</td></tr>
+          <tr><td><span class="tag hy">Hybrid</span></td><td class="nm">3</td>
+              <td>M02, M04, M10</td>
+              <td>One model call wrapped in deterministic code. Not an agent loop.</td></tr>
+          <tr><td><span class="tag code">Code</span></td><td class="nm">10</td>
+              <td>M00, M01, M06, M11, M12, M13, M14, M15, M16, M18</td>
+              <td>API calls, thresholds, templating, validation, boolean checks.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="stage">
+      <div class="stage-head"><span class="stage-n">STAGE 0</span><span class="stage-title">Orchestration</span></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>ID</th><th>Type</th><th>Component</th><th>What it does</th><th>Writes to</th></tr></thead>
+        <tbody><tr>
+          <td class="id">M00</td><td><span class="tag code">Code</span></td>
+          <td class="nm">Campaign Orchestrator</td>
+          <td>Work queue, job selection, handoff routing, gate enforcement, shared state. A scheduler — it makes no judgement and needs no model.</td>
+          <td><code>jobs</code></td>
+        </tr></tbody>
+      </table></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stage">
+      <div class="stage-head"><span class="stage-n">STAGE 1</span><span class="stage-title">Discovery</span><span class="stage-q">— what should we write about?</span></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>ID</th><th>Type</th><th>Component</th><th>What it does</th><th>Inputs → Outputs</th></tr></thead>
+        <tbody>
+          <tr><td class="id">M01</td><td><span class="tag code">Code</span></td><td class="nm">Keyword Harvester</td>
+              <td>Pulls seeds, expands via keyword APIs, filters by volume and difficulty, scores against our authority. Entirely specifiable.</td>
+              <td>Seeds, GSC → ranked opportunity list</td></tr>
+          <tr><td class="id">M02</td><td><span class="tag hy">Hybrid</span></td><td class="nm">Intent &amp; Journey Classifier</td>
+              <td>Labels intent and patient-journey stage: symptom → condition → treatment → choosing a provider. One classification call, then rules.</td>
+              <td>Opportunity list → labelled queries</td></tr>
+          <tr><td class="id">M03</td><td><span class="tag ai">Agent</span></td><td class="nm">SERP &amp; AI-Overview Gap Analyst</td>
+              <td>Reads what ranks and what gets cited in AI Overviews, then reasons about where our coverage is genuinely absent versus merely different. Not reducible to a rule.</td>
+              <td>Labelled queries → gap list</td></tr>
+        </tbody>
+      </table></div>
+      <div class="call warn">
+        <span class="call-t">M03 is the untrusted-input boundary.</span>
+        <p>It reads competitor pages and search results. Everything it outputs carries the <code>untrusted-external</code> provenance tag, set by the ingestion layer rather than self-reported, and that tag follows the work to the gate.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stage">
+      <div class="stage-head"><span class="stage-n">STAGE 2</span><span class="stage-title">Planning</span><span class="stage-q">— what exactly gets written?</span></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>ID</th><th>Type</th><th>Component</th><th>What it does</th><th>Inputs → Outputs</th></tr></thead>
+        <tbody>
+          <tr><td class="id">M04</td><td><span class="tag hy">Hybrid</span></td><td class="nm">Topic Cluster Architect</td>
+              <td>Embedding-based clustering into pillar and supporting pages; assigns each keyword to one target page and blocks cannibalisation. Mostly algorithmic.</td>
+              <td>Gap list → cluster map</td></tr>
+          <tr><td class="id">M05</td><td><span class="tag ai">Agent</span></td><td class="nm">Content Brief Generator</td>
+              <td>Title options, heading structure, questions the page must answer, semantic terms, benchmarked length, internal-link targets, differentiation angle.</td>
+              <td><strong>Target topic + keyword set</strong> → brief</td></tr>
+          <tr><td class="id">M06</td><td><span class="tag code">Code</span></td><td class="nm">Priority &amp; Scheduler</td>
+              <td>Scores opportunity against effort, sequences the queue, reserves clinician review capacity before drafting starts. A formula.</td>
+              <td>Briefs → dated queue</td></tr>
+        </tbody>
+      </table></div>
+      <div class="call go">
+        <span class="call-t">M05's input was corrected.</span>
+        <p>In v1 it required a cluster map from M04 — which was scheduled four phases later, so Phase&nbsp;1 could not run. M05 now takes <em>a target topic plus its keyword set</em>. In Phase&nbsp;1 a human picks that topic; M04 automates the choice from Phase&nbsp;5 onward.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stage">
+      <div class="stage-head"><span class="stage-n">STAGE 3</span><span class="stage-title">Production</span><span class="stage-q">— writing it</span></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>ID</th><th>Type</th><th>Component</th><th>What it does</th><th>Inputs → Outputs</th></tr></thead>
+        <tbody>
+          <tr><td class="id">M07</td><td><span class="tag ai">Agent</span></td><td class="nm">Draft Writer</td>
+              <td>Writes to the brief, answer-first — direct answer high on the page, detail below.</td>
+              <td>Brief → draft <em>(draft status only)</em></td></tr>
+          <tr><td class="id">M08</td><td><span class="tag ai">Agent</span></td><td class="nm">Medical Evidence &amp; Citation Verifier</td>
+              <td>Extracts each clinical claim, retrieves supporting evidence, then <em>verifies the source resolves</em> — DOI, authors and journal checked against PubMed or the guideline body. Unverifiable claims are flagged, never silently kept.</td>
+              <td>Draft → claim/evidence table + flags</td></tr>
+          <tr><td class="id">M09</td><td><span class="tag ai">Agent</span></td><td class="nm">Voice &amp; Readability Editor</td>
+              <td>House tone and patient-appropriate reading level; clinical register into plain language without weakening accuracy.</td>
+              <td>Draft → edited draft</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="call stop">
+        <span class="call-t">Model choice for M07 and M08 — a research finding that reverses the obvious answer.</span>
+        <p>
+          A study of 11 foundation models across 7 medical hallucination tasks found
+          <strong>general-purpose models produced hallucination-free responses far more often than
+          medical-specialised ones — median 76.6% versus 51.3%</strong> (difference 25.2%, 95% CI
+          18.7–31.3%, p&nbsp;=&nbsp;0.012). The authors attribute this to safety emerging from broad
+          reasoning ability rather than narrow domain tuning.
+        </p>
+        <p>
+          The same study found chain-of-thought prompting reduced hallucinations in
+          <strong>86.4%</strong> of tested comparisons. In a survey of 70 clinicians, 91.8% had
+          encountered medical hallucinations and 84.7% judged them capable of causing patient harm.
+        </p>
+        <p>
+          <strong>Design consequence:</strong> do not reach for a medical-specialised model here.
+          Use a strong general-purpose model, with explicit reasoning traces and retrieval grounding —
+          and keep verification as a separate component, because the checker must not be the author.
+        </p>
+        <p style="font-size:0.82rem">
+          Source: <em>Medical Hallucination in Foundation Models and Their Impact on Healthcare</em>,
+          medRxiv 2025.02.28.25323115 / arXiv 2503.05777. <strong>Caveat: preprint, n&nbsp;=&nbsp;11 models,
+          n&nbsp;=&nbsp;70 clinicians.</strong> Treat as strong evidence, not settled fact.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stage">
+      <div class="stage-head"><span class="stage-n">STAGE 4</span><span class="stage-title">Optimisation</span><span class="stage-q">— making it findable</span></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>ID</th><th>Type</th><th>Component</th><th>What it does</th><th>Inputs → Outputs</th></tr></thead>
+        <tbody>
+          <tr><td class="id">M10</td><td><span class="tag hy">Hybrid</span></td><td class="nm">On-Page Optimiser</td>
+              <td>Title tag, meta description, heading hierarchy, alt text, slug. Structure is templated; only the meta description copy needs a model.</td>
+              <td>Edited draft → metadata set</td></tr>
+          <tr><td class="id">M11</td><td><span class="tag code">Code</span></td><td class="nm">Schema &amp; Entity Generator</td>
+              <td>Serialises JSON-LD from fields that already exist — <code>MedicalWebPage</code>, <code>Article</code>, <code>Physician</code>, <code>MedicalProcedure</code>, <code>FAQPage</code>. No judgement involved.</td>
+              <td>Draft + clinician record → JSON-LD</td></tr>
+          <tr><td class="id">M12</td><td><span class="tag code">Code</span></td><td class="nm">Internal Link Proposer</td>
+              <td>Embedding similarity over the real page graph, then a validation pass confirming every proposed target exists and resolves.</td>
+              <td>Draft + site graph → validated proposals</td></tr>
+        </tbody>
+      </table></div>
+      <div class="call go">
+        <span class="call-t">M11 cannot invent a reviewer.</span>
+        <p><code>reviewedBy</code> is serialised from the article's required relationship to a real clinician record. No clinician attached, no reviewer in the schema. There is no free-text field to fill in.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="stage">
+      <div class="stage-head"><span class="stage-n">STAGE 5</span><span class="stage-title">Validation</span><span class="stage-q">— is it fit to go to a person?</span></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>ID</th><th>Type</th><th>Component</th><th>What it does</th><th>Inputs → Outputs</th></tr></thead>
+        <tbody>
+          <tr><td class="id">M13</td><td><span class="tag code">Code</span></td><td class="nm">AEO Extractability Checker</td>
+              <td>Rule checks: is the direct answer high on the page, are headings phrased as questions, is each section self-contained, does the schema validate?</td>
+              <td>Draft → extractability report</td></tr>
+          <tr><td class="id">M18</td><td><span class="tag code">Code</span></td><td class="nm">Compliance Checker <span class="tag hum">new</span></td>
+              <td>Screens against a maintained rule list: prohibited claim patterns, outcome guarantees, required disclaimers, restricted-treatment advertising, testimonial rules. Rules are written by legal counsel; the component only applies them.</td>
+              <td>Draft → compliance flags</td></tr>
+          <tr><td class="id">M14</td><td><span class="tag code">Code</span></td><td class="nm">Pre-Publish QA Gate</td>
+              <td>Completeness only. Reviewer attached? Every claim cited and every citation resolving? Schema valid? No cannibalisation? Links resolve? Compliance clear? Any failure returns the draft down the pipeline.</td>
+              <td>All of the above → pass or return</td></tr>
+        </tbody>
+      </table></div>
+      <div class="call warn">
+        <span class="call-t">M18 is new, and it is deliberately dumb.</span>
+        <p>Medical advertising rules vary by jurisdiction and change. The component applies a rule list; it does not interpret law. <strong>Who owns and updates that rule list is an open question</strong> — see the final section. Until it has an owner, M18 is a placeholder, not a control.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>The gate</h2></div>
+    <div class="gate-block">
+      <h3>Two signatures, and neither is an agent</h3>
+      <div class="gate-grid">
+        <div class="gate-item">
+          <span class="gate-who">Editorial sign-off</span>
+          <span class="gate-what">A marketer checks tone, brand, positioning and search strategy.</span>
+        </div>
+        <div class="gate-item">
+          <span class="gate-who">Clinical sign-off</span>
+          <span class="gate-what">A named clinician checks the medical claims and becomes the article's <code>reviewedBy</code> on the record.</span>
+        </div>
+      </div>
+      <p style="margin:0;font-size:0.9rem;color:var(--ink-soft);max-width:var(--measure)">
+        Anything carrying <code>untrusted-external</code> provenance requires the clinical signature
+        regardless of topic. The component that drafted a page is never one of its approvers. The
+        draft-only restriction is declared once on the collection, so it applies to every route in —
+        not just the button in the interface.
+      </p>
+    </div>
+  </section>
+
+  <section>
+    <div class="stage">
+      <div class="stage-head"><span class="stage-n">STAGE 6</span><span class="stage-title">Monitoring</span><span class="stage-q">— and back to the start</span></div>
+      <div class="table-scroll"><table>
+        <thead><tr><th>ID</th><th>Type</th><th>Component</th><th>What it does</th><th>Inputs → Outputs</th></tr></thead>
+        <tbody>
+          <tr><td class="id">M15</td><td><span class="tag code">Code</span></td><td class="nm">Performance Tracker</td>
+              <td>Scheduled API pull at 30, 60 and 90 days — rankings, traffic, and whether answer engines cite us by name.</td>
+              <td>Live pages → performance record</td></tr>
+          <tr><td class="id">M16</td><td><span class="tag code">Code</span></td><td class="nm">Decay Detector</td>
+              <td>A threshold query, run continuously rather than quarterly. Flags pages losing 20%+ on rolling 28-vs-28, 90-vs-90 and year-on-year comparisons.</td>
+              <td>Performance record → decay flags</td></tr>
+          <tr><td class="id">M17</td><td><span class="tag ai">Agent</span></td><td class="nm">Refresh Planner</td>
+              <td>Diagnoses <em>why</em> a page decayed — intent shift, competitor movement, outdated guidance — and writes the refresh brief. Genuine judgement.</td>
+              <td>Decay flags → refresh brief</td></tr>
+        </tbody>
+      </table></div>
+      <div class="call warn">
+        <span class="call-t">A refreshed medical page goes through the gate again.</span>
+        <p>Re-entering at Stage&nbsp;2 means a refresh gets the same citation verification, the same compliance screen and the same clinical signature as a new article. Clinical guidance changes; approval from eighteen months ago is not approval today.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>When it fails</h2>
+      <p>v1 described only the happy path. These are the failure modes that actually occur, and what the pipeline does about each.</p>
+    </div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Failure</th><th>Behaviour</th><th>Escalation</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">A citation will not resolve</td>
+            <td>Claim flagged, never silently dropped. Draft continues with the claim marked unverified.</td>
+            <td>Clinician decides: cite differently, soften, or remove. Cannot pass M14 while flagged.</td></tr>
+        <tr><td class="nm">Three or more claims unverifiable</td>
+            <td>Draft returned to M07 with the flagged claims. One retry only.</td>
+            <td>Second failure retires the topic and notifies the editor. No infinite loops.</td></tr>
+        <tr><td class="nm">Clinician review not started in 14 days</td>
+            <td>Draft moves to a stalled queue and stops consuming attention.</td>
+            <td>Editor is notified at 7 days, clinical lead at 14. Queue depth is capped.</td></tr>
+        <tr><td class="nm">Review queue exceeds capacity</td>
+            <td>M06 stops scheduling new drafts. The pipeline throttles itself rather than piling up.</td>
+            <td>Backlog reported weekly. This is the real capacity control — see open questions.</td></tr>
+        <tr><td class="nm">Keyword API quota exhausted</td>
+            <td>M01 serves cached data and marks results stale.</td>
+            <td>Pipeline continues on stale data for up to 7 days, then pauses discovery.</td></tr>
+        <tr><td class="nm">A component errors repeatedly</td>
+            <td>Three retries with backoff, then the job moves to a dead-letter queue.</td>
+            <td>Dead-letter reviewed daily. The pipeline does not stop; other jobs proceed.</td></tr>
+        <tr><td class="nm">Compliance flag raised</td>
+            <td>Hard stop. Cannot pass M14 under any circumstances.</td>
+            <td>Routed to whoever owns the rule list. No agent may clear a compliance flag.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>How we know it works</h2>
+      <p>
+        v1 had no way to tell a good draft from a bad one. Performance tracking measures
+        <em>published pages</em>, which confounds the agent with the topic. These measure the
+        components themselves.
+      </p>
+    </div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Component</th><th>Measured by</th><th>Target</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">M05 Brief Generator</td><td>Would an editor send this brief to a writer unchanged? Scored on a sample of 20.</td><td>≥ 80% accepted with minor edits</td></tr>
+        <tr><td class="nm">M07 Draft Writer</td><td>Clinician edit distance at review — how much was rewritten.</td><td>&lt; 25% of the text changed</td></tr>
+        <tr><td class="nm">M08 Citation Verifier</td><td>Held-out set with deliberately fabricated citations planted.</td><td>100% of fabrications caught. This is a blocker, not a target.</td></tr>
+        <tr><td class="nm">M09 Voice Editor</td><td>Reading-level score plus editor spot-check.</td><td>Target grade level, no accuracy loss</td></tr>
+        <tr><td class="nm">M03 Gap Analyst</td><td>Proportion of flagged gaps an SEO lead agrees are real.</td><td>≥ 70% precision</td></tr>
+        <tr><td class="nm">M17 Refresh Planner</td><td>Recovery rate of refreshed pages at 90 days.</td><td>≥ 50% recover prior traffic</td></tr>
+        <tr><td class="nm">Whole pipeline</td><td><strong>Baseline comparison:</strong> 10 articles through the pipeline against 10 from a freelance medical writer. Blind-scored by a clinician.</td><td>Run this before scaling. If the pipeline loses, do not scale it.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="call">
+      <span class="call-t">The baseline comparison is the one that matters.</span>
+      <p>Every other measure tells you whether a component works. Only this one tells you whether the system is worth having at all — and it is cheap to run.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>The data layer</h2>
+      <p>Everything upstream depends on three APIs, all of which meter and throttle. v1 said "keyword APIs" and left it there.</p>
+    </div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Source</th><th>Real constraint</th><th>Consequence for design</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">Google Search Console API</td>
+            <td>Free, but capped around 50,000 page/keyword pairs per property per day, with QPS, QPM and QPD limits.</td>
+            <td>Fine at our scale. Pull nightly, cache locally, never query live.</td></tr>
+        <tr><td class="nm">Semrush API</td>
+            <td>Requires the top toolkit tier (~$549/mo); units bought separately at roughly $50 per million. 10 requests/sec, 10 concurrent.</td>
+            <td>Expensive. Only justified once discovery is automated — not in Phase 1.</td></tr>
+        <tr><td class="nm">Ahrefs API</td>
+            <td>Tiered units — Lite 10k, Standard 150k, Advanced 500k per month. 60 requests/min, max 25 rows per request, minimum 50 units per call.</td>
+            <td>The 25-row cap forces pagination; budget units per run or M01 stalls mid-job.</td></tr>
+        <tr><td class="nm">PubMed / guideline bodies</td>
+            <td>Free, rate-limited, no commercial licence needed for verification lookups.</td>
+            <td>Cache aggressively — the same citations recur across articles.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="call warn">
+      <span class="call-t">Start on Search Console alone.</span>
+      <p>It is free and covers our own performance data, which is all Phases 1–4 need. Paid keyword APIs become worth their cost only when M01 and M03 run automatically at volume.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>How long one article takes</h2>
+    </div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Segment</th><th>Elapsed</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">Discovery → brief (M01–M06)</td><td>minutes</td><td>Mostly API calls; runs in batch overnight.</td></tr>
+        <tr><td class="nm">Draft → verified → edited (M07–M09)</td><td>minutes to ~1 hour</td><td>M08 dominates — one retrieval and verification per claim.</td></tr>
+        <tr><td class="nm">Optimisation → validation (M10–M14, M18)</td><td>seconds to minutes</td><td>Almost all deterministic.</td></tr>
+        <tr><td class="nm"><strong>Human gate</strong></td><td><strong>days</strong></td><td><strong>This is the pipeline. Everything above is noise beside it.</strong></td></tr>
+        <tr><td class="nm">Monitoring (M15–M17)</td><td>30/60/90 days</td><td>Continuous, off the critical path.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="call stop">
+      <span class="call-t">Compute time is irrelevant to throughput.</span>
+      <p>An article is machine-ready in under two hours and then waits days for a clinician. Optimising the agents does not increase output. Only reviewer capacity does — which is why the first open question below governs the whole design.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Risk: Google's scaled content abuse policy</h2>
+    </div>
+    <div class="call stop">
+      <span class="call-t">This is a live risk for exactly the system we are describing.</span>
+      <p>
+        Google's policy is <strong>method-neutral</strong> — it does not penalise content for being
+        AI-generated. It penalises generating many pages primarily to manipulate rankings with little
+        added value. Enforcement through 2026 has reportedly hit sites publishing large volumes of
+        AI-generated pages <em>without editorial oversight</em>, and the spam policies now apply to
+        what appears inside AI Overviews as well as ordinary results.
+      </p>
+      <p>
+        <strong>Our mitigation is structural rather than promissory:</strong> every page carries a
+        named clinician reviewer, verified citations, and a human editorial signature. That is the
+        difference between an editorial operation that uses AI and a content farm. It is also why the
+        volume ceiling set by reviewer capacity is a feature — it makes unreviewed mass publication
+        impossible by construction.
+      </p>
+      <p style="font-size:0.82rem"><strong>Source quality: industry case-study reporting, not primary research.</strong> Directionally reliable; the specific traffic-drop figures should not be quoted as fact.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Build order — corrected</h2>
+      <p>Phase 1 now executes. Each phase produces something usable on its own.</p>
+    </div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Phase</th><th>Components</th><th>What you can do at the end of it</th></tr></thead>
+      <tbody>
+        <tr><td class="id">Phase 1</td><td class="nm">M01 → <em>human picks topic</em> → M05 → M07</td>
+            <td>One article, drafted end to end, read by a human. Proves the handoffs. <strong>Nothing publishes yet.</strong></td></tr>
+        <tr><td class="id">Phase 2</td><td class="nm">M08, M18, M14 + the gate</td>
+            <td>Citation verification, compliance screen, completeness gate, two signatures. <strong>Publishing becomes possible here and not before.</strong></td></tr>
+        <tr><td class="id">Phase 2b</td><td class="nm">Baseline comparison</td>
+            <td>10 pipeline articles vs 10 from a freelance medical writer, blind-scored. <strong>Decision point: scale or stop.</strong></td></tr>
+        <tr><td class="id">Phase 3</td><td class="nm">M10, M11, M12, M13</td>
+            <td>Reviewed content made findable and extractable.</td></tr>
+        <tr><td class="id">Phase 4</td><td class="nm">M15, M16, M17</td>
+            <td>The loop closes. Decayed pages come back as refresh briefs.</td></tr>
+        <tr><td class="id">Phase 5</td><td class="nm">M00, M02, M03, M04, M06, M09</td>
+            <td>Automation and quality. Removes the human topic pick from Phase 1. None of it blocks earlier phases.</td></tr>
+      </tbody>
+    </table></div>
+    <div class="call go">
+      <span class="call-t">Phase 2b is new and it is the cheapest thing in this document.</span>
+      <p>Twenty articles and a clinician's afternoon tells you whether any of the rest is worth building.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><h2>Open questions — not answered here</h2></div>
+    <div class="open">
+      <h3>Two numbers govern this design, and we do not have either</h3>
+
+      <div class="open-item">
+        <span class="open-q">1. How many hours per week can clinicians give to review?</span>
+        <p>
+          <strong>This sets the ceiling on everything.</strong> If two doctors can give two hours a
+          week and a proper medical review takes 30–45 minutes, the system tops out near 5–6 articles
+          a week no matter how good the agents are.
+        </p>
+        <p>
+          <strong>How to answer it:</strong> ask the clinical lead for a committed weekly figure, then
+          time three real reviews to get the true per-article cost. <strong>Then resize this pipeline
+          to that number.</strong> If the answer is 5 a week, several components in Phases 3–5 are not
+          worth building.
+        </p>
+      </div>
+
+      <div class="open-item">
+        <span class="open-q">2. What does one article cost to produce?</span>
+        <p>
+          Unknown until measured. The variable is M08 — one retrieval and verification cycle per
+          clinical claim, on a long context.
+        </p>
+        <p>
+          <strong>How to answer it:</strong> instrument token usage per component during Phase 1 and
+          report cost per article alongside the Phase 2b baseline. The comparison that matters is
+          against a freelance medical writer at market rate.
+        </p>
+      </div>
+
+      <div class="open-item">
+        <span class="open-q">3. Who owns the compliance rule list?</span>
+        <p>
+          M18 applies rules; it does not interpret law. Medical advertising rules vary by jurisdiction
+          and change over time. <strong>Until a named person owns and maintains that list, M18 is a
+          placeholder rather than a control</strong> — and this document should not be read as
+          claiming compliance coverage.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <h2>Evidence quality</h2>
+      <p>Every figure used anywhere in this document, labelled by how much weight it can carry.</p>
+    </div>
+    <div class="table-scroll"><table>
+      <thead><tr><th>Figure</th><th>Source</th><th>Weight</th></tr></thead>
+      <tbody>
+        <tr><td class="nm">76.6% vs 51.3% hallucination-free</td>
+            <td>medRxiv 2025.02.28.25323115 / arXiv 2503.05777 — 11 models, 7 tasks, p = 0.012, 95% CI 18.7–31.3%</td>
+            <td><span class="tag ai">Primary</span> preprint; design-bearing</td></tr>
+        <tr><td class="nm">Chain-of-thought reduced hallucination in 86.4% of comparisons</td>
+            <td>Same study, FDR-corrected</td>
+            <td><span class="tag ai">Primary</span></td></tr>
+        <tr><td class="nm">91.8% of clinicians have met medical hallucinations</td>
+            <td>Same study, survey n = 70</td>
+            <td><span class="tag hy">Primary, small n</span></td></tr>
+        <tr><td class="nm">GSC / Semrush / Ahrefs API limits</td>
+            <td>Vendor developer documentation</td>
+            <td><span class="tag ai">Authoritative</span></td></tr>
+        <tr><td class="nm">Google scaled-content enforcement effects</td>
+            <td>SEO industry case studies</td>
+            <td><span class="tag hy">Directional only</span></td></tr>
+        <tr><td class="nm">89% of health queries trigger AI Overviews</td>
+            <td>Healthcare marketing agency</td>
+            <td><span class="tag code">Vendor — unverified</span></td></tr>
+        <tr><td class="nm">55% of AI Overview citations from first 30% of page</td>
+            <td>Analysis of 100 citations by an SEO consultancy</td>
+            <td><span class="tag code">Vendor, n = 100</span></td></tr>
+        <tr><td class="nm">Content decays in AI search after ~13 weeks</td>
+            <td>Content-refresh tool vendors</td>
+            <td><span class="tag code">Vendor — sells the fix</span></td></tr>
+      </tbody>
+    </table></div>
+    <div class="call">
+      <span class="call-t">Only the top four rows should be quoted externally.</span>
+      <p>The vendor figures shaped the design's emphasis and are probably directionally right, but each comes from a company selling the solution it implies. They are listed so a reader can discount them rather than discover them.</p>
+    </div>
+  </section>
+
+  <footer>
+    <span><strong>Scope:</strong> decomposes agent 03 of four. Agents 01, 02 and 04 are in the subagent roster.</span>
+    <span><strong>Platform:</strong> Payload CMS 3.x — each writing component is a user with its own API key and write scope.</span>
+    <span><strong>Status:</strong> v2, rewritten against review. Component boundaries remain a proposal. Three open questions are unanswered by design and listed above.</span>
+  </footer>
+
+</div>

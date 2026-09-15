@@ -1,0 +1,900 @@
+================================================================================
+CLINIC PLATFORM — PROOF OF CONCEPT
+Payload CMS 3.x mounted natively inside Next.js App Router
+================================================================================
+
+Document generated:  2026-09-09
+Project root:        C:\Users\USER\Desktop\gok\claude\Clinic
+Application:         C:\Users\USER\Desktop\gok\claude\Clinic\clinic-poc
+Status:              WORKING — all planned demo features built and verified
+
+
+================================================================================
+1. WHAT THIS IS AND WHY IT EXISTS
+================================================================================
+
+The wider programme (see PROJECT_BRIEF.md) is an AI-native healthcare platform
+whose centrepiece is an "Agentic Admin CMS". Management redirected the team away
+from building that CMS from scratch, and asked instead for a working proof of
+concept on Payload CMS 3.x.
+
+The POC exists to demonstrate four specific claims to management:
+
+  1. A structured admin dashboard with real relations between clinical entities.
+  2. Built-in drafts and version history on clinical content.
+  3. A public Next.js page server-rendered from Payload's Local API.
+  4. Instant, repeatable mock-data seeding.
+
+It is a DEMO ARTIFACT, NOT PRODUCTION. Every decision below optimises for
+"nothing breaks during a live walkthrough" over production fidelity. Where that
+trade-off was made, it is flagged so it can be defended in the room.
+
+The agentic subagent harness and the human-verification access-control design
+(researched separately, earlier in this project) are deliberately OUT OF SCOPE
+here. They remain verbal roadmap talking points — see section 16.
+
+
+================================================================================
+2. HOW TO RUN IT
+================================================================================
+
+  cd C:\Users\USER\Desktop\gok\claude\Clinic\clinic-poc
+  pnpm dev
+
+  Public site:   http://localhost:3000
+  Admin panel:   http://localhost:3000/admin
+  REST API:      http://localhost:3000/api/<collection>
+  GraphQL:       http://localhost:3000/api/graphql
+
+  Admin login:   admin@meridian.clinic
+  Password:      demo-admin-2026
+
+  (The admin user is created by the seed script, so there is no interactive
+  first-run signup step to get through during a demo.)
+
+Other commands:
+
+  pnpm seed                 Rebuild all mock clinic data (~7 seconds, idempotent)
+  pnpm generate:types       Regenerate src/payload-types.ts from the config
+  pnpm generate:importmap   Regenerate the admin import map
+  pnpm lint                 ESLint
+  pnpm exec tsc --noEmit    Typecheck
+  pnpm devsafe              Clear .next and start dev (use if HMR gets confused)
+  pnpm build                Production build
+  pnpm start                Serve the production build
+
+Demo recovery: if the live demo gets into a bad state, restore the backed-up
+database rather than re-seeding, because it is faster:
+
+  cp .demo-backup/clinic.db clinic.db
+  rm -rf media && cp -r .demo-backup/media media
+
+Then restart the dev server. See clinic-poc/.demo-backup/RESTORE.md.
+
+
+================================================================================
+3. VERIFIED ENVIRONMENT
+================================================================================
+
+  Node        v22.22.1     (Payload needs >= 20.9.0; Next 16 needs >= 22.11.0)
+  pnpm        10.32.1
+  git         2.53.0
+  Docker      29.5.3       available but NOT used — see section 5.1
+  OS          Windows 10 Pro 19045
+
+NOTE: the project is NOT currently a git repository. Recommend `git init` and an
+initial commit before the demo so that any live edits can be reverted instantly.
+
+
+================================================================================
+4. STACK AND EXACT VERSIONS
+================================================================================
+
+Runtime dependencies:
+
+  payload                        3.88.0
+  @payloadcms/next               3.88.0
+  @payloadcms/db-sqlite          3.88.0
+  @payloadcms/richtext-lexical   3.88.0
+  @payloadcms/ui                 3.88.0
+  next                           16.3.3
+  react                          19.2.6
+  react-dom                      19.2.6
+  sharp                          0.34.2
+  graphql                        ^16.8.1
+  cross-env                      10.1.0
+  dotenv                         16.4.7
+
+Dev dependencies:
+
+  typescript                     6.0.3
+  tailwindcss                    4.3.3
+  @tailwindcss/postcss           4.3.3
+  eslint                         ^9.16.0
+  eslint-config-next             16.3.3
+  prettier                       ^3.4.2
+  tsx                            4.22.4
+  @types/node                    24.12.3
+  @types/react                   19.2.14
+  @types/react-dom               19.2.3
+
+engines: node >=22.11.0, pnpm ^9 || ^10 || ^11
+
+3.88.0 is the current stable Payload line. Payload 4.0 is in beta and was
+deliberately avoided — it brings an admin redesign, better DAM and AI workflows,
+but is explicitly not production-ready.
+
+
+================================================================================
+5. ARCHITECTURAL DECISIONS AND RATIONALE
+================================================================================
+
+5.1  DATABASE: SQLite, not Dockerised PostgreSQL
+--------------------------------------------------------------------------------
+Adapter: @payloadcms/db-sqlite (Drizzle ORM + libSQL)
+Database file: clinic-poc/clinic.db
+
+Chosen over Docker Postgres for these reasons:
+
+  - No daemon. Nothing to start, no port conflicts, no container healthcheck
+    wait, no compose file to go wrong thirty seconds before a demo.
+  - Drizzle's `push` mode is on by default in development, so schema changes
+    sync from the Payload config with no migration step while iterating.
+  - Resetting is `rm clinic.db` (or restoring the backup copy).
+  - The .db file is portable, so a known-good pre-seeded state can be kept as a
+    safety net.
+
+Trade-offs — state these before management asks:
+
+  - SQLite does not support Payload's Point (geo) field. Irrelevant here; there
+    is no mapping in scope.
+  - Production would use PostgreSQL. The change is the adapter import plus
+    generated migrations — roughly a three-line config change. This choice does
+    NOT paint the project into a corner. Say so proactively, because it is the
+    obvious challenge.
+  - Known ecosystem risk: @libsql native binaries have historically conflicted
+    with Turbopack on some platforms. In practice this did NOT occur here —
+    Next 16 runs Turbopack by default and the dev server boots in ~1.6s. If it
+    ever does bite, run `next dev --webpack`, or fall back to Docker Postgres.
+
+5.2  TAILWIND CSS SCOPING — the single most important implementation detail
+--------------------------------------------------------------------------------
+Tailwind's preflight layer resets base element styles globally and WILL visibly
+break the Payload admin panel if it leaks into it.
+
+The fix is route-group separation:
+
+  - `@import 'tailwindcss'` appears ONLY in src/app/(frontend)/styles.css
+  - That file is imported ONLY by src/app/(frontend)/layout.tsx
+  - Nothing Tailwind-related touches src/app/(payload)/ or custom.css
+
+This works because Payload's blank template has NO shared root layout — each
+route group renders its own <html> and <body>. The two style worlds never meet.
+
+VERIFIED: the admin dashboard renders correctly with Tailwind installed.
+
+If anyone adds a src/app/layout.tsx importing global CSS, the admin will break.
+
+5.3  PLAIN <img> RATHER THAN next/image
+--------------------------------------------------------------------------------
+Payload serves media through its own /api/media/file/** route, and the
+components already request the correctly-sized generated variant. next/image
+would add configuration failure modes (loader config, local/remote patterns) for
+no measurable benefit at POC scale. Both grid components carry a comment
+explaining this, and a local eslint-disable for the no-img-element rule.
+Revisit when Core Web Vitals are actually being measured.
+
+5.4  force-dynamic ON THE LANDING PAGE
+--------------------------------------------------------------------------------
+The landing page sets `export const dynamic = 'force-dynamic'`.
+
+Without it, Next.js caches the render and the central demo beat — publish in the
+admin, refresh the site, watch content appear — silently fails. Correct for a
+POC. Production would use ISR plus on-demand revalidation triggered from an
+`afterChange` hook rather than opting out of caching entirely.
+
+5.5  SUBFOLDER LAYOUT
+--------------------------------------------------------------------------------
+The app lives in clinic-poc/ rather than at the repository root, because the root
+already holds the strategy documents (PROJECT_BRIEF.md, this file). Keeps
+research artefacts and application code cleanly separated.
+
+
+================================================================================
+6. FOLDER STRUCTURE
+================================================================================
+
+Clinic/
+├─ PROJECT_BRIEF.md                    strategy brief (pre-existing, untouched)
+├─ PROJECT_DETAILS.txt                 this file
+├─ .claude/launch.json                 dev-server config for tooling
+└─ clinic-poc/
+   ├─ src/
+   │  ├─ payload.config.ts             44 lines — adapter, collections, admin meta
+   │  ├─ payload-types.ts              605 lines — GENERATED, never hand-edit
+   │  │
+   │  ├─ access/
+   │  │  └─ index.ts                   32 — the three access-control rules
+   │  │
+   │  ├─ fields/
+   │  │  └─ slugField.ts               42 — reusable auto-slug field factory
+   │  │
+   │  ├─ lib/
+   │  │  └─ payloadHelpers.ts          37 — relationship/image narrowing helpers
+   │  │
+   │  ├─ collections/
+   │  │  ├─ Departments.ts             85
+   │  │  ├─ Doctors.ts                145
+   │  │  ├─ Inquiries.ts              101
+   │  │  ├─ Media.ts                   40
+   │  │  └─ Users.ts                   19
+   │  │
+   │  ├─ seed/
+   │  │  └─ index.ts                  516 — idempotent mock clinic dataset
+   │  │
+   │  └─ app/
+   │     ├─ (payload)/                 Payload's own routes — DO NOT EDIT
+   │     │  ├─ layout.tsx              31
+   │     │  ├─ custom.css              admin styling hook (left empty)
+   │     │  ├─ admin/
+   │     │  │  ├─ [[...segments]]/page.tsx
+   │     │  │  ├─ [[...segments]]/not-found.tsx
+   │     │  │  └─ importMap.js         52 — GENERATED
+   │     │  └─ api/
+   │     │     ├─ [...slug]/route.ts           REST
+   │     │     ├─ graphql/route.ts             GraphQL
+   │     │     └─ graphql-playground/route.ts
+   │     │
+   │     └─ (frontend)/                the public site
+   │        ├─ layout.tsx              20 — ONLY place Tailwind is imported
+   │        ├─ styles.css              33 — @import tailwindcss + brand @theme
+   │        ├─ page.tsx                90 — landing page, SSR via Local API
+   │        ├─ actions.ts              67 — server action for inquiry submission
+   │        └─ components/
+   │           ├─ Hero.tsx             66
+   │           ├─ DepartmentGrid.tsx   82
+   │           ├─ DoctorDirectory.tsx 142
+   │           └─ InquiryForm.tsx     140 — 'use client'
+   │
+   ├─ clinic.db                        SQLite database (434,176 bytes)
+   ├─ media/                           60 generated image files
+   ├─ .demo-backup/                    known-good copy for demo recovery
+   │  ├─ clinic.db
+   │  ├─ media/                        60 files
+   │  └─ RESTORE.md
+   ├─ .env                             DATABASE_URI + PAYLOAD_SECRET (not committed)
+   ├─ .env.example
+   ├─ next.config.ts                   wrapped in withPayload()
+   ├─ postcss.config.mjs               @tailwindcss/postcss
+   ├─ tsconfig.json                    @/* and @payload-config path aliases
+   ├─ eslint.config.mjs
+   └─ package.json
+
+Hand-written application code:  1,701 lines across 18 files
+Generated / template code:        688 lines (payload-types, importMap, layout)
+
+
+================================================================================
+7. DATA MODEL
+================================================================================
+
+Five collections. Grouped in the admin sidebar as Clinic / Patients / System so
+the dashboard reads like an operations tool rather than a database browser.
+
+--------------------------------------------------------------------------------
+7.1  DEPARTMENTS          (group: Clinic, versioned, drafts enabled)
+--------------------------------------------------------------------------------
+  title              text        required, useAsTitle
+  slug               text        required, unique, indexed, sidebar
+                                 auto-derived from title via beforeValidate hook
+  icon               text        sidebar — single emoji used on cards (e.g. 🫀)
+  summary            textarea    required, maxLength 220 — used on the grid
+  description        richText    Lexical — full department overview
+  image              upload      -> media
+  doctors            JOIN        -> doctors collection, on: 'department'
+
+  versions:  { drafts: true, maxPerDoc: 20 }
+  access:    read = publishedOrAuthenticated
+             create/update/delete/readVersions = authenticated
+  admin:     defaultColumns [title, icon, updatedAt, _status]
+
+  THE JOIN FIELD IS THE SHOWPIECE. Doctors own the `department` relationship;
+  this virtual field surfaces them back on the department with no duplicated
+  data and no custom code. In the admin it renders as a full sortable,
+  column-configurable table with an "Add new" button.
+
+  Its admin config pins its own columns:
+      defaultSort: 'name'
+      defaultColumns: ['name', 'specialization', 'yearsExperience', '_status']
+  This was a bug fix — see section 14.1.
+
+--------------------------------------------------------------------------------
+7.2  DOCTORS              (group: Clinic, versioned, drafts enabled)
+--------------------------------------------------------------------------------
+  name               text          required, useAsTitle
+  slug               text          unique, indexed, sidebar, auto-derived
+  department         relationship  -> departments, required, hasMany false
+  specialization     text          required
+  qualifications     text          e.g. "MBBS, MD, DM (Cardiology)"
+  yearsExperience    number        min 0, max 60
+  bio                richText      Lexical — patient-facing biography
+  avatar             upload        -> media, sidebar
+  consultationHours  array         repeatable weekly availability, each row:
+                                     day        select (monday..sunday), required
+                                     startTime  text, required, e.g. "09:00"
+                                     endTime    text, required, e.g. "13:00"
+
+  versions:  { drafts: true, maxPerDoc: 20 }
+  access:    read = publishedOrAuthenticated
+             create/update/delete/readVersions = authenticated
+  admin:     defaultColumns [name, department, specialization, updatedAt, _status]
+
+  Fields are arranged in `row` groups (department+specialization,
+  qualifications+yearsExperience) so the edit screen reads like a form rather
+  than a vertical stack. This is what "structured admin dashboard" looks like
+  in practice.
+
+  DELIBERATE SIMPLIFICATION: startTime/endTime are text, not date fields with a
+  timeOnly picker. The picker looks better but introduces timezone handling on
+  SQLite and a seeding failure mode. Demo reliability was prioritised. Upgrading
+  is a two-line change per field.
+
+--------------------------------------------------------------------------------
+7.3  INQUIRIES            (group: Patients, NO versions)
+--------------------------------------------------------------------------------
+  patientName          text          required, useAsTitle
+  email                email         required
+  phone                text
+  requestedDepartment  relationship  -> departments, hasMany false
+  message              textarea      required
+  status               select        required, sidebar, defaultValue 'new'
+                                     options: new | in_review | contacted | closed
+  submittedAt          date          sidebar, readOnly, defaults to now,
+                                     dayAndTime picker
+
+  versions:  false — an inquiry is a transactional record, not editorial content
+  access:    create = anyone         <- the public form must work
+             read/update/delete = authenticated
+  admin:     defaultColumns [patientName, requestedDepartment, status, submittedAt]
+
+  THE ASYMMETRIC ACCESS IS INTENTIONAL AND IS A DEMO POINT. An anonymous visitor
+  can create an inquiry but cannot read the inbox. Verified: anonymous GET
+  returns 403, anonymous POST returns 201.
+
+--------------------------------------------------------------------------------
+7.4  MEDIA                (group: System, upload collection)
+--------------------------------------------------------------------------------
+  alt                text        required — accessibility and SEO
+
+  upload config:
+    staticDir     <projectRoot>/media
+    mimeTypes     ['image/*']
+    focalPoint    true
+    crop          true
+    imageSizes    thumbnail  400 x 300   centre
+                  card       768 x 576   centre
+                  hero      1920 x 800   centre
+
+  access: read = () => true (public — the site must load images)
+
+--------------------------------------------------------------------------------
+7.5  USERS                (group: System, auth collection)
+--------------------------------------------------------------------------------
+  email       added automatically by the auth config
+  password    added automatically by the auth config
+  name        text
+
+  auth: true, versions: false
+
+  Payload's auth gives HTTP-only cookie sessions, JWTs, API keys, email
+  verification, password reset and configurable login-attempt lockout. None of
+  it needed configuration for this POC.
+
+
+================================================================================
+8. ACCESS CONTROL — ONE RULE, THREE ENFORCEMENT POINTS
+================================================================================
+
+src/access/index.ts holds three functions:
+
+  anyone                     () => true
+  authenticated              ({ req: { user } }) => Boolean(user)
+  publishedOrAuthenticated   ({ req: { user } }) =>
+                               user ? true : { _status: { equals: 'published' } }
+
+The third is the important one. It returns a WHERE QUERY, not a boolean. The
+constraint is merged into the database query itself, so unpublished clinical
+content is never loaded — it is not merely hidden in the UI.
+
+The same three functions govern:
+
+  1. The admin panel
+  2. The REST and GraphQL APIs
+  3. The server-rendered public page
+
+...because the landing page calls the Local API with `overrideAccess: false`.
+
+  *** IMPORTANT FOOTGUN ***
+  Payload's Local API defaults `overrideAccess` to TRUE, which BYPASSES ALL
+  ACCESS CONTROL. Any code calling payload.find/create/update without passing
+  `overrideAccess: false` (and a user) silently ignores every rule above.
+  The landing page passes `false` explicitly, so it runs as an anonymous
+  visitor. This gives one source of truth for draft-hiding instead of two that
+  can drift apart. Lint for this pattern as the codebase grows.
+
+Observable proof of the rule working: on the public site, General Medicine
+displays "1 CONSULTANT" even though it has two doctors — the second is a draft.
+The access rule reaches inside the join field's count.
+
+
+================================================================================
+9. PUBLIC SITE
+================================================================================
+
+A single page at src/app/(frontend)/page.tsx composed of four sections:
+
+  Hero                teal gradient, clinic name, live department and consultant
+                      counts, two CTAs, nav that collapses below the sm
+                      breakpoint
+  DepartmentGrid      responsive card grid; card image (generated `card` size),
+                      emoji badge, title, summary, and consultant count taken
+                      from the join field's totalDocs
+  DoctorDirectory     consultant cards — avatar or initials fallback, name,
+                      specialization, qualifications, department badge with
+                      emoji, years-experience badge, availability badges
+  InquiryForm         client component, server action submission
+  Footer              copyright plus a link through to /admin
+
+Data fetching (the architecturally significant part):
+
+  const payload = await getPayload({ config })
+  const [departmentsResult, doctorsResult] = await Promise.all([
+    payload.find({ collection: 'departments', depth: 2, limit: 12,
+                   sort: 'title',  overrideAccess: false }),
+    payload.find({ collection: 'doctors',     depth: 2, limit: 24,
+                   sort: 'name',   overrideAccess: false }),
+  ])
+
+  - No HTTP round trip. The Local API runs in-process against the database.
+  - depth: 2 populates the image/avatar uploads, the department relationship,
+    and the joined doctors.
+  - Both queries run concurrently.
+
+AVAILABILITY BADGES
+  Derived from the structured consultationHours array, not stored separately:
+    - Green "Available today" pill when a slot matches the current weekday
+    - Grey "By appointment" pill otherwise
+    - Per-day chips ("Mon 09:00–13:00"), with the current day's chip
+      highlighted in brand colour
+  This makes the structured data visibly do something rather than just sit in
+  the admin panel.
+
+STYLING
+  Tailwind v4, CSS-first (no tailwind.config.ts). A custom `brand` teal palette
+  (50..900) is declared with the @theme directive in styles.css, plus a system
+  font stack.
+
+INQUIRY SUBMISSION FLOW
+  InquiryForm.tsx ('use client') uses React's useActionState for pending,
+  success and error states, and posts to submitInquiry in actions.ts.
+
+  The server action:
+    - validates server-side (name >= 2 chars, email regex, message >= 10 chars)
+    - returns per-field errors that render beneath the offending input
+    - on success writes via payload.create({ collection: 'inquiries', ... })
+    - replaces the form with a green "Enquiry received" confirmation panel
+
+  No client-side validation library, no API route.
+
+
+================================================================================
+10. SEED SCRIPT
+================================================================================
+
+src/seed/index.ts — 516 lines. Run with `pnpm seed` (~7 seconds).
+
+IDEMPOTENT. It clears inquiries, doctors, departments and media first (in that
+order, respecting foreign keys), so it can be re-run live without duplicates.
+
+The admin user is created ONLY if the users collection is empty, so re-seeding
+never overwrites an existing password.
+
+What it creates:
+
+  6 DEPARTMENTS   Cardiology, Orthopaedics, Paediatrics, Dermatology,
+                  Neurology, General Medicine
+                  — each with emoji icon, summary, two-paragraph rich-text body
+                    and a generated image
+
+  12 DOCTORS      2 per department, with realistic names, specialisations,
+                  qualifications, years of experience, biographies and weekly
+                  consultation hours.
+                  11 published; 1 (Dr. Omar Haddad) DELIBERATELY LEFT AS DRAFT
+                  so the list view shows mixed statuses from the first screen
+                  and the public site can be proven to exclude him.
+
+  4 INQUIRIES     one in each status (new, in_review, contacted, closed) so the
+                  triage board is not empty
+
+  1 ADMIN USER    admin@meridian.clinic / demo-admin-2026
+
+IMAGE GENERATION — no binary assets committed, no network calls
+  Images are generated at seed time with sharp from inline SVG strings:
+    - departments: 1200x900 diagonal gradient with translucent circles,
+      hue varied per department
+    - doctors: 600x600 gradient avatar with abstract head/shoulder shapes,
+      hue rotated 47 degrees per doctor
+  Converted to JPEG (quality 82, mozjpeg) and passed to payload.create via the
+  `file` option as in-memory buffers.
+
+  The SVGs contain NO TEXT deliberately. SVG text rendering depends on fonts
+  being available to librsvg, which varies by platform. Shapes and gradients
+  always render. Seeding therefore works offline and cannot fail mid-demo on a
+  flaky connection.
+
+  18 media documents produce 60 files on disk: department images get all three
+  generated sizes plus the original (6 x 4 = 24), while the 600x600 avatars are
+  smaller than the 1920x800 hero size and so skip it (12 x 3 = 36).
+
+RICH TEXT
+  A small buildRichText() helper constructs Lexical's serialized JSON (root ->
+  paragraph -> text nodes) from plain string arrays, typed against the generated
+  Department['description'] type.
+
+
+================================================================================
+11. DATABASE SCHEMA
+================================================================================
+
+Drizzle generated 16 tables from the Payload config:
+
+  Content tables
+    departments
+    doctors
+    doctors_consultation_hours          the array field's own table
+    inquiries
+    media
+    users
+    users_sessions
+
+  Version tables (created by versions/drafts)
+    _departments_v
+    _doctors_v
+    _doctors_v_version_consultation_hours
+
+  Payload internals
+    payload_kv
+    payload_migrations
+    payload_locked_documents            document locking
+    payload_locked_documents_rels
+    payload_preferences                 per-user admin UI preferences
+    payload_preferences_rels
+
+Note that enabling drafts on two collections is what produced the three version
+tables, and that the repeatable consultationHours array gets a normalised child
+table in both the live and versioned form. This is the relational cost of
+structured content, and it is what makes the audit trail queryable.
+
+
+================================================================================
+12. CURRENT DATABASE CONTENTS
+================================================================================
+
+Read directly from clinic.db on 2026-09-09:
+
+  departments                  6      all published
+  doctors                     14      13 published, 1 draft
+  doctors_consultation_hours  25      rows
+  inquiries                    5
+  media                       18      documents (60 files on disk)
+  users                        1      admin@meridian.clinic
+  _departments_v              10      version rows
+  _doctors_v                  24      version rows
+
+  Departments
+    1  Cardiology         cardiology        published
+    2  Orthopaedics       orthopaedics      published
+    3  Paediatrics        paediatrics       published
+    4  Dermatology        dermatology       published
+    5  Neurology          neurology         published
+    6  General Medicine   general-medicine  published
+
+  Doctors
+    1   Dr. Aisha Rahman      published    seeded
+    2   Dr. Marcus Feld       published    seeded
+    3   Dr. Priya Sundaram    published    seeded
+    4   Dr. Tobias Lang       published    seeded
+    5   Dr. Nadia Osei        published    seeded
+    6   Dr. Samuel Adeyemi    published    seeded
+    7   Dr. Helena Voss       published    seeded
+    8   Dr. Ravi Iyer         published    seeded
+    9   Dr. Clara Mendes      published    seeded
+    10  Dr. Jonas Weber       published    seeded
+    11  Dr. Fatima Al-Sayed   published    seeded
+    12  Dr. Omar Haddad       DRAFT        seeded (intentional demo draft)
+    13  Dr. Jane Doe          published    added manually during testing
+    14  Dr Demo john          published    added manually during testing
+
+  Inquiries
+    1  Rebecca Nolan     new         seeded
+    2  Daniel Okafor     in_review   seeded
+    3  Mei Lin Chen      contacted   seeded
+    4  Arthur Beaumont   closed      seeded
+    5  gokul g           new         submitted manually through the public form
+
+  *** The database is therefore NOT in pristine seeded state. Doctors 13 and 14
+  and the "gokul g" inquiry were created manually during testing. They have been
+  left in place deliberately — they are independent evidence that the admin
+  create flow and the public form both work from a real browser.
+
+  Run `pnpm seed` before the demo for a clean, predictable dataset. That will
+  remove those three records. ***
+
+
+================================================================================
+13. VERIFICATION RESULTS
+================================================================================
+
+Everything below was executed and observed, not assumed.
+
+  CHECK                                     RESULT
+  --------------------------------------------------------------------------
+  pnpm exec tsc --noEmit                    clean (exit 0)
+  pnpm lint                                 clean (exit 0)
+  Dev server boot                           ~1.6s, Turbopack, no libsql issues
+  pnpm generate:types                       succeeds; Department, Doctor,
+                                            Inquiry, Media types emitted
+  pnpm seed                                 succeeds in ~7s
+  pnpm seed run twice                       idempotent; no duplicates;
+                                            credentials left untouched
+  Admin dashboard renders                   yes, groups intact, Tailwind did
+                                            NOT leak into the admin
+  Department join field in admin            populates (Cardiology -> 3 doctors)
+  Doctor edit screen                        Versions tab, "Status: Published",
+                                            "Publish changes" all present
+  Landing page renders                      6 departments, 11 published doctors
+  Draft excluded from public site           yes
+
+  DRAFT GATE, MEASURED
+    With a test doctor saved as draft:
+      anonymous GET /api/doctors  ->  totalDocs 11
+      rendered HTML               ->  0 occurrences of the name
+    After flipping _status to published:
+      anonymous GET /api/doctors  ->  totalDocs 12
+      rendered HTML               ->  1 occurrence
+    This also proves force-dynamic is defeating Next's cache.
+
+  VERSION HISTORY
+    Creating, publishing and then editing one doctor produced 3 version rows
+    with correct status transitions: draft -> published -> published.
+    POST /api/doctors/versions/17 restored the pre-edit value; the edited field
+    reverted correctly.
+    The admin Versions tab lists them labelled "Currently Published",
+    "Previously Published" and "Draft".
+
+  ACCESS CONTROL, FOUR CASES
+    anonymous GET  /api/inquiries    ->  403 "You are not allowed to perform
+                                          this action."
+    anonymous POST /api/inquiries    ->  201 (public form works by design)
+    authenticated GET /api/inquiries ->  200
+    anonymous GET  /api/doctors      ->  200, 11 docs, all _status published,
+                                          draft doctor absent
+    anonymous GET  /api/departments  ->  200, 6 docs
+
+  PUBLIC FORM ROUND TRIP
+    Submitted "Hannah Whitfield / Neurology" through the rendered form.
+    Success panel appeared; the record arrived in the inbox with
+    requestedDepartment "Neurology" and status "new".
+
+  RESPONSIVE
+    375px (mobile):  scrollWidth === clientWidth (no horizontal overflow),
+                     all three grids collapse to 1 column, nav links hidden,
+                     CTAs stack
+    1280px (desktop): grids are 3 / 3 / 2 columns, no overflow
+
+  DEMO BACKUP
+    clinic.db plus all 60 media files copied to .demo-backup/ with RESTORE.md
+
+
+================================================================================
+14. PROBLEMS ENCOUNTERED AND HOW THEY WERE RESOLVED
+================================================================================
+
+14.1  BUG FOUND AND FIXED: "<No Department>" in the join table
+--------------------------------------------------------------------------------
+The join field table on a Department page showed a "Department" column reading
+"<No Department>" on every row. The join table inherits the target collection's
+admin.defaultColumns — which for Doctors includes `department` — and that
+relationship is not populated inside the join context, so it rendered empty. The
+column is redundant there anyway, since every row belongs to that department.
+
+Fixed in src/collections/Departments.ts by giving the join its own columns:
+
+    defaultSort: 'name',
+    admin: {
+      defaultColumns: ['name', 'specialization', 'yearsExperience', '_status'],
+    }
+
+Now reads: Name | Specialization | Years Experience | Status, name-sorted.
+Worth catching — an empty column is exactly what a manager stops a demo to ask
+about.
+
+14.2  create-payload-app REQUIRES AN INTERACTIVE TERMINAL
+--------------------------------------------------------------------------------
+`npx create-payload-app` failed with:
+    TTY initialization failed: uv_tty_init returned EBADF
+
+There is also NO `--db` flag — the database choice is an interactive prompt. The
+documented CLI options are only -n (name), -t (template), -e (example),
+-a (coding agent), --use-npm/yarn/pnpm/bun, --no-deps and -h.
+
+Workaround: the official blank template was obtained by sparse checkout of the
+payloadcms/payload repository instead, then adapted (SQLite adapter, pinned
+versions, clinic collections).
+
+14.3  THE main-BRANCH TEMPLATE IS AHEAD OF THE PUBLISHED PACKAGES
+--------------------------------------------------------------------------------
+*** The most valuable finding here for anyone else on the team. ***
+
+The first attempt produced HTTP 500 on /admin. The template pulled from the
+repository's `main` branch imported symbols that do not exist in the published
+3.88.0 packages:
+
+    HierarchyField              not in @payloadcms/ui@3.88.0
+    HierarchyButton             not in @payloadcms/ui@3.88.0
+    HierarchySidebarTabServer   not in @payloadcms/ui@3.88.0
+    generatePayloadViewport     not in @payloadcms/next@3.88.0
+
+The `main` template tracks unreleased work. Resolved by taking the template from
+the v3.88.0 tag so template and packages match.
+
+LESSON: never scaffold from templates/blank on `main` while installing published
+package versions. Match the tag to the installed version.
+
+14.4  NODE ENGINE MISMATCH
+--------------------------------------------------------------------------------
+The template's package.json declared `node: >=24.15.0` while the machine runs
+v22.22.1. Node 22.22.1 genuinely satisfies Next 16's real requirement, so the
+engines field was relaxed to `>=22.11.0`. (.npmrc contains only
+legacy-peer-deps=true, no engine-strict, so this was a warning rather than a
+hard failure — but it was relaxed to keep installs quiet.)
+
+14.5  ITEMS REMOVED FROM THE TEMPLATE
+--------------------------------------------------------------------------------
+  - Playwright and Vitest harness, configs and dev dependencies
+      (Playwright would download browser binaries; no tests in POC scope)
+  - Folders and Tags collections, and the createFolderField/createTagField
+      calls in Media (not needed; keeps the admin sidebar clean)
+  - @payloadcms/plugin-mcp
+      Shipped in the template by default. Removed to keep the sidebar focused
+      on clinic content for this demo. It is a one-line re-add when the agentic
+      roadmap conversation happens — worth knowing it is already an official,
+      supported plugin.
+  - Dockerfile, docker-compose.yml, .vscode, tests/, test.env
+
+
+================================================================================
+15. KNOWN LIMITATIONS AND DELIBERATE OMISSIONS
+================================================================================
+
+IN SCOPE and working:
+  public content management, editorial workflow with drafts and version history,
+  patient inquiry capture and triage.
+
+DELIBERATELY NOT IN SCOPE:
+  - Patient records / PHI of any kind
+  - Appointment booking or calendar integration
+  - Patient-facing logins
+  - Department detail pages (/departments/[slug])
+  - Email delivery (Payload warns "No email adapter provided. Email will be
+    written to console." — expected, nothing is sent)
+  - Any AI or agentic functionality
+  - Automated tests
+
+  *** WHY PHI IS EXCLUDED BY DESIGN — say this explicitly in the walkthrough ***
+  If patient names, symptoms or appointment details were written into Payload
+  collections, THE ENTIRE CMS DATABASE would fall into HIPAA scope: audit
+  controls, encryption at rest, a signed BAA, breach notification, the whole
+  surface. The CMS holds only public marketing content. Booking and patient
+  data belong in a separate PHI-scoped service, with the CMS storing at most an
+  opaque booking reference.
+
+OTHER LIMITATIONS TO BE AWARE OF:
+  - Payload itself holds no SOC 2 Type II, ISO 27001 or HIPAA BAA. Self-hosting
+    moves that responsibility to the cloud provider, which is why the PHI
+    boundary above matters.
+  - Roles are code, not a clickable UI. Access control lives in
+    src/access/index.ts and moves through pull requests. Good for auditability;
+    clinic staff cannot self-manage permissions.
+  - There is no approval-workflow engine. Drafts, versions and access control
+    give the ENFORCEMENT; a review queue, dual editorial/clinical sign-off and
+    provenance display would be custom admin views.
+  - Emoji department icons rendered as placeholder boxes in the headless test
+    browser. This is a font matter, not a code one, and they should render
+    correctly in real Chrome on Windows — but LOOK AT THE PAGE IN YOUR OWN
+    BROWSER before the demo to confirm.
+  - Not a git repository yet.
+
+
+================================================================================
+16. LIVE WALKTHROUGH SCRIPT
+================================================================================
+
+Roughly 12 minutes. Run `pnpm seed` first for a clean dataset.
+
+STRUCTURE (2 min)
+  [ ] Log into /admin. Dashboard shows collections grouped
+      Clinic / Patients / System.
+  [ ] Departments -> open Cardiology -> scroll to the Doctors table.
+      Say: "Doctors own this relationship. The department surfaces them
+      automatically — no duplicated data, no custom code."
+  [ ] Open a doctor. Point out the department relationship, the repeatable
+      consultation-hours rows, the avatar.
+
+EDITORIAL SAFETY — the headline (4 min)
+  [ ] Create a new doctor. Save as DRAFT. Show _status "draft" in the list.
+  [ ] Switch to the public site. It is not there.
+      Say: "Unreviewed clinical content cannot reach patients."
+  [ ] Publish. Refresh the site. It appears.
+  [ ] Edit a published doctor's bio, save. Open the Versions tab. Show the
+      diff. Restore the previous version. Refresh the site — it reverts.
+      Say: "Every change to clinical content is attributable and reversible."
+
+PUBLIC SITE (2 min)
+  [ ] Landing page: hero, departments grid, consultant cards with availability
+      badges — all server-rendered from the same database, with no separate API
+      service to deploy or secure.
+  [ ] Narrow the browser to mobile width. Grids collapse cleanly.
+
+ROUND TRIP (2 min)
+  [ ] Submit the inquiry form as a patient. Refresh the admin. The enquiry is
+      there with status "new". Change it to "contacted".
+
+ENGINEERING CREDIBILITY (2 min)
+  [ ] Open src/payload-types.ts. Types are generated from the schema, and the
+      page component consumes them.
+  [ ] Log out. Hit /api/inquiries -> 403. Hit /api/departments -> published
+      only. Say: "One access rule, enforced across the admin, the REST API and
+      the server-rendered page."
+  [ ] Run `pnpm seed`. The whole clinic rebuilds in about seven seconds.
+
+FRAMING — say these out loud
+  [ ] In scope: public content management, editorial workflow, patient enquiries.
+  [ ] Not in scope, by design: patient records, booking, patient logins —
+      because PHI in the CMS would pull the entire database into HIPAA scope.
+  [ ] Production path: SQLite -> PostgreSQL plus migrations (a three-line
+      adapter change).
+  [ ] Roadmap: per-agent scoped API keys via Payload's official MCP plugin;
+      draft-only agent identities, with the restriction declared once on the
+      collection so it applies to every route in rather than being repeated
+      per endpoint; dual editorial + clinical sign-off for medical claims.
+
+
+================================================================================
+17. PATH TO PRODUCTION
+================================================================================
+
+Ordered by dependency, not by effort.
+
+  1. git init, commit, push. Nothing is version controlled yet.
+  2. Swap SQLite for PostgreSQL: change the adapter import in payload.config.ts,
+     generate migrations, and stop relying on Drizzle push.
+  3. Decide and document the PHI boundary before any booking work starts. This
+     is the single most consequential architectural decision remaining.
+  4. Move media off local disk to S3 or equivalent via a cloud-storage adapter
+     plugin; local staticDir will not survive a containerised deploy.
+  5. Add an email adapter for password reset and enquiry notifications.
+  6. Replace force-dynamic with ISR plus on-demand revalidation from an
+     afterChange hook.
+  7. Add automated tests. The template's Playwright and Vitest harness was
+     removed and can be restored from the v3.88.0 template.
+  8. Harden auth: real password policy, login-attempt lockout tuning, and a
+     considered role model beyond the single admin.
+  9. THEN, and only then, the agentic layer: per-agent Payload users, scoped
+     API keys through the MCP plugin, draft-only access control for agent
+     identities, provenance tainting for anything derived from untrusted
+     external sources, and a review-queue admin view with dual sign-off.
+
+================================================================================
+END OF DOCUMENT
+================================================================================

@@ -1,0 +1,599 @@
+<title>RegenCare Platform Decision</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap">
+
+<style>
+  :root {
+    --paper:        #f6f8fa;
+    --surface:      #ffffff;
+    --surface-sunk: #eef2f5;
+    --ink:          #131920;
+    --ink-soft:     #414d59;
+    --ink-faint:    #6d7b88;
+    --rule:         #dbe2e8;
+    --rule-strong:  #b9c5ce;
+
+    --accent:       #17505e;
+    --accent-soft:  #2c7285;
+    --accent-wash:  #e6eff1;
+
+    --pos:          #2c6a4a;
+    --pos-wash:     #e7f0ea;
+    --neg:          #9e4429;
+    --neg-wash:     #f6eae5;
+    --even:         #6d7b88;
+    --even-wash:    #edf0f3;
+
+    --serif: 'Newsreader', 'Iowan Old Style', Georgia, serif;
+    --sans:  'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono:  'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+    --measure: 66ch;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:        #11151a;
+      --surface:      #171d24;
+      --surface-sunk: #1d242c;
+      --ink:          #e6ecf1;
+      --ink-soft:     #aab7c2;
+      --ink-faint:    #7e8c98;
+      --rule:         #2a333c;
+      --rule-strong:  #3d4954;
+
+      --accent:       #6fb9cc;
+      --accent-soft:  #52a2b6;
+      --accent-wash:  #17303a;
+
+      --pos:          #79c39b;
+      --pos-wash:     #162d23;
+      --neg:          #e0916f;
+      --neg-wash:     #33201a;
+      --even:         #8b98a4;
+      --even-wash:    #232a32;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:        #11151a;
+    --surface:      #171d24;
+    --surface-sunk: #1d242c;
+    --ink:          #e6ecf1;
+    --ink-soft:     #aab7c2;
+    --ink-faint:    #7e8c98;
+    --rule:         #2a333c;
+    --rule-strong:  #3d4954;
+
+    --accent:       #6fb9cc;
+    --accent-soft:  #52a2b6;
+    --accent-wash:  #17303a;
+
+    --pos:          #79c39b;
+    --pos-wash:     #162d23;
+    --neg:          #e0916f;
+    --neg-wash:     #33201a;
+    --even:         #8b98a4;
+    --even-wash:    #232a32;
+  }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .wrap {
+    max-width: 62rem;
+    margin: 0 auto;
+    padding: 3.5rem 1.5rem 5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem;
+  }
+
+  /* ---------- masthead ---------- */
+
+  .masthead { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+  }
+  .eyebrow span { white-space: nowrap; }
+
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(2.1rem, 5vw, 3.1rem);
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  /* ---------- verdict ---------- */
+
+  .verdict {
+    border-top: 2px solid var(--accent);
+    background: var(--accent-wash);
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .verdict-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .verdict-call {
+    font-family: var(--serif);
+    font-size: clamp(1.5rem, 3.6vw, 2.1rem);
+    line-height: 1.2;
+    font-weight: 600;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .verdict p { margin: 0; max-width: var(--measure); color: var(--ink-soft); }
+
+  /* ---------- section scaffolding ---------- */
+
+  section { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(1.4rem, 3vw, 1.85rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .section-head { display: flex; flex-direction: column; gap: 0.5rem; }
+  .section-head p { margin: 0; color: var(--ink-soft); max-width: var(--measure); }
+
+  /* ---------- the ledger ---------- */
+
+  .ledger { display: flex; flex-direction: column; }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1.15fr 1fr 1fr auto;
+    gap: 0 1.5rem;
+    align-items: start;
+    padding: 1.1rem 1.1rem 1.1rem 0.9rem;
+    border-bottom: 1px solid var(--rule);
+    border-left: 3px solid transparent;
+    background: var(--surface);
+  }
+  .row:first-of-type { border-top: 1px solid var(--rule); }
+  .row.win-payload   { border-left-color: var(--pos); }
+  .row.win-wordpress { border-left-color: var(--neg); }
+  .row.win-even      { border-left-color: var(--even); }
+
+  .row-head { display: flex; flex-direction: column; gap: 0.15rem; }
+  .row-title { font-weight: 600; font-size: 0.95rem; }
+  .row-sub {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--ink-faint);
+    letter-spacing: 0.01em;
+  }
+
+  .side { display: flex; flex-direction: column; gap: 0.2rem; font-size: 0.86rem; }
+  .side-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+  }
+  .side p { margin: 0; color: var(--ink-soft); }
+  .side.is-winner p { color: var(--ink); font-weight: 450; }
+
+  .call {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.55rem;
+    white-space: nowrap;
+    align-self: start;
+  }
+  .call.payload   { background: var(--pos-wash);  color: var(--pos); }
+  .call.wordpress { background: var(--neg-wash);  color: var(--neg); }
+  .call.even      { background: var(--even-wash); color: var(--even); }
+
+  .tally {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.5rem;
+    align-items: baseline;
+    padding: 1rem 1.1rem;
+    background: var(--surface-sunk);
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+  .tally strong { color: var(--ink); font-weight: 600; }
+
+  /* ---------- decisive figures ---------- */
+
+  .figures {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+  }
+  .figure {
+    background: var(--surface);
+    padding: 1.5rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .figure-value {
+    font-family: var(--mono);
+    font-size: clamp(2rem, 5vw, 2.6rem);
+    font-weight: 600;
+    line-height: 1;
+    color: var(--neg);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+  .figure-name { font-weight: 600; font-size: 0.9rem; }
+  .figure-note { font-size: 0.82rem; color: var(--ink-soft); margin: 0; }
+
+  /* ---------- reasoning list ---------- */
+
+  .reasons { display: flex; flex-direction: column; gap: 1.25rem; }
+  .reason {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 1rem;
+    align-items: baseline;
+  }
+  .reason-mark {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: 0.06em;
+    padding-top: 0.15rem;
+  }
+  .reason-body { display: flex; flex-direction: column; gap: 0.3rem; }
+  .reason-title { font-weight: 600; }
+  .reason-body p { margin: 0; color: var(--ink-soft); max-width: var(--measure); }
+
+  /* ---------- concessions ---------- */
+
+  .concessions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: 1.25rem 2rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-top: 2px solid var(--neg);
+  }
+  .concession { display: flex; flex-direction: column; gap: 0.25rem; }
+  .concession-title { font-weight: 600; font-size: 0.9rem; }
+  .concession p { margin: 0; font-size: 0.85rem; color: var(--ink-soft); }
+
+  /* ---------- reversal callout ---------- */
+
+  .reversal {
+    border: 1px solid var(--rule-strong);
+    background: var(--surface-sunk);
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .reversal h2 { font-size: clamp(1.2rem, 2.6vw, 1.5rem); }
+  .reversal p { margin: 0; max-width: var(--measure); color: var(--ink-soft); }
+  .reversal .pointed { color: var(--ink); font-family: var(--serif); font-size: 1.15rem; line-height: 1.45; }
+
+  /* ---------- footer ---------- */
+
+  footer {
+    border-top: 1px solid var(--rule);
+    padding-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.82rem;
+    color: var(--ink-faint);
+    font-family: var(--mono);
+  }
+  footer strong { color: var(--ink-soft); font-weight: 500; }
+
+  code {
+    font-family: var(--mono);
+    font-size: 0.88em;
+    background: var(--surface-sunk);
+    padding: 0.1em 0.35em;
+  }
+
+  @media (max-width: 46rem) {
+    .row {
+      grid-template-columns: 1fr auto;
+      gap: 0.75rem 1rem;
+    }
+    .row-head { grid-column: 1; }
+    .call { grid-column: 2; grid-row: 1; }
+    .side { grid-column: 1 / -1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div class="eyebrow">
+      <span>Platform decision</span>
+      <span>RegenCare content platform</span>
+      <span>9 Sep 2026</span>
+    </div>
+    <h1>WordPress and its plugins, or Payload CMS 3.x</h1>
+  </header>
+
+  <div class="verdict">
+    <div class="verdict-label">Recommendation</div>
+    <p class="verdict-call">Build on Payload CMS 3.x. Do not adopt WordPress.</p>
+    <p>
+      Not because headless is fashionable. On plugin capability the two stacks are nearly even — so the
+      decision is made by security, clinical governance, and what happens at several hundred articles.
+    </p>
+  </div>
+
+  <section>
+    <div class="section-head">
+      <h2>The five plugins are close to a tie</h2>
+      <p>
+        Compared head to head on the stack we'd actually buy — Rank Math, ACF Pro, CPT UI, Elementor Pro,
+        Smush — WordPress wins two, Payload wins two, one is even. If the decision rested on plugins alone,
+        it would be a coin toss.
+      </p>
+    </div>
+
+    <div class="ledger">
+
+      <div class="row win-wordpress">
+        <div class="row-head">
+          <span class="row-title">Content types</span>
+          <span class="row-sub">CPT UI → collections</span>
+        </div>
+        <div class="side is-winner">
+          <span class="side-label">WordPress</span>
+          <p>New content type in minutes, in the admin, no deploy.</p>
+        </div>
+        <div class="side">
+          <span class="side-label">Payload</span>
+          <p>TypeScript file, pull request, deploy. Diffable, but slow.</p>
+        </div>
+        <span class="call wordpress">WordPress</span>
+      </div>
+
+      <div class="row win-payload">
+        <div class="row-head">
+          <span class="row-title">Custom fields</span>
+          <span class="row-sub">ACF Pro → native fields</span>
+        </div>
+        <div class="side">
+          <span class="side-label">WordPress</span>
+          <p>Values land in <code>wp_postmeta</code>; queries scan it. ACF's own docs recommend custom tables at scale.</p>
+        </div>
+        <div class="side is-winner">
+          <span class="side-label">Payload</span>
+          <p>Real relational tables, indexed columns, reverse relations via join fields.</p>
+        </div>
+        <span class="call payload">Payload</span>
+      </div>
+
+      <div class="row win-payload">
+        <div class="row-head">
+          <span class="row-title">Page building</span>
+          <span class="row-sub">Elementor Pro → blocks</span>
+        </div>
+        <div class="side">
+          <span class="side-label">WordPress</span>
+          <p>1,500–3,000 DOM nodes per page, 3–5× the CSS/JS, layouts locked in a serialised format.</p>
+        </div>
+        <div class="side is-winner">
+          <span class="side-label">Payload</span>
+          <p>Typed blocks mapping 1:1 to React components. Output is exactly what we author.</p>
+        </div>
+        <span class="call payload">Payload</span>
+      </div>
+
+      <div class="row win-wordpress">
+        <div class="row-head">
+          <span class="row-title">SEO tooling</span>
+          <span class="row-sub">Rank Math / Yoast → plugin-seo</span>
+        </div>
+        <div class="side is-winner">
+          <span class="side-label">WordPress</span>
+          <p>Visual schema builder, readability scoring, 404 monitoring. Mature and genuinely faster.</p>
+        </div>
+        <div class="side">
+          <span class="side-label">Payload</span>
+          <p>Meta fields and full metadata control — but we hand-write the JSON-LD.</p>
+        </div>
+        <span class="call wordpress">WordPress</span>
+      </div>
+
+      <div class="row win-even">
+        <div class="row-head">
+          <span class="row-title">Images</span>
+          <span class="row-sub">Smush / ShortPixel → sharp</span>
+        </div>
+        <div class="side">
+          <span class="side-label">WordPress</span>
+          <p>Better media library and bulk re-optimisation. WebP/AVIF sits behind a paid tier.</p>
+        </div>
+        <div class="side">
+          <span class="side-label">Payload</span>
+          <p>Derivatives declared in code, free, already working in our POC.</p>
+        </div>
+        <span class="call even">Even</span>
+      </div>
+
+    </div>
+
+    <div class="tally">
+      <span><strong>2</strong> WordPress</span>
+      <span><strong>2</strong> Payload</span>
+      <span><strong>1</strong> even</span>
+      <span>So the plugins do not decide this. Three things outside them do.</span>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>What actually decides it</h2>
+    </div>
+
+    <div class="reasons">
+
+      <div class="reason">
+        <span class="reason-mark">01</span>
+        <div class="reason-body">
+          <span class="reason-title">Volume changes which properties matter</span>
+          <p>
+            Every criticism of WordPress here is survivable at twenty pages. <code>wp_postmeta</code>
+            scans are fast on a small table; Elementor's DOM weight costs one page's load time. At
+            several hundred articles with faceted filtering and a publishing cadence, the same
+            properties become structural — meta queries that cannot be indexed well, and a DOM tax
+            paid on every indexed page. The pivot did not change the platforms. It changed which of
+            their properties matter.
+          </p>
+        </div>
+      </div>
+
+      <div class="reason">
+        <span class="reason-mark">02</span>
+        <div class="reason-body">
+          <span class="reason-title">Five plugins is the attack surface</span>
+          <p>
+            WordPress core has an excellent record — six low-risk issues last year. The risk is the
+            plugin supply chain, and our stack would add five independently-maintained codebases with
+            database access inside the admin. For a clinical brand, a defacement is a reputational
+            event, not an outage.
+          </p>
+        </div>
+      </div>
+
+      <div class="reason">
+        <span class="reason-mark">03</span>
+        <div class="reason-body">
+          <span class="reason-title">Clinical claims need an enforced reviewer</span>
+          <p>
+            <code>MedicalWebPage.reviewedBy</code> is the credentialing signal Google and AI answer
+            engines use to judge medical trustworthiness. In WordPress it is a field an editor types
+            into and can leave blank. In Payload it is a required relationship to a real clinician
+            record, and access control blocks publishing without it. The same mechanism gives each
+            AI agent a draft-only identity — the restriction is declared once on the collection, so it
+            applies to every route in, not just the button in the interface.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>The security numbers</h2>
+      <p>WordPress ecosystem, 2025 — from Patchstack's <em>State of WordPress Security in 2026</em>.</p>
+    </div>
+
+    <div class="figures">
+      <div class="figure">
+        <span class="figure-value">91%</span>
+        <span class="figure-name">of vulnerabilities are in plugins</span>
+        <p class="figure-note">Out of 11,334 found last year, up 42% year on year. Core accounted for six, all low risk.</p>
+      </div>
+      <div class="figure">
+        <span class="figure-value">5 hrs</span>
+        <span class="figure-name">median time to first exploitation</span>
+        <p class="figure-note">20% of heavily exploited flaws are hit within six hours of disclosure; 70% within a week.</p>
+      </div>
+      <div class="figure">
+        <span class="figure-value">46%</span>
+        <span class="figure-name">disclosed with no patch available</span>
+        <p class="figure-note">Nearly half go public while the plugin is still unfixed. Hosting defences block only a fraction.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head">
+      <h2>What we give up by choosing Payload</h2>
+      <p>These are real costs, not rhetorical ones. Budget for them.</p>
+    </div>
+
+    <div class="concessions">
+      <div class="concession">
+        <span class="concession-title">WordPress would launch sooner</span>
+        <p>A theme plus these five plugins is weeks. Components take longer. That is a real cost, not a rhetorical one.</p>
+      </div>
+      <div class="concession">
+        <span class="concession-title">We hand-write the JSON-LD</span>
+        <p>Rank Math's schema builder is better. We write ours once, generated from typed relationships.</p>
+      </div>
+      <div class="concession">
+        <span class="concession-title">Clinic staff can't add content types</span>
+        <p>Every schema change becomes a developer task and a deploy.</p>
+      </div>
+      <div class="concession">
+        <span class="concession-title">No readability scoring or 404 monitoring</span>
+        <p>Replace with Screaming Frog, Ahrefs or Search Console rather than pretending the gap isn't there.</p>
+      </div>
+      <div class="concession">
+        <span class="concession-title">Payload developers are harder to hire</span>
+        <p>Mitigated by documenting heavily — <code>PROJECT_DETAILS.txt</code> is the start.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="reversal">
+    <h2>The one finding that reverses this</h2>
+    <p class="pointed">
+      If marketing must be able to create and restructure content types without engineering
+      involvement, then WordPress with ACF Pro and CPT UI is the right answer and this
+      recommendation should be discarded.
+    </p>
+    <p>
+      That is the only requirement we found that flips the verdict, and it is a business question
+      rather than a technical one. It should be settled before build starts.
+    </p>
+  </div>
+
+  <footer>
+    <span><strong>Full analysis:</strong> WORDPRESS_VS_PAYLOAD_COMPARISON.md — 19 sections, plugin-by-plugin.</span>
+    <span><strong>Working POC:</strong> clinic-poc/ — Payload 3.88.0, verified. See PROJECT_DETAILS.txt.</span>
+    <span><strong>Note:</strong> performance figures are cited industry benchmarks; our own POC numbers are development-mode only and are not production benchmarks.</span>
+  </footer>
+
+</div>

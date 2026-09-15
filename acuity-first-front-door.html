@@ -1,0 +1,1144 @@
+<title>The Acuity-First Front Door</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+
+<style>
+  :root {
+    --paper:      #F3F5F4;
+    --surface:    #FFFFFF;
+    --surface-2:  #E8EEEC;
+    --ink:        #0F1A18;
+    --ink-2:      #3C4A47;
+    --ink-3:      #677672;
+    --rule:       #D2DBD9;
+    --rule-2:     #B9C6C3;
+    --accent:     #124E52;
+    --accent-2:   #0B6B62;
+    --emerg:      #A8261B;
+    --emerg-bg:   #F7E6E3;
+    --urgent:     #8A5300;
+    --urgent-bg:  #F8EDD9;
+    --routine:    #1B6B4A;
+    --routine-bg: #E2EFE7;
+    --portal:     #2B4B8C;
+    --portal-bg:  #E4EAF6;
+    --shadow:     0 1px 2px rgba(15,26,24,.05), 0 8px 24px -16px rgba(15,26,24,.18);
+
+    --f-display: "Zilla Slab", "Bitter", Georgia, serif;
+    --f-body:    "Source Sans 3", "Segoe UI", system-ui, sans-serif;
+    --f-mono:    "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+    --col: 68ch;
+    --wide: 1060px;
+    --sticky-h: 54px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper:      #0B1211;
+      --surface:    #121B19;
+      --surface-2:  #182220;
+      --ink:        #E8EFEC;
+      --ink-2:      #B4C2BE;
+      --ink-3:      #8A9A96;
+      --rule:       #24322F;
+      --rule-2:     #35443F;
+      --accent:     #6BC8BB;
+      --accent-2:   #93DACE;
+      --emerg:      #F0887B;
+      --emerg-bg:   #2B1613;
+      --urgent:     #DFA845;
+      --urgent-bg:  #2A1F0D;
+      --routine:    #67C997;
+      --routine-bg: #10261B;
+      --portal:     #93ADEA;
+      --portal-bg:  #131C31;
+      --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.6);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --paper:      #0B1211;
+    --surface:    #121B19;
+    --surface-2:  #182220;
+    --ink:        #E8EFEC;
+    --ink-2:      #B4C2BE;
+    --ink-3:      #8A9A96;
+    --rule:       #24322F;
+    --rule-2:     #35443F;
+    --accent:     #6BC8BB;
+    --accent-2:   #93DACE;
+    --emerg:      #F0887B;
+    --emerg-bg:   #2B1613;
+    --urgent:     #DFA845;
+    --urgent-bg:  #2A1F0D;
+    --routine:    #67C997;
+    --routine-bg: #10261B;
+    --portal:     #93ADEA;
+    --portal-bg:  #131C31;
+    --shadow:     0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.6);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 17px;
+    line-height: 1.62;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 2px; }
+  a:hover { color: var(--accent-2); }
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  /* ---------- sticky section nav ---------- */
+  .topbar {
+    position: sticky; top: 0; z-index: 50;
+    height: var(--sticky-h);
+    background: color-mix(in srgb, var(--paper) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--rule);
+    display: flex; align-items: center;
+  }
+  .topbar-inner {
+    max-width: var(--wide); width: 100%;
+    margin-inline: auto; padding-inline: 20px;
+    display: flex; align-items: center; gap: 18px;
+    overflow-x: auto; scrollbar-width: thin;
+  }
+  .topbar-mark {
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em;
+    text-transform: uppercase; color: var(--ink-3); white-space: nowrap;
+    padding-right: 18px; border-right: 1px solid var(--rule);
+  }
+  .topbar a {
+    font-family: var(--f-mono); font-size: 12px; white-space: nowrap;
+    color: var(--ink-2); text-decoration: none; padding: 4px 0;
+    border-bottom: 2px solid transparent;
+  }
+  .topbar a:hover { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ---------- layout ---------- */
+  .sec {
+    display: flex; flex-direction: column; gap: 1.1rem;
+    padding-inline: 20px;
+    scroll-margin-top: calc(var(--sticky-h) + 16px);
+  }
+  .sec > * { max-width: var(--col); margin-inline: auto; width: 100%; }
+  .sec > .wide { max-width: var(--wide); }
+  .band { padding-block: 60px; border-top: 1px solid var(--rule); }
+  .band.first { border-top: 0; padding-top: 34px; }
+
+  /* ---------- type ---------- */
+  h1 {
+    font-family: var(--f-display); font-weight: 700;
+    font-size: clamp(2.3rem, 5.4vw, 3.5rem);
+    line-height: 1.06; letter-spacing: -.02em;
+    text-wrap: balance; margin: 0;
+  }
+  h2 {
+    font-family: var(--f-display); font-weight: 600;
+    font-size: clamp(1.6rem, 3.2vw, 2.1rem);
+    line-height: 1.16; letter-spacing: -.012em;
+    text-wrap: balance; margin: 0;
+  }
+  h3 {
+    font-family: var(--f-display); font-weight: 600;
+    font-size: 1.22rem; line-height: 1.3; margin: 1.1rem 0 0;
+    text-wrap: balance;
+  }
+  h4 {
+    font-family: var(--f-body); font-weight: 700; font-size: 1rem;
+    margin: .8rem 0 0; letter-spacing: .005em;
+  }
+  p { margin: 0; }
+  .lede {
+    font-size: 1.22rem; line-height: 1.52; color: var(--ink-2);
+    text-wrap: pretty;
+  }
+  .eyebrow {
+    font-family: var(--f-mono); font-size: 11px; font-weight: 500;
+    letter-spacing: .14em; text-transform: uppercase; color: var(--accent);
+    margin: 0;
+  }
+  .secnum {
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  ul, ol { margin: 0; padding-left: 1.35em; }
+  ul li, ol li { margin-block: .38em; }
+  li::marker { color: var(--ink-3); }
+  strong { font-weight: 700; }
+  em { font-style: italic; }
+  code, .mono { font-family: var(--f-mono); font-size: .88em; }
+  code {
+    background: var(--surface-2); padding: .1em .35em;
+    border-radius: 3px; color: var(--ink-2);
+  }
+  .caption {
+    font-size: .86rem; line-height: 1.5; color: var(--ink-3);
+  }
+
+  /* ---------- masthead ---------- */
+  .masthead { padding-block: 56px 42px; }
+  .masthead-meta {
+    display: flex; flex-wrap: wrap; gap: 8px 26px;
+    font-family: var(--f-mono); font-size: 11.5px;
+    letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3);
+  }
+  .rule-hair { height: 1px; background: var(--rule-2); }
+  .thesis {
+    border-left: 3px solid var(--accent);
+    padding: 2px 0 2px 20px;
+    font-family: var(--f-display); font-weight: 500;
+    font-size: 1.32rem; line-height: 1.42; color: var(--ink);
+    text-wrap: pretty;
+  }
+
+  /* ---------- evidence grid ---------- */
+  .ev {
+    display: grid; gap: 1px; background: var(--rule);
+    grid-template-columns: repeat(auto-fit, minmax(206px, 1fr));
+    border: 1px solid var(--rule);
+  }
+  .ev div { background: var(--surface); padding: 16px 18px 18px; }
+  .ev b {
+    display: block; font-family: var(--f-display); font-weight: 700;
+    font-size: 1.72rem; line-height: 1.05; letter-spacing: -.02em;
+    color: var(--accent); font-variant-numeric: tabular-nums;
+  }
+  .ev span { display: block; font-size: .89rem; line-height: 1.42; color: var(--ink-2); margin-top: 5px; }
+  .ev cite {
+    display: block; font-family: var(--f-mono); font-size: 10px;
+    letter-spacing: .06em; text-transform: uppercase;
+    color: var(--ink-3); font-style: normal; margin-top: 8px;
+  }
+
+  /* ---------- acuity chips ---------- */
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-family: var(--f-mono); font-size: 10.5px; font-weight: 500;
+    letter-spacing: .1em; text-transform: uppercase;
+    padding: 3px 9px 3px 7px; white-space: nowrap;
+  }
+  .chip::before {
+    content: ""; width: 7px; height: 7px; flex: none;
+    background: currentColor;
+  }
+  .chip.e { color: var(--emerg);   background: var(--emerg-bg);   border-radius: 0; }
+  .chip.u { color: var(--urgent);  background: var(--urgent-bg);  border-radius: 999px; }
+  .chip.r { color: var(--routine); background: var(--routine-bg); border-radius: 3px; }
+  .chip.p { color: var(--portal);  background: var(--portal-bg);  border-radius: 3px; }
+  .chip.u::before { border-radius: 50%; }
+  .chip.e::before { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+
+  /* ---------- callouts ---------- */
+  .note {
+    background: var(--surface); border: 1px solid var(--rule);
+    border-left: 3px solid var(--rule-2);
+    padding: 15px 18px; display: flex; flex-direction: column; gap: .55rem;
+    font-size: .96rem;
+  }
+  .note.acc  { border-left-color: var(--accent); }
+  .note.warn { border-left-color: var(--emerg); }
+  .note-h {
+    font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--ink-3);
+  }
+  .note.acc  .note-h { color: var(--accent); }
+  .note.warn .note-h { color: var(--emerg); }
+
+  /* ---------- tables ---------- */
+  .tw { overflow-x: auto; border: 1px solid var(--rule); background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; min-width: 640px; font-size: .92rem; }
+  thead th {
+    text-align: left; vertical-align: bottom;
+    font-family: var(--f-mono); font-size: 10.5px; font-weight: 500;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3);
+    padding: 11px 14px; border-bottom: 1px solid var(--rule-2);
+    background: var(--surface-2); white-space: nowrap;
+  }
+  tbody td, tbody th {
+    padding: 12px 14px; border-bottom: 1px solid var(--rule);
+    vertical-align: top; text-align: left; line-height: 1.48;
+  }
+  tbody th { font-weight: 700; white-space: nowrap; }
+  tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+  td .mono, th .mono { color: var(--ink-2); }
+  .num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* ---------- figures ---------- */
+  figure { margin: 0; display: flex; flex-direction: column; gap: 10px; }
+  figure svg {
+    width: 100%; height: auto; display: block;
+    background: var(--surface); border: 1px solid var(--rule);
+  }
+  .figscroll { overflow-x: auto; }
+  .figscroll svg { min-width: 620px; }
+  figcaption { font-size: .86rem; line-height: 1.5; color: var(--ink-3); }
+  figcaption b { color: var(--ink-2); font-weight: 600; }
+
+  /* ---------- zone list ---------- */
+  .zones { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .zone {
+    background: var(--surface); padding: 13px 16px;
+    display: grid; grid-template-columns: 54px 1fr; gap: 4px 14px; align-items: start;
+  }
+  .zone .zid {
+    font-family: var(--f-mono); font-size: 12px; font-weight: 500;
+    color: var(--accent); padding-top: 2px;
+  }
+  .zone .zname { font-weight: 700; font-size: 1rem; }
+  .zone .zbody { grid-column: 2; font-size: .93rem; color: var(--ink-2); line-height: 1.5; }
+  .zone .zmeta {
+    grid-column: 2; font-family: var(--f-mono); font-size: 10.5px;
+    letter-spacing: .06em; text-transform: uppercase; color: var(--ink-3); margin-top: 3px;
+  }
+
+  /* ---------- nav tree ---------- */
+  .tree {
+    background: var(--surface); border: 1px solid var(--rule);
+    padding: 20px 22px; font-size: .95rem;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .tree > div > b {
+    font-family: var(--f-display); font-size: 1.05rem; font-weight: 600;
+    display: block; margin-bottom: 3px;
+  }
+  .tree ul { list-style: none; padding-left: 0; display: flex; flex-wrap: wrap; gap: 0 4px; }
+  .tree li { margin: 0; color: var(--ink-2); font-size: .92rem; }
+  .tree li:not(:last-child)::after { content: " ·"; color: var(--rule-2); }
+  .tree .util {
+    border-top: 1px dashed var(--rule-2); padding-top: 14px;
+    font-family: var(--f-mono); font-size: .85rem; color: var(--ink-3);
+  }
+
+  /* ---------- criteria list ---------- */
+  .crit { display: flex; flex-direction: column; gap: 1px; background: var(--rule); border: 1px solid var(--rule); }
+  .crit > div { background: var(--surface); padding: 13px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .crit .cid {
+    font-family: var(--f-mono); font-size: 11.5px; font-weight: 500; color: var(--accent);
+    letter-spacing: .04em;
+  }
+  .crit .cname { font-weight: 700; font-size: .98rem; }
+  .crit .cwhy { font-size: .92rem; color: var(--ink-2); line-height: 1.5; }
+
+  /* ---------- sources ---------- */
+  .src { display: flex; flex-direction: column; gap: .5rem; font-size: .89rem; color: var(--ink-2); }
+  .src a { word-break: break-word; }
+
+  footer.doc-end {
+    border-top: 1px solid var(--rule); padding: 34px 20px 64px;
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; color: var(--ink-3); text-align: center;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  }
+  @media print {
+    .topbar { display: none; }
+  }
+  @media (max-width: 640px) {
+    body { font-size: 16.5px; }
+    .zone { grid-template-columns: 1fr; }
+    .zone .zbody, .zone .zmeta { grid-column: 1; }
+  }
+</style>
+
+<nav class="topbar" aria-label="Sections">
+  <div class="topbar-inner">
+    <span class="topbar-mark">Acuity-First</span>
+    <a href="#psychology">1 · Stress-case UX</a>
+    <a href="#frontdoor">2 · Digital front door</a>
+    <a href="#benchmarks">3 · Teardowns</a>
+    <a href="#blueprint">4 · Blueprint</a>
+    <a href="#access">5 · Accessibility</a>
+    <a href="#antipatterns">6 · Anti-patterns</a>
+  </div>
+</nav>
+
+<header class="sec masthead">
+  <p class="eyebrow">UX Architecture Study · Hospital &amp; Multi-Specialty Clinic Platforms</p>
+  <h1>The Acuity-First Front Door</h1>
+  <div class="rule-hair" role="presentation"></div>
+  <p class="lede">A hospital website is not a marketing site with a booking widget bolted on. It is a triage instrument that happens to be made of HTML. Every design decision in it should be judged against one question: does this get a person of unknown acuity, unknown health literacy, and unknown emotional state to the right door, with the fewest irreversible mistakes?</p>
+  <p class="thesis">Acuity is the primary axis of the information architecture. Audience is the second. Service line is a distant third — and on most hospital websites the order is exactly reversed.</p>
+  <div class="masthead-meta">
+    <span>Prepared September 2026</span>
+    <span>Scope: public web + digital front door</span>
+    <span>Standard: WCAG 2.2 AA+</span>
+  </div>
+</header>
+
+<!-- ============ EVIDENCE ============ -->
+<section class="sec band first" aria-labelledby="evidence-h">
+  <p class="secnum">00 — The numbers the architecture has to answer to</p>
+  <h2 id="evidence-h">Constraints, before opinions</h2>
+  <p>Most disagreements about hospital web design dissolve once the room accepts a handful of measured facts about who is actually arriving, what they can read, and what they are trying to do. These are the load-bearing figures for everything that follows.</p>
+  <div class="wide ev">
+    <div><b>12%</b><span>of US adults have <em>proficient</em> health literacy. 14% are below basic; two-thirds of adults 60+ have inadequate or marginal literacy.</span><cite>NAAL / AHRQ</cite></div>
+    <div><b>8th–9th</b><span>grade — the average US adult reading level. Patient materials are typically written at 10th grade or above.</span><cite>AHRQ issue brief</cite></div>
+    <div><b>68%</b><span>of US healthcare search queries came from mobile in 2024, up from 44% in 2018. Your acute-mode user is on a phone.</span><cite>Industry search data</cite></div>
+    <div><b>~83%</b><span>of patients use a search engine to find a provider; 77% research a physician online before booking, up from 51% in 2010.</span><cite>Healthcare search studies</cite></div>
+    <div><b>94%</b><span>rate insurance acceptance extremely or very important when choosing a provider — ahead of expertise (87%), reputation (84%) and availability (83%).</span><cite>Kyruus consumer survey</cite></div>
+    <div><b>&lt;30%</b><span>of US practices offer self-scheduling patients can actually use, while 61% say online scheduling weighs heavily in choosing a new provider.</span><cite>MGMA / Kyruus</cite></div>
+    <div><b>43%</b><span>of 2025 Zocdoc bookings were made outside office hours — the demand exists precisely when the phones are off.</span><cite>Zocdoc 2025</cite></div>
+    <div><b>76%</b><span>reduction in no-shows across the Phreesia network when patients complete check-in before the visit; 92% want to do forms online.</span><cite>Phreesia network data</cite></div>
+    <div><b>87.5%</b><span>of respondents said digital wayfinding reduced their stress and improved navigation accuracy inside a hospital.</span><cite>IoT wayfinding study</cite></div>
+  </div>
+  <p class="caption">Read together, these say something uncomfortable: the median visitor is on a small screen, reads at roughly ninth grade, arrived from Google rather than your homepage, is filtering on insurance before credentials, wants to book at 9pm, and is going to get lost in your parking structure.</p>
+</section>
+
+<!-- ============ PART 1 ============ -->
+<section class="sec band" id="psychology" aria-labelledby="psych-h">
+  <p class="secnum">01 — Patient psychology</p>
+  <h2 id="psych-h">Stress-case UX: designing for the mind you actually get</h2>
+  <p>Stress is best understood as a mismatch between the demand of a situation and the skills a person believes they have to meet it. When that gap opens, measurable things happen to the user you are designing for, and every one of them invalidates a common web convention.</p>
+
+  <h3>1.1 What stress does, mechanically</h3>
+  <ul>
+    <li><strong>Cognitive tunneling.</strong> Attention narrows. Peripheral elements — sidebars, secondary nav, anything below the fold — stop existing. The user does not "miss" your urgent care link; it is outside their perceptual field.</li>
+    <li><strong>Working memory collapses.</strong> Multi-step instructions that assume the user holds three facts in their head fail. So does any flow that requires remembering what was on the previous screen.</li>
+    <li><strong>Reading comprehension degrades.</strong> A person who normally reads at twelfth grade reads at eighth under acute stress. Your plain-language target is not a concession to "low-literacy users"; it is the design target for everyone in an acute state.</li>
+    <li><strong>Fine motor control deteriorates.</strong> Tremor, imprecise taps, repeated taps. A 24-pixel target is theoretically compliant and practically unusable.</li>
+    <li><strong>Patience drops sharply, and behaviour bifurcates.</strong> Users either act hastily on the first plausible-looking control or freeze entirely. Both failure modes are produced by the same design flaw: too many equally weighted choices.</li>
+    <li><strong>System 2 shuts down.</strong> Deliberate reasoning is replaced by fast pattern-matching on shape, colour and position. The stressed user does not read your labels — they read your <em>layout</em>.</li>
+  </ul>
+  <div class="note warn">
+    <span class="note-h">The governing correction</span>
+    <p>Stress cases are not edge cases. On a hospital site the stressed visitor is the <em>modal</em> visitor, not the exception. Design the stressed path as the default path and let the calm researcher tolerate the extra clarity. The reverse — a polished calm-user design with an "emergency" affordance retrofitted into it — never works, because the retrofit always lands in the periphery that tunneling has already erased.</p>
+  </div>
+
+  <h3>1.2 Five states, five incompatible requirements</h3>
+  <p>"The patient" is not one user. Five distinct states arrive at the same URL, and their requirements actively conflict. Naming them is what lets you stop averaging them into a design that serves none.</p>
+  <div class="wide tw">
+    <table>
+      <caption class="caption" style="text-align:left;padding:10px 14px;">The five arrival states and what each one needs</caption>
+      <thead>
+        <tr><th scope="col">State</th><th scope="col">Cognitive budget</th><th scope="col">What they need</th><th scope="col">What kills them</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <th scope="row"><span class="chip e">Acute</span><br>Something is happening now</th>
+          <td>Seconds. Tunneled.</td>
+          <td>A phone number, an address, and one instruction. Nothing else.</td>
+          <td>Any form. Any modal. Any choice architecture with more than three options.</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="chip u">Alarmed</span><br>Just googled a symptom</th>
+          <td>Minutes. High anxiety, degraded comprehension.</td>
+          <td>Authoritative plain-language content, an explicit "when to seek help" boundary, and one bounded next step.</td>
+          <td>An undifferentiated wall of conditions. Marketing superlatives. Content that never says when to worry.</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="chip r">Shopper</span><br>Choosing a new doctor</th>
+          <td>High. Comparison mode, multiple tabs.</td>
+          <td>Insurance, availability, proximity, language — visible on the result card, not the profile. Then a real bookable slot.</td>
+          <td>"Call this number." Profiles with no photo and no availability. Required-insurance search filters.</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="chip p">Transactor</span><br>Refill, result, bill, reschedule</th>
+          <td>High capability, near-zero tolerance.</td>
+          <td>A deep link straight into the authenticated task. Two taps from anywhere.</td>
+          <td>Being funneled through the marketing homepage and a mega-menu to reach a login.</td>
+        </tr>
+        <tr>
+          <th scope="row"><span class="chip u">Proxy</span><br>Caregiver, parent, adult child</th>
+          <td>Fragmented, interrupted, acting on someone else's data.</td>
+          <td>Proxy account access, visiting hours and policies, parking, wayfinding, and a clear "who do I call" path.</td>
+          <td>Portals with no proxy model. Visitor policy buried three levels deep or living only in a PDF.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>1.3 Acute mode versus routine mode</h3>
+  <p>The single most consequential mistake in the sector is applying routine-mode design technique to a page that must serve acute mode. Progressive disclosure, mega menus, hero video, personalisation and multi-step wizards are all legitimate — in routine mode. In acute mode they are hazards. The two modes need separate rule sets, and pages need to be classified into one or the other during IA, not during visual design.</p>
+  <div class="wide tw">
+    <table>
+      <thead><tr><th scope="col">Mechanic</th><th scope="col">Acute mode</th><th scope="col">Routine mode</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Decisions per screen</th><td>One. Three options maximum, visually unequal.</td><td>Several, if grouped and labelled.</td></tr>
+        <tr><th scope="row">Progressive disclosure</th><td>Forbidden. Nothing important behind an interaction.</td><td>Encouraged.</td></tr>
+        <tr><th scope="row">Modals &amp; interstitials</th><td>Forbidden, including consent banners.</td><td>Acceptable, with escape.</td></tr>
+        <tr><th scope="row">Body text size</th><td>≥18px. Contrast ≥7:1.</td><td>≥16px. Contrast ≥4.5:1.</td></tr>
+        <tr><th scope="row">Touch targets</th><td>≥48×48px, ≥12px apart.</td><td>≥44×44px, ≥8px apart.</td></tr>
+        <tr><th scope="row">Phone numbers</th><td><code>tel:</code> link, as text, in the first viewport.</td><td>Present and findable.</td></tr>
+        <tr><th scope="row">Motion</th><td>None. No carousel, no autoplay, no parallax.</td><td>Restrained, reduced-motion aware.</td></tr>
+        <tr><th scope="row">Timeouts</th><td>None.</td><td>≥20 minutes, warn at T−2 with one-tap extend, autosave regardless.</td></tr>
+        <tr><th scope="row">Task chunking</th><td>Not applicable — there is no multi-step task in acute mode.</td><td>10–30 second substeps, outcome-named, with per-step status and visible progress.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Two mechanics deserve elaboration because they are cheap and almost universally skipped. First, <strong>outcome-named substeps</strong>: a step called "Add your insurance" tells a depleted user what will be true when they finish; a step called "Coverage module" tells them about your CMS. GOV.UK's task-list pattern is the canonical implementation — sequence the work, label each part by its outcome, attach a status, show progress. Second, <strong>never asking twice</strong>: WCAG 2.2's Redundant Entry criterion exists because re-asking for a date of birth is not merely annoying, it is a memory tax levied on someone who has none to spare.</p>
+
+  <h3>1.4 Older patients are not a segment, they are the volume</h3>
+  <p>Usability declines roughly 0.8% per year of age across adults between 25 and 60, and that decline continues. Two-thirds of adults over 60 have inadequate or marginal literacy; in one public-hospital study, 81% of patients over 60 could not read or understand basic materials such as prescription labels. Given that this cohort generates the majority of hospital encounters, "accessible to older adults" is not an accommodation — it is the core specification.</p>
+  <ul>
+    <li>Default body text at 16px minimum, 18px preferred. Never rely on the browser zoom the user does not know exists.</li>
+    <li>No hover-only reveals. Presbyopia and imprecise pointing make hover states an unreliable channel, and they simply do not exist on touch.</li>
+    <li>No placeholder-as-label. The label must survive the act of typing.</li>
+    <li>Visible, persistent, high-contrast focus states — older users rely on keyboard and zoom more, not less.</li>
+    <li>Authentication is the wall: password complexity rules, CAPTCHAs and "identify the picture" challenges are exactly the cognitive-function tests WCAG 2.2 prohibits, and they are where portal adoption in this cohort dies.</li>
+  </ul>
+
+  <h3>1.5 The UX of care triage: four doors that must not look alike</h3>
+  <p>Every hospital homepage has to resolve the same collision. Four destinations with radically different urgency, authentication state and conversion mechanics compete for the same screen real estate. The near-universal solution — four identical "quick link" cards reading Emergency Care, Urgent Care, Schedule an Appointment, MyChart — is the sector's single most common architectural failure, because identical treatment communicates nothing to a user who is pattern-matching on shape rather than reading labels.</p>
+
+  <figure class="wide figscroll">
+    <svg viewBox="0 0 960 452" role="img" aria-label="Diagram: arrivals from search, brand and reminder links pass through a five-second acuity read on the landing page, then split into four structurally distinct destinations — emergency as a statement, urgent as a routing question, routine as a booking funnel, and the portal as a deep link past the marketing architecture.">
+      <defs>
+        <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <polygon points="0,1 10,5 0,9" fill="currentColor"/>
+        </marker>
+      </defs>
+      <g fill="currentColor" font-family="IBM Plex Mono, monospace" font-size="10.5" letter-spacing="1.2" opacity=".55">
+        <text x="24" y="26">ENTRY</text>
+        <text x="266" y="26">THE 5-SECOND READ</text>
+        <text x="520" y="26">FOUR DOORS · STRUCTURALLY DISTINCT</text>
+      </g>
+
+      <!-- entry nodes -->
+      <g fill="none" stroke="currentColor" stroke-width="1" opacity=".45">
+        <rect x="24" y="112" width="164" height="50"/>
+        <rect x="24" y="176" width="164" height="50"/>
+        <rect x="24" y="240" width="164" height="50"/>
+      </g>
+      <g fill="currentColor" font-family="Source Sans 3, sans-serif" font-size="12">
+        <text x="36" y="132">Search engine</text>
+        <text x="36" y="149" opacity=".6" font-family="IBM Plex Mono, monospace" font-size="10.5">~83% of provider searches</text>
+        <text x="36" y="196">Brand / direct</text>
+        <text x="36" y="213" opacity=".6" font-family="IBM Plex Mono, monospace" font-size="10.5">homepage, known name</text>
+        <text x="36" y="260">Reminder deep link</text>
+        <text x="36" y="277" opacity=".6" font-family="IBM Plex Mono, monospace" font-size="10.5">email / SMS / ticket</text>
+      </g>
+
+      <!-- arrows entry -> read -->
+      <g stroke="currentColor" stroke-width="1.2" marker-end="url(#ar)" fill="none" opacity=".7">
+        <path d="M188 137 H 256"/>
+        <path d="M188 201 H 256"/>
+        <path d="M188 265 H 256"/>
+      </g>
+
+      <!-- read node -->
+      <rect x="262" y="104" width="176" height="194" fill="none" stroke="currentColor" stroke-width="1.6"/>
+      <g fill="currentColor" font-family="Source Sans 3, sans-serif" font-size="12.5">
+        <text x="278" y="132" font-weight="700">Landing surface</text>
+        <text x="278" y="156">The user classifies</text>
+        <text x="278" y="173">their own acuity in</text>
+        <text x="278" y="190">under five seconds,</text>
+        <text x="278" y="207">from layout — not</text>
+        <text x="278" y="224">from your labels.</text>
+      </g>
+      <g fill="currentColor" font-family="IBM Plex Mono, monospace" font-size="10" opacity=".6">
+        <text x="278" y="252">SHAPE · WEIGHT · COLOUR</text>
+        <text x="278" y="268">POSITION · SIZE</text>
+      </g>
+
+      <!-- doors -->
+      <g font-family="Source Sans 3, sans-serif">
+        <!-- 1 emergency -->
+        <rect x="516" y="42" width="420" height="82" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/>
+        <rect x="516" y="42" width="5" height="82" fill="#A8261B"/>
+        <text x="536" y="66" font-size="13" font-weight="700" fill="currentColor">Emergency</text>
+        <text x="920" y="66" font-size="10" font-family="IBM Plex Mono, monospace" fill="#A8261B" text-anchor="end">STATEMENT, NOT A BUTTON</text>
+        <text x="536" y="88" font-size="11.5" fill="currentColor" opacity=".8">911 · ER address · one line of plain text · fixed position</text>
+        <text x="536" y="107" font-size="11.5" fill="currentColor" opacity=".55">Never a card competing with marketing cards. Never a form.</text>
+
+        <!-- 2 urgent -->
+        <rect x="516" y="142" width="420" height="82" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/>
+        <rect x="516" y="142" width="5" height="82" fill="#8A5300"/>
+        <text x="536" y="166" font-size="13" font-weight="700" fill="currentColor">Urgent / immediate</text>
+        <text x="920" y="166" font-size="10" font-family="IBM Plex Mono, monospace" fill="#8A5300" text-anchor="end">A QUESTION, NOT A LIST</text>
+        <text x="536" y="188" font-size="11.5" fill="currentColor" opacity=".8">"Not sure where to go?" → symptom examples, cost, live wait</text>
+        <text x="536" y="207" font-size="11.5" fill="currentColor" opacity=".55">Abstract definitions do not help a frightened person. Examples do.</text>
+
+        <!-- 3 routine -->
+        <rect x="516" y="242" width="420" height="82" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/>
+        <rect x="516" y="242" width="5" height="82" fill="#1B6B4A"/>
+        <text x="536" y="266" font-size="13" font-weight="700" fill="currentColor">Routine appointment</text>
+        <text x="920" y="266" font-size="10" font-family="IBM Plex Mono, monospace" fill="#1B6B4A" text-anchor="end">THE CONVERSION MACHINE</text>
+        <text x="536" y="288" font-size="11.5" fill="currentColor" opacity=".8">Find a doctor → filter → real slots on the card → booked</text>
+        <text x="536" y="307" font-size="11.5" fill="currentColor" opacity=".55">The only door where persuasion and comparison belong.</text>
+
+        <!-- 4 portal -->
+        <rect x="516" y="342" width="420" height="82" fill="none" stroke="currentColor" stroke-width="1" opacity=".45"/>
+        <rect x="516" y="342" width="5" height="82" fill="#2B4B8C"/>
+        <text x="536" y="366" font-size="13" font-weight="700" fill="currentColor">Patient portal</text>
+        <text x="920" y="366" font-size="10" font-family="IBM Plex Mono, monospace" fill="#2B4B8C" text-anchor="end">HIGHEST FREQUENCY</text>
+        <text x="536" y="388" font-size="11.5" fill="currentColor" opacity=".8">Utility bar · distinct shape and weight · deep-linkable tasks</text>
+        <text x="536" y="407" font-size="11.5" fill="currentColor" opacity=".55">Returning users should never touch the marketing IA.</text>
+      </g>
+
+      <!-- arrows read -> doors -->
+      <g stroke="currentColor" stroke-width="1.2" fill="none" marker-end="url(#ar)" opacity=".7">
+        <path d="M438 160 C 476 160 470 83 510 83"/>
+        <path d="M438 183 C 476 183 470 183 510 183"/>
+        <path d="M438 218 C 476 218 470 283 510 283"/>
+        <path d="M438 240 C 480 240 468 383 510 383"/>
+      </g>
+      <g fill="currentColor" font-family="IBM Plex Mono, monospace" font-size="9.5" opacity=".6">
+        <text x="448" y="112" >seconds</text>
+        <text x="448" y="176">minutes</text>
+        <text x="446" y="300">comparison</text>
+        <text x="446" y="356">returning</text>
+      </g>
+    </svg>
+    <figcaption><b>Figure 1 — The four doors.</b> The mechanism that matters is the split, not the destinations. Emergency exits the interaction model entirely (it is information); urgent enters a decision aid; routine enters a funnel; the portal bypasses the public architecture. When all four are rendered as identical cards, the split never happens and the acuity read fails silently — the user picks by position, which is arbitrary.</figcaption>
+  </figure>
+
+  <h4>The design rule</h4>
+  <p><strong>Acuity and authentication are orthogonal axes; never mix them in one control group.</strong> Emergency is information, not a transaction, and must never share a visual family with "Sign in". Concretely, the four doors get four different <em>kinds</em> of treatment — not four different colours of the same card:</p>
+  <ul>
+    <li><span class="chip e">Emergency</span> A persistent, non-interactive-looking statement block in a fixed position, with a <code>tel:</code> link and the ER address. NHS.uk's construction is the reference: a single sentence, structurally separated from everything else — "For a life-threatening emergency call 999."</li>
+    <li><span class="chip u">Urgent</span> A routing <em>question</em>, not a service list. Cleveland Clinic asks "Not Sure Where To Go for Care?" on the homepage. UChicago Medicine's care-comparison page does the harder work: four settings, each with real symptom examples, real hours, and an honest cost signal — noting for its ER-adjacent "Urgent Aid" tier that "co-pay for emergency services will apply … which may be higher than urgent care." That cost sentence is a UX feature, because cost is the thing patients are silently modelling and getting wrong.</li>
+    <li><span class="chip r">Routine</span> The conversion funnel, and the only door where comparison, persuasion and editorial content belong.</li>
+    <li><span class="chip p">Portal</span> Utility-bar placement, visually distinct in weight and shape from marketing CTAs, because the returning authenticated user is your highest-frequency visitor and every marketing element between them and their lab result is a tax.</li>
+  </ul>
+
+  <h4>The triage-tool depth ladder</h4>
+  <p>Systems reach for a symptom checker too early. There are four rungs, and most organisations should ship rung 1 well before attempting rung 2.</p>
+  <ol>
+    <li><strong>Static comparison page.</strong> Four care settings, symptom examples, hours, cost signal, one CTA each. Cheap, safe, and the highest-yield artefact on the list.</li>
+    <li><strong>Symptom-indexed router.</strong> The comparison page made searchable — the user types "chest pain" or "sprained ankle" and lands on the right setting. Requires a curated symptom→setting map, not an algorithm.</li>
+    <li><strong>Real triage flow.</strong> Question-per-page, red-flag interrupts first, disposition at the end. NHS 111 online is the reference, and its own framing is the correct one: it "will not give you a diagnosis, but we will direct you to the best place to get help."</li>
+    <li><strong>Routed and reservable.</strong> Disposition plus live wait times plus a held slot at the specific site.</li>
+  </ol>
+  <div class="note warn">
+    <span class="note-h">Safety design for any triage surface</span>
+    <p>Red-flag questions come first, before demographics or location. A red flag produces a hard interrupt that <em>ends</em> the flow with a call instruction — never a soft warning the user can scroll past. No diagnosis language anywhere. Every disposition states its reason in plain words. An escape hatch to a human phone number stays visible on every step, and the flow must be resumable and never time out. A triage tool with a session timeout is a clinical risk, not a UX defect.</p>
+  </div>
+</section>
+
+<!-- ============ PART 2 ============ -->
+<section class="sec band" id="frontdoor" aria-labelledby="fd-h">
+  <p class="secnum">02 — The modern digital front door</p>
+  <h2 id="fd-h">Directory, booking, and the last hundred metres</h2>
+  <p>"Digital front door" is usually deployed as a slogan. Mechanically it means three linked systems: a provider directory that resolves a layperson's question into a specific clinician, a booking layer that can write to a real schedule, and a continuity layer that carries the patient from a confirmation email to the correct chair in the correct building. Most health systems have built the first, half-built the second, and skipped the third.</p>
+
+  <h3>2.1 The provider directory</h3>
+  <h4>Four query shapes, only two of which match your taxonomy</h4>
+  <p>Patients arrive at a directory with one of four query shapes: a <strong>name</strong>, a <strong>specialty</strong>, a <strong>condition or symptom</strong>, or a <strong>body part or procedure</strong>. Only the first two match how your organisation is structured. The other two are the majority, and handling them requires an explicit condition→specialty mapping layer — a translation table between the patient's mental model and the institution's.</p>
+  <p>Mayo Clinic's homepage does this in the most literal way available: an A–Z condition index sits on the front page. It accepts the layperson's model ("I have this thing") and resolves it into the institutional model ("that is treated by this department"). It is not elegant, and it is extremely effective — it is a taxonomy bridge disguised as a directory.</p>
+
+  <h4>Hard constraints versus soft preferences</h4>
+  <p>Directory filter design fails when every filter is treated as equivalent. The distinction that matters is whether a filter is a <em>constraint</em> (a result that violates it is worthless) or a <em>preference</em> (a result that violates it is still worth seeing).</p>
+  <div class="wide tw">
+    <table>
+      <thead><tr><th scope="col">Filter</th><th scope="col">Type</th><th scope="col">Placement</th><th scope="col">Design note</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Insurance accepted</th><td>Hard</td><td>Pre-query, sticky</td><td>Top-ranked decision factor at 94%. Must never be <em>required</em> — that silently excludes self-pay and uninsured users. Offer "I'll pay myself" as a first-class option.</td></tr>
+        <tr><th scope="row">Location / radius</th><td>Hard</td><td>Pre-query, sticky</td><td>Geolocate with consent, default to a sane radius, always editable. Relax rather than return zero.</td></tr>
+        <tr><th scope="row">Accepting new patients</th><td>Hard</td><td>Default ON, visible chip</td><td>Default it on, show it as a removable chip so the user knows why a known name is missing.</td></tr>
+        <tr><th scope="row">Age group treated</th><td>Hard</td><td>Pre-query</td><td>Pediatric vs adult is a constraint, not a preference. Getting this wrong wastes a whole booking.</td></tr>
+        <tr><th scope="row">Language spoken</th><td>Hard for some</td><td>Sticky facet</td><td>For a limited-English-proficiency patient this is a constraint. Distinguish clinician fluency from interpreter availability.</td></tr>
+        <tr><th scope="row">Availability window</th><td>Soft</td><td>Post-query facet</td><td>83% rate availability highly. Surface the next real slots rather than making users filter blind.</td></tr>
+        <tr><th scope="row">Virtual vs in-person</th><td>Soft</td><td>Post-query facet</td><td>Often a preference that flips to a constraint (transport, mobility). Make it prominent, not buried.</td></tr>
+        <tr><th scope="row">Clinician gender</th><td>Soft</td><td>Post-query facet</td><td>Legitimate and frequently used, particularly in OB/GYN, urology and behavioural health. Do not editorialise it away.</td></tr>
+        <tr><th scope="row">Rating</th><td>Soft</td><td>Sort, not filter</td><td>As a filter it produces empty results; as a sort it does useful work.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Four rules follow. <strong>Never return zero results</strong> — relax the least-critical constraint and say so out loud ("No cardiologists within 10 miles — showing results within 25 miles"). <strong>Show counts per facet</strong>, so users can predict the consequence of a click. <strong>Disable with an explanation rather than hiding</strong>, because a filter that vanishes reads as a bug. And <strong>persist filters across back-navigation</strong>: a user comparing four profiles will hit Back four times, and losing their filter set on the first one ends the session.</p>
+
+  <h4>Result card anatomy</h4>
+  <p>Because insurance and availability are ranked at 94% and 83%, they belong on the <em>card</em>, not the profile. The highest-leverage element in the entire front door is a row of three real, tappable appointment slots on the search-results card: it converts browsing into booking without a page load, and it makes availability legible at comparison time rather than after a commitment.</p>
+  <ul>
+    <li>Photograph — a real one. A profile without a face is a dead end when 77% of patients research a clinician before booking.</li>
+    <li>Name and credentials, then specialty in <em>patient</em> language ("Heart doctor (Cardiologist)").</li>
+    <li>Accepting-new-patients state, stated explicitly.</li>
+    <li>Next three real slots as chips, plus "more times".</li>
+    <li>Distance and named location — not a raw address.</li>
+    <li>Insurance-match indicator relative to the user's selection.</li>
+    <li>Languages spoken. Star rating and review count.</li>
+  </ul>
+
+  <h4>Profile ordering: decision value, not institutional pride</h4>
+  <p>The default hospital profile is ordered by academic seniority — education, board certifications, publications, then, somewhere near the bottom, how to actually see this person. Invert it. Order by what a decision requires: (1) a sticky booking module, (2) identity and accepting status, (3) what they treat, in patient words, (4) locations and next availability, (5) insurance, (6) languages, (7) patient ratings with verbatim comments, (8) credentials and training, (9) research and publications last. The academic material still matters — it is a trust signal — but it supports a decision that the top of the page has to start.</p>
+
+  <div class="note acc">
+    <span class="note-h">Case: publishing your own ratings</span>
+    <p>University of Utah Health became the first US system to publish its own patient reviews and star ratings on its provider profiles, starting December 2012 — drawing on more than 40,000 patient surveys, rating clinicians across nine measures on a five-star scale, with comments moderated only to strip identifying, libelous or slanderous content. Monthly profile page views went from roughly 32,000 before full adoption to 122,000 by March 2014, and the internal effect was as large as the external one: half of their providers came to rank in the national top decile and 26% in the top percentile.</p>
+    <p>The strategic logic is that a system either owns its review surface or cedes it to third-party sites it cannot moderate, cannot contextualise, and cannot learn from. The trade-off is real and should be stated honestly to leadership: clinicians resist it, and you need a moderation policy you are prepared to defend in public before you ship.</p>
+  </div>
+
+  <h3>2.2 Booking: the label sets the promise</h3>
+  <p>Scheduling mechanics are usually treated as an integration detail. They are in fact the source of the most damaging trust failure on hospital websites: a button that says "Schedule Appointment", opens a calendar, and produces a phone call three days later. Because Epic is the substrate for most large US systems, its four mechanisms are effectively the design vocabulary, and each one supports a different promise.</p>
+
+  <figure class="wide figscroll">
+    <svg viewBox="0 0 960 336" role="img" aria-label="Diagram comparing four scheduling mechanisms. Direct, open and ticket scheduling all end in a slot written to the schedule; appointment request ends in a staff work queue and a callback, with no write.">
+      <defs>
+        <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <polygon points="0,1 10,5 0,9" fill="currentColor"/>
+        </marker>
+      </defs>
+      <g fill="currentColor" font-family="IBM Plex Mono, monospace" font-size="10.5" letter-spacing="1.2" opacity=".55">
+        <text x="24" y="26">MECHANISM</text>
+        <text x="212" y="26">WHAT THE PATIENT DOES</text>
+        <text x="772" y="26">OUTCOME</text>
+      </g>
+      <line x1="24" y1="38" x2="936" y2="38" stroke="currentColor" opacity=".25"/>
+
+      <g font-family="Source Sans 3, sans-serif" font-size="11.5" fill="currentColor">
+        <!-- row 1 direct -->
+        <text x="24" y="72" font-weight="700" font-size="12.5">Direct</text>
+        <text x="24" y="88" opacity=".6" font-family="IBM Plex Mono, monospace" font-size="10">EST. PATIENT · ~3 YR RULE</text>
+        <g fill="none" stroke="currentColor" opacity=".45"><rect x="206" y="56" width="134" height="38"/><rect x="372" y="56" width="150" height="38"/></g>
+        <text x="220" y="80">Signed in to portal</text>
+        <text x="386" y="80">Picks a real slot</text>
+        <g stroke="currentColor" stroke-width="1.2" marker-end="url(#ar2)" opacity=".7"><path d="M340 75 H 366"/><path d="M522 75 H 756"/></g>
+        <rect x="762" y="56" width="174" height="38" fill="none" stroke="#1B6B4A" stroke-width="1.6"/>
+        <text x="776" y="80" fill="#1B6B4A" font-weight="700">Written to schedule</text>
+
+        <!-- row 2 open -->
+        <text x="24" y="150" font-weight="700" font-size="12.5">Open</text>
+        <text x="24" y="166" opacity=".6" font-family="IBM Plex Mono, monospace" font-size="10">NEW PATIENT · NO ACCOUNT</text>
+        <g fill="none" stroke="currentColor" opacity=".45"><rect x="206" y="134" width="134" height="38"/><rect x="372" y="134" width="150" height="38"/><rect x="554" y="134" width="150" height="38"/></g>
+        <text x="220" y="158">Guest, no login</text>
+        <text x="386" y="158">Identity + OTP</text>
+        <text x="568" y="158">Picks a real slot</text>
+        <g stroke="currentColor" stroke-width="1.2" marker-end="url(#ar2)" opacity=".7"><path d="M340 153 H 366"/><path d="M522 153 H 548"/><path d="M704 153 H 756"/></g>
+        <rect x="762" y="134" width="174" height="38" fill="none" stroke="#1B6B4A" stroke-width="1.6"/>
+        <text x="776" y="151" fill="#1B6B4A" font-weight="700">Written + record match</text>
+        <text x="776" y="166" fill="#1B6B4A" font-size="10" font-family="IBM Plex Mono, monospace" opacity=".8">DUPLICATE-MRN RISK</text>
+
+        <!-- row 3 ticket -->
+        <text x="24" y="228" font-weight="700" font-size="12.5">Ticket</text>
+        <text x="24" y="244" opacity=".6" font-family="IBM Plex Mono, monospace" font-size="10">PRE-AUTHORISED INVITE</text>
+        <g fill="none" stroke="currentColor" opacity=".45"><rect x="206" y="212" width="134" height="38"/><rect x="372" y="212" width="150" height="38"/></g>
+        <text x="220" y="236">Taps link in SMS</text>
+        <text x="386" y="230">Pre-approved</text>
+        <text x="386" y="244">visit type only</text>
+        <g stroke="currentColor" stroke-width="1.2" marker-end="url(#ar2)" opacity=".7"><path d="M340 231 H 366"/><path d="M522 231 H 756"/></g>
+        <rect x="762" y="212" width="174" height="38" fill="none" stroke="#1B6B4A" stroke-width="1.6"/>
+        <text x="776" y="236" fill="#1B6B4A" font-weight="700">Written to schedule</text>
+
+        <!-- row 4 request -->
+        <text x="24" y="306" font-weight="700" font-size="12.5">Request</text>
+        <text x="24" y="322" opacity=".6" font-family="IBM Plex Mono, monospace" font-size="10">NOT SCHEDULING</text>
+        <g fill="none" stroke="currentColor" opacity=".45"><rect x="206" y="290" width="134" height="38"/><rect x="372" y="290" width="150" height="38"/></g>
+        <text x="220" y="314">Fills in a form</text>
+        <text x="386" y="314">Staff work queue</text>
+        <g stroke="currentColor" stroke-width="1.2" marker-end="url(#ar2)" opacity=".7"><path d="M340 309 H 366"/><path d="M522 309 H 756"/></g>
+        <rect x="762" y="290" width="174" height="38" fill="none" stroke="#8A5300" stroke-width="1.6" stroke-dasharray="5 3"/>
+        <text x="776" y="308" fill="#8A5300" font-weight="700">Callback, no write</text>
+        <text x="776" y="323" fill="#8A5300" font-size="10" font-family="IBM Plex Mono, monospace" opacity=".8">SAY SO ON THE BUTTON</text>
+      </g>
+    </svg>
+    <figcaption><b>Figure 2 — What the button actually does.</b> Three mechanisms write to the schedule and one does not. The design failure is labelling all four "Schedule Appointment": the dashed outcome is the only one where a human intervenes, and it is the only one where the label must change. A calendar UI in front of a work queue is a lie the patient discovers three days later.</figcaption>
+  </figure>
+
+  <div class="wide tw">
+    <table>
+      <thead><tr><th scope="col">Mechanism</th><th scope="col">Reach</th><th scope="col">Conversion</th><th scope="col">Correct button label</th><th scope="col">Use it for</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Direct</th><td class="num">Low</td><td class="num">Highest</td><td>"Book"</td><td>Established patients, routine follow-up, anything the portal already knows how to schedule.</td></tr>
+        <tr><th scope="row">Open</th><td class="num">Highest</td><td class="num">High</td><td>"Book"</td><td>New-patient acquisition from search and the public site. The growth mechanism.</td></tr>
+        <tr><th scope="row">Ticket</th><td class="num">Targeted</td><td class="num">Highest</td><td>"Choose your time"</td><td>Recalls, ordered follow-ups, screening outreach. Highest-yield mechanic in the set and the most underused.</td></tr>
+        <tr><th scope="row">Request</th><td class="num">Universal</td><td class="num">Lowest</td><td>"Request a callback"</td><td>Visit types that genuinely need clinical triage — and nothing else.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Three non-negotiable rules fall out of this. If it writes to the schedule, the control says <strong>Book</strong> and shows real times. If a human will call back, the control says <strong>Request a callback</strong> and states the response window explicitly ("We call within one business day, Monday to Friday"). And you never show a calendar interface for something that is actually a request — the calendar is the promise, and the promise has to be kept.</p>
+
+  <h4>Guest versus authenticated checkout</h4>
+  <p>Forcing account creation before booking costs you the new patient. This is the oldest lesson in e-commerce and it is worse in healthcare, because health-system identity proofing is heavier than a retail signup and lands on a user who has no relationship with you yet. The correct pattern is guest booking that captures the minimum, confirms immediately, and offers account creation <em>after</em> confirmation with the fields already filled: "Your appointment is booked. Create an account to reschedule it, message your care team, and see your results."</p>
+  <p>The genuinely hard part is not the form, it is the identity seam underneath it. Open scheduling has to either match a guest to an existing medical record number or create a new one, without letting a stranger book into someone else's chart. That has two design consequences: ask only for what supports a probabilistic match (name, date of birth, postcode, mobile), verify with a one-time code, and defer insurance and history to intake rather than making them a barrier to the booking itself.</p>
+  <p>Two WCAG 2.2 criteria live in this flow and both are frequently violated here. <strong>3.3.7 Redundant Entry</strong> — nothing already given may be requested again. <strong>3.3.8 Accessible Authentication</strong> — no cognitive-function tests, which means allowing paste, supporting password managers, offering passkeys, and preferring emailed or texted codes over puzzles.</p>
+
+  <h4>Availability honesty and the hold window</h4>
+  <p>Never display a slot you cannot hold. Once a user selects one, hold it for a defined window — ten minutes is typical — with a visible countdown and an explicit release message, announced to assistive technology via a live region. A booking flow that silently loses the slot on submit is worse than one that never offered it, because it spends the user's trust and their time at once.</p>
+
+  <h4>Confirmation is part of booking, not after it</h4>
+  <p>The confirmation screen and email are where continuity begins. Both should carry: add-to-calendar, the specific building and entrance and floor and suite, the parking instruction and its cost, what to bring, a cost estimate, cancel and reschedule links that work without a login, and the intake link.</p>
+
+  <h3>2.3 Physical-to-digital continuity: the last hundred metres</h3>
+  <p>The journey does not end at "booked". It ends when the patient is sitting in the right chair, on time, with their forms done. Most systems build excellent booking flows and then abandon the user at the kerb.</p>
+
+  <h4>Pre-visit intake</h4>
+  <p>92% of patients say they would rather complete pre-visit questionnaires online than by phone or in person, and the operational case is unusually clear-cut: digital check-in cuts new-patient check-in from roughly 25 minutes to 5–7 (about 2 for returning patients), saves five-plus minutes of staff time per self-service check-in, and correlates with large no-show reductions — 76% across the Phreesia network, with one urology group taking telehealth no-shows from 20% to 2%. Design rules: mobile-first, one topic per screen, autosave with save-and-resume, pre-fill everything already known, never ask twice, and mark optional questions visibly so people stop guessing whether they can skip them.</p>
+
+  <h4>Location objects, not address strings</h4>
+  <p>The most common continuity failure is treating a location as a line of text. A location is an object, and the appointment confirmation, the reminder, and the location page all need the same fields: campus, building name, the <em>specific</em> entrance, floor, suite, the parking structure and what it costs, valet hours, shuttle and transit options, the drop-off point, and an explicit "if you are running late, do this" instruction.</p>
+  <p>The subtlest and most damaging error in this layer is wording drift: the website says "Cardiovascular Institute" and the door says "Heart Center, Building C". A patient standing in a lobby cannot resolve that mismatch. <strong>The digital wayfinding copy must match the physical signage verbatim</strong>, which means the content team needs a feed from facilities — an unglamorous integration that prevents more distress than most redesigns.</p>
+
+  <h4>Wayfinding</h4>
+  <p>Brigham and Women's BWH Maps app provides indoor navigation to more than 300 destinations on its main campus, including offline operation — a detail that matters because hospital interiors are where mobile signal dies. The more transferable pattern is launching wayfinding directly from the appointment reminder, carrying parking, the fastest route, and time-to-destination. In one study, 87.5% of respondents said digital navigation reduced their stress and improved accuracy. The rule to take from it: <strong>reminders deep-link to a route, not to a map</strong>, and the map pin drops on the entrance, not the campus centroid.</p>
+</section>
+
+<!-- ============ PART 3 ============ -->
+<section class="sec band" id="benchmarks" aria-labelledby="bm-h">
+  <p class="secnum">03 — Global benchmarks</p>
+  <h2 id="bm-h">Six teardowns, and what each one paid for its strength</h2>
+  <p>No hospital website is best-in-class in every dimension, because the dimensions genuinely conflict: editorial authority competes with immediate action for the same screen position, and reach competes with conversion for the same funnel. What distinguishes the best sites is not the absence of trade-offs but the deliberateness of them. Each teardown below is based on the live site's current structure.</p>
+
+  <h3>Mayo Clinic — editorial authority as the front door</h3>
+  <p><strong>What it does.</strong> The desktop header is reduced to almost nothing: skip-to-content, Register/Log in, Search, and Menu. Primary navigation lives behind a hamburger <em>on desktop</em>. A single persistent CTA — "Request appointment" — carries all conversion. The homepage surfaces an A–Z condition index and a "Featured care areas" list of specific complex diagnoses (bone marrow transplant, brain aneurysm, glioma, living-donor transplant, sarcoma). The headline is "The right answers the first time," framed around diagnostic accuracy. Four languages ship: English, Español, العربية, 简体中文. The footer is segmented by audience — Patients, Medical Professionals, Businesses, Students, Researchers.</p>
+  <p><strong>Why it is best-in-class.</strong> It wins the top of the funnel by owning condition content at global scale, and then converts on the <em>content</em> page rather than the homepage. The header's austerity is a bet that search intent dominates, and for Mayo it demonstrably does. The headline is the sector's best example of differentiated positioning: not "world-class care" but a specific claim about diagnostic accuracy, which is their actual product.</p>
+  <p><strong>What it paid.</strong> This is the most extreme editorial-authority bet in the sector, and it costs local service utility. A Rochester patient looking for parking or visiting hours is worse served here than on a community hospital's site. Hiding primary navigation behind a hamburger on desktop trades discoverability for focus, which works only because a large share of traffic arrives on a deep content page with a specific question. Emergency routing is essentially absent from the homepage — defensible for a destination referral centre, indefensible if copied by a general hospital.</p>
+
+  <h3>Cleveland Clinic — the balanced hybrid, and the best routing question in the sector</h3>
+  <p><strong>What it does.</strong> A utility bar carries the main phone number (800.223.2273), MyChart, Medical Professionals, Careers and Donate Now. Primary navigation is five items: Find a Provider, Locations and Directions, Services, Patients and Visitors, Health Library. A "Closures &amp; Updates" alert slot sits near the top. The homepage carries nine icon-led service categories (Cancer, Children's Services, Digestive Care, Ear Nose and Throat, Heart Care, Neurology, Ob/Gyn Care, Orthopaedic Care, Primary Care), a "Not Sure Where To Go for Care?" routing module, and two secondary blocks: "Get Care" and "Need Help?" (billing, MyChart access, medical records requests).</p>
+  <p><strong>Why it is best-in-class.</strong> It is the clearest proof that a system can carry a top-tier health library <em>and</em> a task-first front door without either destroying the other. Three specific moves are worth copying. Putting the phone number in the utility bar means it is on every page. Nine plain-language service tiles give the specialty shopper an immediate lateral entry that bypasses navigation entirely. And the "Need Help?" block is the sector's most underrated pattern: it names the <em>administrative</em> jobs — bill, records, portal access — that generate the most call-centre volume and the least marketing glory, and puts them on the homepage where they belong.</p>
+  <p><strong>What it paid.</strong> Density. The homepage asks a lot of a stressed user, and the emergency path is weak relative to the quality of the urgent-care routing module — a phone number in a utility bar is carrying acute load that deserves its own statement block. "Services" as a bare navigation label is also the weakest item in an otherwise strong set.</p>
+
+  <h3>NHS.uk — the reference implementation of acuity separation</h3>
+  <p><strong>What it does.</strong> Navigation is five plain items: Health A to Z, NHS services, Healthy living, Mental health, Care and support. Directly below the navigation sits a triage statement — "If you're worried about a symptom and not sure what help you need, NHS 111 can tell you what to do next" — with a structurally separate callout: "For a life-threatening emergency call 999." A "manage your health" block collects the authenticated tasks: order prescriptions, view test results, GP appointments, register with a GP, find your NHS number.</p>
+  <p><strong>Why it is best-in-class.</strong> It is the only major health site that separates the three acuity tiers <em>structurally</em> rather than visually: 999 is a statement, 111 is a triage entry point, and everything else is browse. Nothing about that hierarchy depends on the user reading carefully. Underneath it sits an enforced content standard that no US system matches — a target reading age of 9 to 11, sentences capped at 20 words, paragraphs capped at three sentences, active voice, every clinical term glossed on first use in the "piles (haemorrhoids)" style, and clinician sign-off on clinical content. NHS 111 online is also exemplary in its honesty about scope: it will not give you a diagnosis, only a direction.</p>
+  <p><strong>What it paid.</strong> Near-zero brand expression, and no provider-choice or conversion machinery at all — because in the NHS model, choice and booking live elsewhere (your GP, the NHS App). A US system cannot lift this IA wholesale; it has to sell, and NHS.uk does not. What is fully portable is the acuity separation and the content standard, and both are free.</p>
+
+  <h3>UCLA Health — verb-first taxonomy, and "Find a Doctor" as a peer</h3>
+  <p><strong>What it does.</strong> Utility bar: myUCLAhealth, Donate, Contact Us, and a ten-language selector. Primary navigation: Find Care, Patient Resources, Locations, Discover, and — crucially — Find a Doctor promoted out of a dropdown to a top-level sibling. A central search box carries a genuinely instructive placeholder: "Try looking up a doctor, a clinic location, or information about a condition/treatment." Below, "Find Primary Care" and "Find Immediate Care" are offered as a deliberate pair, with a dedicated Immediate Care section.</p>
+  <p><strong>Why it is best-in-class.</strong> Two moves. First, promoting Find a Doctor to a top-level peer is an explicit architectural statement that provider search is a destination, not a subsection — and it removes a hover-dependent interaction from the highest-value path. Second, presenting primary and immediate care as a <em>pair</em> is a triage decision aid with no tool behind it: the juxtaposition itself does the routing work. The search placeholder is a small masterclass in teaching a search box's scope without a help link.</p>
+  <p><strong>What it paid.</strong> The hero. "Achieving the exceptional doesn't just happen" is institutional positioning occupying the position that the highest-acuity content should hold. Immediate care lives below the reputational message — the standard academic-medical-centre compromise, and the clearest example in this set of editorial authority beating immediate action for the fold.</p>
+
+  <h3>Kaiser Permanente — dual-path architecture for two populations</h3>
+  <p><strong>What it does.</strong> Navigation is verb-labelled: Learn, Shop Plans, Doctors &amp; Locations, Health &amp; Wellness, Get Care, Pay Bills. Sign-in sits top-right; the homepage is marketing-first rather than authenticated-first. Emergency care, urgent care and after-hours availability are listed adjacent to the care and location finder. Region and language selectors are surfaced up front, and the footer splits into Find care, Our organization, Member support, and Visit our other sites.</p>
+  <p><strong>Why it is instructive.</strong> As both payer and provider, Kaiser must serve two populations whose needs barely overlap — a plan shopper and an existing member — and it resolves this with verb-labelled navigation ("Get Care", "Pay Bills" are tasks, not departments) plus an early region gate. "Pay Bills" in primary navigation is unusual and correct: billing is a top-three reason people visit a health system's website and it is almost always demoted to the footer.</p>
+  <p><strong>What it paid.</strong> Both paths get a compromised homepage — neither the shopper nor the member gets the undivided front page they would get from a single-purpose site. Region gating adds a step for everyone in order to make everything after it correct, which is a defensible trade only because Kaiser's content genuinely differs by geography. Copy the region gate only if that is also true of you.</p>
+
+  <h3>1177.se (Sweden) — authenticated tasks in the most valuable position</h3>
+  <p><strong>What it does.</strong> A region selector sits in the header. Navigation, translated, reads: Life &amp; Health, Children &amp; Pregnancy, Accidents &amp; Injuries, Diseases &amp; Complaints, Examination &amp; Treatment, How Healthcare Works. The homepage's primary block is six e-services: read your record, renew prescriptions, read and reply to messages, see booked appointments, read and send certificates, see more services. Round-the-clock advice is available by phone at 1177. A prominent block warns about fraudulent emails.</p>
+  <p><strong>Why it is instructive.</strong> It inverts the US convention by putting <em>authenticated</em> tasks in the homepage's most valuable real estate — which is simply correct when returning users dominate your traffic, and most health systems have never checked whether that is true of them. Two details are worth stealing outright. "Accidents &amp; Injuries" as a top-level category is a symptom-shaped label no US system uses and every frightened user would recognise instantly. And the anti-phishing block is a pattern the sector needs: a health portal is a high-value phishing target, and saying so on the homepage is a trust-building move, not an admission of weakness.</p>
+  <p><strong>What it paid.</strong> It depends on a national e-ID that does not exist in most markets, and because it faces no competitor it invests nothing in persuasion or provider choice. The authenticated-first inversion is portable; the identity infrastructure is not.</p>
+
+  <div class="note">
+    <span class="note-h">The counter-model: retail and membership primary care</span>
+    <p>One Medical and its peers are worth understanding as a structural contrast rather than a design benchmark. Their model treats booking as the product itself — app-first, same-day availability, 24/7 virtual care as the entry point rather than an add-on — and it converts far better than any hospital front door, because the site has exactly one job. The trade-off is severe and instructive: the model serves a narrow acuity band and offloads everything complex to a partner health system. A general hospital cannot adopt their architecture, but it should adopt their standard for the routine-appointment door and stop grading itself against other hospitals on that specific path.</p>
+  </div>
+
+  <div class="wide tw">
+    <table>
+      <thead><tr><th scope="col">Benchmark</th><th scope="col">Governing thesis</th><th scope="col">Signature solution</th><th scope="col">Deliberate trade-off</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Mayo Clinic</th><td>Own the condition question; convert on the content page.</td><td>Search-first austere header; A–Z condition index as the taxonomy bridge; one global CTA.</td><td>Local service utility and emergency routing sacrificed for editorial focus.</td></tr>
+        <tr><th scope="row">Cleveland Clinic</th><td>Library and front door can coexist.</td><td>"Not Sure Where To Go for Care?" routing module; a "Need Help?" block for administrative jobs.</td><td>Homepage density; acute load carried by a utility-bar phone number.</td></tr>
+        <tr><th scope="row">NHS.uk</th><td>Acuity is the architecture.</td><td>999 as statement, 111 as triage, browse as everything else; an enforced plain-language standard.</td><td>No brand expression, no conversion machinery, no provider choice.</td></tr>
+        <tr><th scope="row">UCLA Health</th><td>Care-finding verbs beat departments.</td><td>Find a Doctor promoted to a top-level peer; primary and immediate care offered as a pair.</td><td>Reputational hero occupies the fold that acuity should own.</td></tr>
+        <tr><th scope="row">Kaiser Permanente</th><td>Two populations, two paths, one shell.</td><td>Verb-labelled nav including "Pay Bills"; early region gate.</td><td>Both audiences get a compromised homepage; an extra gate for everyone.</td></tr>
+        <tr><th scope="row">1177.se</th><td>Returning users own the front page.</td><td>Six authenticated e-services as the primary block; "Accidents &amp; Injuries" as a top-level label; anti-phishing notice.</td><td>Requires national e-ID; no persuasion layer at all.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ PART 4 ============ -->
+<section class="sec band" id="blueprint" aria-labelledby="bp-h">
+  <p class="secnum">04 — Foundational architecture</p>
+  <h2 id="bp-h">Blueprint for a general hospital or multi-specialty clinic</h2>
+  <p>What follows is a synthesis, not a compromise: the acuity separation from NHS.uk, the routing module and administrative block from Cleveland Clinic, the verb-first taxonomy and promoted provider search from UCLA Health, the condition bridge from Mayo, the authenticated-task prominence from 1177, and the booking standard from retail primary care.</p>
+
+  <h3>4.1 Seven governing principles</h3>
+  <ol>
+    <li><strong>Acuity before audience before service line.</strong> If a decision cannot be resolved, ask which acuity tier it serves. Service-line politics is the last tiebreaker, not the first.</li>
+    <li><strong>Emergency is information; everything else is a transaction.</strong> They never share a visual family.</li>
+    <li><strong>One primary conversion and one primary re-entry.</strong> "Book" and "Sign in". Anything else claiming primary weight is diluting both.</li>
+    <li><strong>The label sets the promise, and the system must keep it.</strong> Applies to buttons, wait times, availability, and cost estimates equally.</li>
+    <li><strong>The layperson's taxonomy is the front door; the institution's taxonomy is the back office.</strong> Both exist; only one is public.</li>
+    <li><strong>Design the stressed path as the default.</strong> Calm users tolerate clarity; stressed users cannot recover from density.</li>
+    <li><strong>Every page answers "what do I do next" in one control.</strong> If a page has no next action, it is a leaf and should link to one.</li>
+  </ol>
+
+  <h3>4.2 Homepage visual hierarchy</h3>
+  <figure class="wide figscroll">
+    <svg viewBox="0 0 720 700" role="img" aria-label="Wireframe of the recommended homepage zone stack: a conditional alert slot and sticky utility and navigation layers at the top, then an acuity-differentiated action band, a content-sized hero, a care routing module, service tiles, locations, administrative tasks, proof, editorial content, and an audience-segmented footer.">
+      <g font-family="IBM Plex Mono, monospace" font-size="10" letter-spacing="1" fill="currentColor" opacity=".55">
+        <text x="14" y="20">ZONE</text>
+        <text x="404" y="20">JOB</text>
+      </g>
+
+      <!-- sticky bracket -->
+      <g stroke="#124E52" fill="none" stroke-width="1.4">
+        <path d="M8 34 H 2 V 104 H 8"/>
+      </g>
+      <text x="12" y="74" font-family="IBM Plex Mono, monospace" font-size="9" fill="#124E52" transform="rotate(-90 12 74)" text-anchor="middle">STICKY</text>
+
+      <g font-family="Source Sans 3, sans-serif" font-size="11.5">
+        <!-- Z0 -->
+        <rect x="24" y="30" width="360" height="20" fill="none" stroke="currentColor" stroke-dasharray="4 3" opacity=".5"/>
+        <text x="34" y="44" fill="currentColor" opacity=".7">Skip links + alert slot (conditional)</text>
+        <text x="404" y="44" fill="currentColor" opacity=".75">Closures, outbreaks, downtime. Collapses to nothing. Never a modal.</text>
+
+        <!-- Z1 -->
+        <rect x="24" y="56" width="360" height="22" fill="none" stroke="currentColor"/>
+        <rect x="26" y="58" width="52" height="18" fill="currentColor" opacity=".18"/>
+        <rect x="180" y="58" width="76" height="18" fill="#A8261B" opacity=".22"/>
+        <rect x="330" y="58" width="52" height="18" fill="#2B4B8C" opacity=".28"/>
+        <text x="404" y="72" fill="currentColor" opacity=".75">Utility: logo · <tspan fill="#A8261B">emergency statement</tspan> · language · pay a bill · <tspan fill="#2B4B8C">sign in</tspan></text>
+
+        <!-- Z2 -->
+        <rect x="24" y="84" width="360" height="20" fill="none" stroke="currentColor"/>
+        <g fill="currentColor" opacity=".22"><rect x="30" y="88" width="44" height="12"/><rect x="80" y="88" width="52" height="12"/><rect x="138" y="88" width="48" height="12"/><rect x="192" y="88" width="44" height="12"/><rect x="242" y="88" width="36" height="12"/></g>
+        <rect x="316" y="87" width="64" height="14" fill="#1B6B4A" opacity=".3"/>
+        <text x="404" y="98" fill="currentColor" opacity=".75">5–7 verb-first items + persistent <tspan fill="#1B6B4A">Book an appointment</tspan></text>
+
+        <!-- Z3 action band -->
+        <rect x="24" y="112" width="360" height="46" fill="none" stroke="currentColor" stroke-width="1.6"/>
+        <rect x="34" y="122" width="104" height="26" fill="#8A5300" opacity=".28"/>
+        <rect x="150" y="124" width="112" height="22" fill="#1B6B4A" opacity=".24"/>
+        <rect x="276" y="126" width="96" height="18" fill="#2B4B8C" opacity=".26"/>
+        <text x="404" y="128" fill="currentColor" font-weight="700">Z3 · Action band</text>
+        <text x="404" y="145" fill="currentColor" opacity=".75">Three controls, deliberately unequal in weight, colour and shape:</text>
+        <text x="404" y="159" fill="currentColor" opacity=".75"><tspan fill="#8A5300">care now</tspan> · <tspan fill="#1B6B4A">find a doctor</tspan> · <tspan fill="#2B4B8C">sign in</tspan></text>
+
+        <!-- Z4 hero -->
+        <rect x="24" y="166" width="360" height="74" fill="none" stroke="currentColor" opacity=".6"/>
+        <g fill="currentColor" opacity=".2"><rect x="38" y="184" width="180" height="12"/><rect x="38" y="202" width="140" height="8"/><rect x="38" y="216" width="78" height="14"/></g>
+        <text x="404" y="186" fill="currentColor" font-weight="700">Z4 · Hero</text>
+        <text x="404" y="203" fill="currentColor" opacity=".75">One message, one CTA. Still image or flat colour —</text>
+        <text x="404" y="217" fill="currentColor" opacity=".75">never text over autoplay video. Sized to content, not 100vh.</text>
+
+        <!-- fold -->
+        <line x1="14" y1="252" x2="706" y2="252" stroke="currentColor" stroke-dasharray="6 4" opacity=".45"/>
+        <text x="14" y="248" font-family="IBM Plex Mono, monospace" font-size="9" fill="currentColor" opacity=".6">TYPICAL MOBILE FOLD</text>
+
+        <!-- Z5 routing -->
+        <rect x="24" y="264" width="360" height="52" fill="none" stroke="#8A5300" stroke-width="1.4"/>
+        <g fill="#8A5300" opacity=".22"><rect x="36" y="286" width="76" height="20"/><rect x="120" y="286" width="76" height="20"/><rect x="204" y="286" width="76" height="20"/><rect x="288" y="286" width="76" height="20"/></g>
+        <text x="36" y="280" fill="currentColor" opacity=".7" font-size="10.5">"Not sure where to go for care?"</text>
+        <text x="404" y="282" fill="currentColor" font-weight="700">Z5 · Care routing module</text>
+        <text x="404" y="299" fill="currentColor" opacity=".75">Four settings with symptom examples, hours, live wait,</text>
+        <text x="404" y="313" fill="currentColor" opacity=".75">and an honest cost signal for each.</text>
+
+        <!-- Z6 services -->
+        <rect x="24" y="326" width="360" height="60" fill="none" stroke="currentColor" opacity=".6"/>
+        <g fill="currentColor" opacity=".16">
+          <rect x="36" y="338" width="76" height="18"/><rect x="120" y="338" width="76" height="18"/><rect x="204" y="338" width="76" height="18"/><rect x="288" y="338" width="76" height="18"/>
+          <rect x="36" y="362" width="76" height="18"/><rect x="120" y="362" width="76" height="18"/><rect x="204" y="362" width="76" height="18"/><rect x="288" y="362" width="76" height="18"/>
+        </g>
+        <text x="404" y="344" fill="currentColor" font-weight="700">Z6 · Service tiles</text>
+        <text x="404" y="361" fill="currentColor" opacity=".75">8–12 tiles in patient language — Heart, Cancer, Bones &amp; joints,</text>
+        <text x="404" y="375" fill="currentColor" opacity=".75">Pregnancy, Children, Brain &amp; nerves. Lateral entry, no nav needed.</text>
+
+        <!-- Z7 locations -->
+        <rect x="24" y="396" width="360" height="48" fill="none" stroke="currentColor" opacity=".6"/>
+        <g fill="currentColor" opacity=".16"><rect x="36" y="408" width="164" height="26"/><rect x="208" y="408" width="164" height="26"/></g>
+        <text x="404" y="414" fill="currentColor" font-weight="700">Z7 · Locations &amp; access</text>
+        <text x="404" y="431" fill="currentColor" opacity=".75">Nearest sites by consented geolocation, hours, live waits, routes, parking.</text>
+
+        <!-- Z8 admin -->
+        <rect x="24" y="454" width="360" height="48" fill="none" stroke="currentColor" opacity=".6"/>
+        <g fill="currentColor" opacity=".16"><rect x="36" y="466" width="104" height="26"/><rect x="148" y="466" width="104" height="26"/><rect x="260" y="466" width="112" height="26"/></g>
+        <text x="404" y="472" fill="currentColor" font-weight="700">Z8 · "Need help?"</text>
+        <text x="404" y="489" fill="currentColor" opacity=".75">Bill, price estimate, financial assistance, records, portal help, interpreters.</text>
+
+        <!-- Z9 proof -->
+        <rect x="24" y="512" width="360" height="40" fill="none" stroke="currentColor" opacity=".45"/>
+        <text x="404" y="528" fill="currentColor" font-weight="700">Z9 · Proof</text>
+        <text x="404" y="545" fill="currentColor" opacity=".75">Outcomes, accreditation, rankings. Below the action layer — proof</text>
+        <text x="404" y="559" fill="currentColor" opacity=".75">supports a decision the user has already begun making.</text>
+
+        <!-- Z10 editorial -->
+        <rect x="24" y="562" width="360" height="40" fill="none" stroke="currentColor" opacity=".45"/>
+        <text x="404" y="586" fill="currentColor" font-weight="700">Z10 · Health library entry</text>
+        <text x="404" y="603" fill="currentColor" opacity=".75">Condition A–Z bridge from patient words to your specialties.</text>
+
+        <!-- Z11 footer -->
+        <rect x="24" y="612" width="360" height="66" fill="currentColor" fill-opacity=".07" stroke="currentColor" opacity=".7"/>
+        <g fill="currentColor" opacity=".2"><rect x="36" y="624" width="76" height="42"/><rect x="120" y="624" width="76" height="42"/><rect x="204" y="624" width="76" height="42"/><rect x="288" y="624" width="76" height="42"/></g>
+        <text x="404" y="634" fill="currentColor" font-weight="700">Z11 · Footer as the real IA</text>
+        <text x="404" y="651" fill="currentColor" opacity=".75">Audience-segmented columns + legal, accessibility, nondiscrimination,</text>
+        <text x="404" y="665" fill="currentColor" opacity=".75">and language assistance. Where depth legitimately lives.</text>
+      </g>
+    </svg>
+    <figcaption><b>Figure 3 — The zone stack.</b> Vertical extent is proportional to recommended weight. The two things to read off it: the acuity-differentiated action band (Z3) sits <em>above</em> the hero, and the emergency statement lives in the sticky utility layer rather than competing as a card. Everything below the fold is browse-mode content, which is why the routing module — not the hero — is the first thing a scrolling user meets.</figcaption>
+  </figure>
+
+  <div class="wide zones">
+    <div class="zone"><span class="zid">Z0</span><span class="zname">Alert slot</span><span class="zbody">Closures, outbreak notices, portal downtime, weather. Severity-typed, dismissible with the dismissal remembered, and reserved space that collapses to zero height when empty so nothing shifts.</span><span class="zmeta">Never a modal · never blocks an acute path</span></div>
+    <div class="zone"><span class="zid">Z1</span><span class="zname">Utility layer (sticky)</span><span class="zbody">Logo · emergency statement with <code>tel:</code> and ER address · language selector · Pay a bill · Sign in. The emergency statement's fixed, predictable position is what makes it findable under tunneling.</span><span class="zmeta">≤56px · portal control visually distinct from marketing CTAs</span></div>
+    <div class="zone"><span class="zid">Z2</span><span class="zname">Primary navigation (sticky)</span><span class="zbody">Five to seven verb-first items plus a persistent "Book an appointment" button. Collapses with Z1 into a single 56px bar on scroll, retaining logo, Book, Sign in and a menu affordance.</span><span class="zmeta">Total sticky height ≤15% of mobile viewport</span></div>
+    <div class="zone"><span class="zid">Z3</span><span class="zname">Action band</span><span class="zbody">Three controls, deliberately unequal: "I need care now" (urgent, with live wait times), "Find a doctor", "Sign in to your portal". This is the acuity split made physical, and it belongs above the hero.</span><span class="zmeta">Differentiate by weight, colour and shape — not three identical cards</span></div>
+    <div class="zone"><span class="zid">Z4</span><span class="zname">Hero</span><span class="zbody">One message, one CTA, over a still image or flat colour. Sized to its content rather than the viewport, so the routing module is reachable in one thumb-scroll.</span><span class="zmeta">No autoplay video · no carousel · no 100vh</span></div>
+    <div class="zone"><span class="zid">Z5</span><span class="zname">Care routing module</span><span class="zbody">"Not sure where to go for care?" — four settings, each with real symptom examples, hours, live wait time, and a cost signal. The single highest-yield block on the page after Z3.</span><span class="zmeta">Examples, not definitions</span></div>
+    <div class="zone"><span class="zid">Z6</span><span class="zname">Service tiles</span><span class="zbody">Eight to twelve tiles in patient language, each landing on a condition-first page rather than a departmental overview. This is the lateral entry that lets a specialty shopper skip navigation entirely.</span><span class="zmeta">Icon + label · never icon alone</span></div>
+    <div class="zone"><span class="zid">Z7</span><span class="zname">Locations &amp; access</span><span class="zbody">Nearest sites via consented geolocation, with hours, live waits, route deep links and parking cost. Location objects, not address strings.</span><span class="zmeta">Pin the entrance, not the campus centroid</span></div>
+    <div class="zone"><span class="zid">Z8</span><span class="zname">Administrative jobs</span><span class="zbody">Pay a bill · price estimates · financial assistance · medical records · insurance accepted · portal help · interpreter services · patient rights. The highest call-volume, lowest-glamour tasks on the site.</span><span class="zmeta">Homepage placement, not footer exile</span></div>
+    <div class="zone"><span class="zid">Z9</span><span class="zname">Proof</span><span class="zbody">Outcomes data, accreditations, rankings, research. Positioned below the action layer because proof supports a decision already in motion; positioned above the fold it displaces the acuity read.</span><span class="zmeta">Specific claims beat superlatives</span></div>
+    <div class="zone"><span class="zid">Z10</span><span class="zname">Health library entry</span><span class="zbody">The condition A–Z that bridges patient vocabulary to institutional taxonomy, plus a small set of genuinely seasonal content (flu, heat, RSV) that earns its place by recurring demand.</span><span class="zmeta">The SEO front door and the anxiety front door are the same door</span></div>
+    <div class="zone"><span class="zid">Z11</span><span class="zname">Footer</span><span class="zbody">Audience-segmented columns — Patients &amp; Visitors, Medical Professionals, Careers, Research &amp; Education, Community, About — plus legal, accessibility statement, nondiscrimination notice and language assistance. The footer is where organisational depth legitimately lives.</span><span class="zmeta">The real IA, and everyone knows it</span></div>
+  </div>
+
+  <div class="note">
+    <span class="note-h">On sticky layers, honestly</span>
+    <p>A sticky "Emergency: call 911" strip on every page is tempting and probably wrong: universal persistence produces banner blindness, and the affordance stops registering exactly when it is needed. The better construction is a fixed, predictable <em>position</em> in the utility bar site-wide, escalated to a dedicated statement block only on pages where acuity is plausibly high — symptom pages, ER and urgent care pages, and the routing module. Two constraints are hard: cap total sticky height at 15% of the mobile viewport, and set <code>scroll-margin-top</code> on every anchor target to the sticky height, or your own sticky bar will violate WCAG 2.4.11 by covering the element it just scrolled to.</p>
+  </div>
+
+  <h3>4.3 Primary navigation taxonomy</h3>
+  <p>Six primary items, all in patient language, all validated by tree testing before a single template is built. "Institute", "Center of Excellence" and "Service Line" are brand assets and belong in page titles, not navigation labels. "Services" as a bare label fails because it describes your org chart rather than the user's question.</p>
+  <div class="wide tree">
+    <div><b>1 · Find Care</b><ul><li>Find a doctor</li><li>Find a location</li><li>Urgent &amp; emergency care</li><li>Virtual care</li><li>Book an appointment</li><li>Second opinions</li></ul></div>
+    <div><b>2 · Conditions &amp; Treatments</b><ul><li>Browse by condition (A–Z)</li><li>Browse by body area</li><li>Specialties &amp; services</li><li>Treatment guides</li><li>Clinical trials</li></ul></div>
+    <div><b>3 · Patients &amp; Visitors</b><ul><li>Before your visit</li><li>Parking &amp; directions</li><li>Visiting hours &amp; policies</li><li>Billing &amp; insurance</li><li>Price estimates &amp; financial assistance</li><li>Medical records</li><li>Interpreter &amp; accessibility services</li><li>Patient rights</li></ul></div>
+    <div><b>4 · About Us</b><ul><li>Quality &amp; safety outcomes</li><li>Rankings &amp; accreditation</li><li>Leadership</li><li>Newsroom</li><li>Community benefit</li></ul></div>
+    <div><b>5 · For Professionals</b><ul><li>Refer a patient</li><li>Provider portal</li><li>Continuing education</li><li>Research</li></ul></div>
+    <div><b>6 · Careers</b><ul><li>Search jobs</li><li>Nursing</li><li>Residency &amp; fellowship</li><li>Benefits</li></ul></div>
+    <div class="util">Utility layer, deliberately outside primary nav: Sign in · Pay a bill · Language · Search · Give</div>
+  </div>
+  <p>Label rules worth writing into the design system: never nest Find a Doctor more than one level deep; cap each mega-menu at roughly seven items per column and three columns; give every mega-menu a "see all" escape so it is never the only path; and make every mega-menu fully keyboard-operable with no hover dependency. The single biggest predictor of IA failure in this sector is a taxonomy drawn from the organisation chart and validated by staff rather than patients — card-sort with real patients, tree-test the label set, and treat internal stakeholder preference as one input among several rather than the decision.</p>
+
+  <h3>4.4 Design system components this domain specifically needs</h3>
+  <p>A generic component library — buttons, cards, accordions — does not get you a hospital site. These are the domain-specific components, each carrying a requirement that a generic equivalent will not satisfy.</p>
+  <div class="wide tw">
+    <table>
+      <thead><tr><th scope="col">Component</th><th scope="col">The requirement it carries</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Emergency statement block</th><td>Non-button appearance, <code>tel:</code> link, fixed position, ≥7:1 contrast, present in the first viewport, never inside a carousel or accordion.</td></tr>
+        <tr><th scope="row">Acuity chip</th><td>Emergency / Urgent / Routine / Virtual encoded in shape <em>and</em> colour <em>and</em> text — never colour alone (WCAG 1.4.1).</td></tr>
+        <tr><th scope="row">Care-setting comparison card</th><td>Symptom examples, hours, expected wait, cost signal, and one CTA. Examples are the payload; definitions are not.</td></tr>
+        <tr><th scope="row">Wait-time badge</th><td>Live value with an "as of 14:20" timestamp and a staleness rule that hides the badge rather than showing a stale number.</td></tr>
+        <tr><th scope="row">Provider result card</th><td>Photo, accepting-new-patients state, three real slot chips, distance, insurance match, languages, rating.</td></tr>
+        <tr><th scope="row">Slot chip group</th><td>Real availability only, 44px targets, full keyboard traversal, hold-timer aware, results announced via <code>aria-live</code>.</td></tr>
+        <tr><th scope="row">Filter panel</th><td>Hard constraints separated from soft preferences, counts per facet, never-zero results with stated relaxation, state persisted across back-navigation.</td></tr>
+        <tr><th scope="row">Booking stepper</th><td>One topic per screen, autosave, save-and-resume, no redundant entry, no timeout under 20 minutes.</td></tr>
+        <tr><th scope="row">Guest identity capture</th><td>Minimum viable fields for probabilistic record match, OTP verification, insurance deferred to intake.</td></tr>
+        <tr><th scope="row">Hold-timer banner</th><td>Visible countdown, explicit release message, announced politely to assistive technology.</td></tr>
+        <tr><th scope="row">Location object card</th><td>Campus, building, specific entrance, floor, suite, parking and its cost, valet, transit, drop-off, and an "if you're late" instruction.</td></tr>
+        <tr><th scope="row">Route deep-link button</th><td>Opens native maps with the entrance pinned; wording matches physical signage verbatim.</td></tr>
+        <tr><th scope="row">Intake form kit</th><td>Mobile-first, prefilled from known data, progress visible, optional questions marked, autosave on every field.</td></tr>
+        <tr><th scope="row">Cost estimator</th><td>Good-faith estimate, insurance-aware, plain-language ranges, and an explicit statement of what the estimate excludes.</td></tr>
+        <tr><th scope="row">Language switcher</th><td>Options labelled in the target language, <code>lang</code> attributes set correctly, RTL support, and machine-translated pages labelled as such.</td></tr>
+        <tr><th scope="row">Alert slot</th><td>Severity-typed, dismissal remembered, reserved space, never modal, never on an acute path.</td></tr>
+        <tr><th scope="row">Proxy/caregiver banner</th><td>Persistent, high-contrast "You are viewing Maria's information" — the most consequential piece of state in the whole portal.</td></tr>
+        <tr><th scope="row">Clinical content template</th><td>Plain-language summary first, a red-flag "when to get help now" box near the <em>top</em>, terms glossed on first use, reviewed-by and review date visible.</td></tr>
+        <tr><th scope="row">Consent / cookie pattern</th><td>Decline-non-essential at equal visual weight, and full suppression on acute paths.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>4.5 How you know it works</h3>
+  <p>The measurement plan is where most front-door programmes quietly fail, because the easy metrics reward the wrong behaviour.</p>
+  <ul>
+    <li><strong>Acute path:</strong> time from landing to phone tap; viewport-visibility rate of the emergency statement; bounce-to-call rate on ER and urgent care pages.</li>
+    <li><strong>Directory funnel:</strong> search → results (with zero-result rate), results → profile, profile → slot view, slot view → completed booking, plus a stated abandonment reason at each step.</li>
+    <li><strong>Booking honesty:</strong> the share of "Book" clicks ending in a written appointment versus a request, and the slot-hold expiry rate.</li>
+    <li><strong>Intake:</strong> pre-visit completion rate, and no-show rate for completed versus incomplete intake.</li>
+    <li><strong>Access equity:</strong> task success measured separately on mobile, with a screen reader, at 200% zoom, in each priority language, and for the 65-plus cohort. Reported separately — an average hides exactly the failures that matter.</li>
+  </ul>
+  <div class="note warn">
+    <span class="note-h">The metric that will corrupt your design</span>
+    <p>Call deflection is a legitimate business objective and a dangerous KPI. Optimise it in isolation and the system will, over several release cycles, hide the phone number — because that reliably moves the number. Pair it always with an escape-hatch usage metric ("could not complete this online") and treat a rise in that metric as a design defect rather than a channel success. On a hospital website, the phone number is a safety control, not a cost centre.</p>
+  </div>
+</section>
+
+<!-- ============ PART 5 ============ -->
+<section class="sec band" id="access" aria-labelledby="ac-h">
+  <p class="secnum">05 — Accessibility &amp; inclusive design</p>
+  <h2 id="ac-h">WCAG 2.2 AA as the floor, not the ceiling</h2>
+  <p>In healthcare, accessibility is not a compliance overlay — the population you serve is disproportionately old, ill, medicated, in pain, anxious, and using assistive technology. The users your accessibility work protects are your core users, not an edge segment.</p>
+
+  <h3>5.1 The legal floor in the United States</h3>
+  <p>The DOJ's April 2024 Title II final rule requires WCAG 2.1 Level AA conformance for state and local government entities, which covers public hospitals, county and municipal health systems, state-operated clinics and public health departments. An April 2026 interim final rule extended the compliance dates by one year: <strong>26 April 2027</strong> for entities serving populations of 50,000 or more, and <strong>26 April 2028</strong> for smaller entities and special districts. Separately, HHS's Section 504 rule sets <strong>11 May 2027</strong> for federally funded providers with 15 or more employees and <strong>10 May 2028</strong> for smaller ones.</p>
+  <p>Build to WCAG <strong>2.2</strong> AA regardless. You will be re-audited against the current standard, the delta is small, and — decisively — 2.2's six additions are precisely the criteria that matter in this domain.</p>
+
+  <h3>5.2 The WCAG 2.2 additions, and why each one is a healthcare criterion</h3>
+  <div class="wide crit">
+    <div><span class="cid">2.4.11 · AA</span><span class="cname">Focus Not Obscured (Minimum)</span><span class="cwhy">Your sticky booking bar covers the focused field halfway down the intake form. This is the most common new failure in the sector, and it is caused by the same sticky utility layer the rest of this document recommends — so set <code>scroll-margin-top</code> and test with the keyboard.</span></div>
+    <div><span class="cid">2.5.7 · AA</span><span class="cname">Dragging Movements</span><span class="cwhy">Pain-scale sliders, date-range pickers and body-map selectors all need a non-drag alternative. A patient with tremor, arthritis or an IV line in one hand cannot drag.</span></div>
+    <div><span class="cid">2.5.8 · AA</span><span class="cname">Target Size (Minimum) — 24×24 CSS px</span><span class="cwhy">Slot chips and calendar day cells are where this fails. Design to 44×44 anyway: 24 is the legal minimum, not a usable size for stress-degraded motor control or an 80-year-old thumb.</span></div>
+    <div><span class="cid">3.2.6 · A</span><span class="cname">Consistent Help</span><span class="cwhy">The phone number, interpreter link and "get help" affordance must sit in the same relative place on every page. In this domain that is a safety feature, not a convenience — it is what makes help findable under cognitive tunneling.</span></div>
+    <div><span class="cid">3.3.7 · A</span><span class="cname">Redundant Entry</span><span class="cwhy">Never re-ask for date of birth, insurance, pharmacy or emergency contact across intake steps. Re-asking is a memory tax on a user who has none to spare, and it is the leading cause of intake abandonment.</span></div>
+    <div><span class="cid">3.3.8 · AA</span><span class="cname">Accessible Authentication (Minimum)</span><span class="cwhy">No cognitive-function tests to log in. Allow paste, support password managers, offer passkeys, prefer emailed or texted codes over puzzles. This single criterion is where portal adoption among older patients lives or dies.</span></div>
+  </div>
+
+  <h3>5.3 The AA+ list: where to exceed the standard deliberately</h3>
+  <ul>
+    <li><strong>Type.</strong> Body text at 16px minimum, 18px preferred. Reflow at 400% zoom without horizontal scrolling (1.4.10) and 200% text-only resize without loss.</li>
+    <li><strong>Contrast.</strong> 4.5:1 as the floor; apply AAA-level 7:1 selectively to everything on an acute path — emergency blocks, wait times, routing modules.</li>
+    <li><strong>Targets.</strong> 44×44px with 8px separation as the design standard; 48×48 with 12px on acute paths.</li>
+    <li><strong>Time.</strong> No session timeout under 20 minutes on any clinical form. Warn at T−2 minutes with a one-tap extension, and autosave regardless of whether the user responds (2.2.1).</li>
+    <li><strong>Motion.</strong> Honour <code>prefers-reduced-motion</code>. No autoplay with sound. Carousels have a pause control and are never the only route to any content (2.2.2).</li>
+    <li><strong>Errors.</strong> Identify, describe in plain language, suggest the correction, and never clear the field (3.3.1, 3.3.3). "Invalid input" is a defect, not a message.</li>
+    <li><strong>Forms.</strong> Visible persistent labels — never placeholder-as-label. Correct <code>autocomplete</code> tokens (1.3.5). Input types that summon the right mobile keyboard.</li>
+    <li><strong>Screen readers.</strong> One <code>h1</code>, a logical heading tree, landmark regions, skip links to <em>both</em> main content and the emergency block, <code>aria-live</code> on slot-search results and hold timers, accessible names on every icon-only control, <code>aria-current</code> on navigation state, and a full name/role/value audit on every custom widget — comboboxes, steppers, calendars are where this breaks.</li>
+    <li><strong>Keyboard.</strong> Complete traversal, no traps, a visible focus ring of at least 2px at 3:1 contrast against both the component and its background, and DOM order matching visual order.</li>
+    <li><strong>Documents.</strong> PDFs are an accessibility liability on a hospital site. Intake forms, price transparency files and visitor policies must exist as HTML. If a PDF must exist, tag it properly and publish an HTML equivalent alongside it.</li>
+    <li><strong>Performance as access.</strong> Set a homepage weight budget and hold it — an LCP under 2.5 seconds on a mid-tier Android over 4G. Your acute-mode user is on a phone in a parking structure, and a heavy homepage is an accessibility failure with a different name.</li>
+  </ul>
+
+  <h3>5.4 Language and translation</h3>
+  <p><strong>Do not machine-translate clinical or safety content.</strong> Human-translate a defined priority set, and label any machine-translated page as machine-translated so a patient can calibrate their trust in it.</p>
+  <p>The right question is not how many languages but how you chose them. Mayo ships four (English, Español, العربية, 简体中文); UCLA Health surfaces ten. Neither number is correct in the abstract — the correct method is to derive the set from your service area's actual census data cross-referenced with your own <strong>interpreter-request logs</strong>, which are the best available proxy for real demand and which almost no digital team asks for.</p>
+  <ul>
+    <li><code>lang</code> on <code>&lt;html&gt;</code> and on every inline foreign-language string, so screen readers switch voice.</li>
+    <li><code>dir="rtl"</code> with a genuinely mirrored layout for Arabic, Hebrew, Farsi and Urdu — not an LTR layout with reversed text.</li>
+    <li>Localised number, date, currency and telephone formats. Translated form validation messages, which are almost always missed.</li>
+    <li>Translated appointment confirmations and reminders. A Spanish-language booking flow that emails an English confirmation has failed at the last step.</li>
+    <li>The language switcher lives in the utility bar, labelled in the target language ("Español", not "Spanish"), and never behind a flag icon — a flag denotes a nationality, not a language.</li>
+    <li>If the portal itself is English-only, say so before the user switches. Silent language cliffs are worse than a monolingual site.</li>
+    <li>Section 1557 requires taglines and a notice of interpreter availability. Treat "Interpreter services are free" as homepage-adjacent content, not a footer link — cost is exactly what stops people asking.</li>
+  </ul>
+
+  <h3>5.5 Inclusive design beyond disability</h3>
+  <ul>
+    <li><strong>Cost anxiety is an access barrier.</strong> Price estimates, financial assistance and an explicit "we care for uninsured patients" statement must be reachable in two clicks. Patients who cannot find them assume the answer is no and do not come.</li>
+    <li><strong>Privacy and immigration anxiety.</strong> State plainly what you do with immigration status and who you share data with. Silence reads as risk.</li>
+    <li><strong>Trans and nonbinary patients.</strong> Support chosen name, pronouns and gender identity as fields distinct from legal name and administrative sex, and let the directory surface clinicians with relevant training.</li>
+    <li><strong>Proxy and caregiver access.</strong> A large share of portal use is one person acting for another. If your portal has no proxy model, adult children will share credentials — which is a security failure caused by a design omission.</li>
+    <li><strong>Literacy.</strong> Target a reading age of 9 to 11 on all patient-facing content, gloss every clinical term on first use, cap sentences at 20 words and paragraphs at three. A "read aloud" button is not a substitute for writing it clearly in the first place.</li>
+  </ul>
+</section>
+
+<!-- ============ PART 6 ============ -->
+<section class="sec band" id="antipatterns" aria-labelledby="ap-h">
+  <p class="secnum">06 — Anti-pattern register</p>
+  <h2 id="ap-h">Thirteen failures, and what to do instead</h2>
+  <p>These are the failures that recur across almost every hospital site audit, ordered by how much harm they do rather than how hard they are to fix.</p>
+  <div class="wide tw">
+    <table>
+      <thead><tr><th scope="col">#</th><th scope="col">Anti-pattern</th><th scope="col">Why it fails</th><th scope="col">The fix</th></tr></thead>
+      <tbody>
+        <tr><td class="num">1</td><th scope="row">Four identical quick-link cards spanning acuity tiers</th><td>A pattern-matching user in acute mode reads layout, not labels. Identical cards transmit zero acuity information.</td><td>Differentiate by weight, shape and colour; render emergency as a statement, not a card.</td></tr>
+        <tr><td class="num">2</td><th scope="row">Consent or cookie modal over an ER page</th><td>An interstitial between a frightened user and a phone number is the highest-harm pattern on this list.</td><td>Suppress consent UI entirely on acute paths; give decline-non-essential equal visual weight elsewhere.</td></tr>
+        <tr><td class="num">3</td><th scope="row">"Schedule Appointment" that opens a request form</th><td>The calendar is a promise. Breaking it costs trust the whole funnel depends on.</td><td>Rename the control to match the mechanism: "Book" writes; "Request a callback" queues, with a stated response window.</td></tr>
+        <tr><td class="num">4</td><th scope="row">Navigation drawn from the org chart</th><td>"Institutes &amp; Centers" describes your structure, not the user's question. It is the leading cause of search-box fallback.</td><td>Patient-language verbs, card-sorted with patients and tree-tested before build.</td></tr>
+        <tr><td class="num">5</td><th scope="row">Forced account creation before booking</th><td>Identity proofing is heavy, and you are asking a stranger to do it before you have delivered anything.</td><td>Guest booking with minimum fields and OTP; offer the account after confirmation, pre-filled.</td></tr>
+        <tr><td class="num">6</td><th scope="row">Autoplay video hero with text overlay</th><td>Fails contrast unpredictably, consumes the acuity read, costs LCP, and violates 2.2.2 in most implementations.</td><td>Still image or flat colour, one message, one CTA, sized to content.</td></tr>
+        <tr><td class="num">7</td><th scope="row">Insurance as a required search filter</th><td>Silently excludes uninsured and self-pay patients — the users least able to absorb a dead end.</td><td>Optional filter with a first-class "I'll pay myself" path.</td></tr>
+        <tr><td class="num">8</td><th scope="row">Zero-result searches</th><td>A dead end with no explanation reads as "this system has no one who can help me".</td><td>Never zero: relax the least-critical constraint and say so ("showing results within 25 miles").</td></tr>
+        <tr><td class="num">9</td><th scope="row">Address strings instead of location objects</th><td>Gets the patient to the right postcode and the wrong building, then leaves them there.</td><td>Entrance, floor, suite, parking and cost, transit, drop-off, "if you're late" — with copy matching the physical signage verbatim.</td></tr>
+        <tr><td class="num">10</td><th scope="row">Session timeout mid-intake, no autosave</th><td>Destroys fifteen minutes of a sick person's work and reliably ends the relationship.</td><td>20-minute minimum, warn at T−2 with one-tap extend, autosave on every field regardless.</td></tr>
+        <tr><td class="num">11</td><th scope="row">PDF-only intake forms and price files</th><td>Unusable on a phone, hostile to screen readers, and a live legal exposure under the 2027–28 deadlines.</td><td>HTML first, always. Tag any PDF that must exist and publish an HTML equivalent.</td></tr>
+        <tr><td class="num">12</td><th scope="row">Wait times with no timestamp</th><td>An unlabelled number is assumed live. When it is four hours stale, the patient's trust in every other number on the site goes with it.</td><td>"As of 14:20", plus a staleness rule that hides the badge rather than showing an old value.</td></tr>
+        <tr><td class="num">13</td><th scope="row">Phone number set as an image or inside a graphic</th><td>Not tappable, not selectable, not readable by a screen reader, not translatable — and it is the one element acute-mode users came for.</td><td>Real text in a <code>tel:</code> link, in a consistent position, on every page.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ CLOSE ============ -->
+<section class="sec band" aria-labelledby="close-h">
+  <p class="secnum">07 — Closing</p>
+  <h2 id="close-h">What the architecture is actually for</h2>
+  <p>Almost every recommendation in this study reduces to one move: <strong>separate the acuity tiers structurally, then optimise each one for the mind that arrives in it.</strong> The emergency tier is optimised for a person who cannot read. The urgent tier is optimised for a person making a consequential decision with bad information. The routine tier is optimised for a comparison shopper who will leave if you make them phone you. The authenticated tier is optimised for someone who has already chosen you and resents every marketing element between them and their result.</p>
+  <p>The sites that do this well — NHS.uk on separation, Cleveland Clinic on routing, UCLA Health on care-finding verbs, Mayo on the condition bridge, 1177 on authenticated prominence — are not better because they have better visual design. They are better because they made an explicit decision about which user each screen position belongs to, and then defended it against the internal pressure to put a service line there instead.</p>
+  <p class="thesis">Judge every proposed change against the acute path. If it makes the frightened user's journey longer, denser or more ambiguous, it is not a design improvement — regardless of what it does for the other four states.</p>
+</section>
+
+<section class="sec band" aria-labelledby="src-h">
+  <p class="secnum">Appendix</p>
+  <h2 id="src-h">Sources</h2>
+  <div class="src">
+    <p><strong>Stress-case and cognitive research:</strong> <a href="https://www.smashingmagazine.com/2025/11/designing-for-stress-emergency/">Designing for Stress and Emergency</a>, Smashing Magazine, November 2025 · <a href="https://www.nngroup.com/articles/usability-for-senior-citizens/">Usability for Older Adults</a> and <a href="https://www.nngroup.com/reports/senior-citizens-on-the-web/">UX Design for Seniors</a>, Nielsen Norman Group.</p>
+    <p><strong>Health literacy:</strong> <a href="https://nces.ed.gov/naal/health_results.asp">National Assessment of Adult Literacy — health literacy results</a>, NCES · <a href="https://www.ahrq.gov/sites/default/files/wysiwyg/health-literacy/dhhs-2008-issue-brief.pdf">America's Health Literacy: Why We Need Accessible Health Information</a>, AHRQ/HHS.</p>
+    <p><strong>Patient search and access behaviour:</strong> <a href="https://kyruushealth.com/new-patient-access-research-reveals-consumers-increasingly-prioritize-convenience-in-care-decisions-but-weigh-host-of-criteria/">Kyruus patient access research</a> · <a href="https://www.mgma.com/mgma-stat/putting-the-power-of-scheduling-into-patients-hands">MGMA Stat on patient self-scheduling</a> · <a href="https://clinekthealth.com/blog/patient-scheduling-statistics">Patient scheduling statistics</a>.</p>
+    <p><strong>Scheduling mechanics:</strong> <a href="https://www.tegria.com/resources/thought-leadership/how-to-prioritize-and-sustain-your-open-and-direct-scheduling-initiatives/">Open and direct scheduling in Epic</a>, Tegria · <a href="https://unityhealth.to/wp-content/uploads/2024/11/mychart-open-and-ticket-scheduling.pdf">MyChart open and ticket scheduling</a>, Unity Health.</p>
+    <p><strong>Intake and continuity:</strong> <a href="https://www.phreesia.com/blog-8-reasons-healthcare-providers-need-digital-patient-check-in/">Digital patient check-in outcomes</a>, Phreesia · <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12613019/">IoT-based wayfinding for hospital visitors</a>, PMC · <a href="https://www.mappedin.com/resources/blog/how-to-implement-hospital-wayfinding-system/">Hospital wayfinding best practices</a>, Mappedin.</p>
+    <p><strong>Benchmarks (live sites, September 2026):</strong> <a href="https://www.mayoclinic.org/">Mayo Clinic</a> · <a href="https://my.clevelandclinic.org/">Cleveland Clinic</a> · <a href="https://www.nhs.uk/">NHS.uk</a> and <a href="https://111.nhs.uk/">NHS 111 online</a> · <a href="https://www.uclahealth.org/">UCLA Health</a> · <a href="https://healthy.kaiserpermanente.org/">Kaiser Permanente</a> · <a href="https://www.1177.se/">1177.se</a> · <a href="https://www.uchicagomedicine.org/patients-visitors/patient-information/choosing-where-to-go-for-care">UChicago Medicine, Choosing Where To Go For Care</a>.</p>
+    <p><strong>Transparency case:</strong> <a href="https://healthcare.utah.edu/press-releases/2012/12/university-of-utah-health-care-first-hospital-system-country-post-online">University of Utah Health on publishing physician reviews</a> and <a href="https://healthcare.utah.edu/press-releases/2016/01/results-are-online-physician-reviews-are-good-medicine">the results five years on</a>.</p>
+    <p><strong>Content standards and accessibility:</strong> <a href="https://service-manual.nhs.uk/content/how-we-write">NHS content style guide — how we write</a> and the <a href="https://service-manual.nhs.uk/design-system">NHS design system</a> · <a href="https://www.w3.org/TR/WCAG22/">WCAG 2.2</a>, W3C · <a href="https://www.jacksonlewis.com/insights/doj-extends-public-entities-compliance-deadline-ada-related-website-accessibility-hhss-may-2026-deadline-still-looms">DOJ Title II deadline extension and HHS Section 504 dates</a>, Jackson Lewis · <a href="https://www.audioeye.com/post/ada-title-ii-healthcare-accessibility-requirements/">ADA Title II requirements for healthcare</a>, AudioEye.</p>
+  </div>
+</section>
+
+<footer class="doc-end">
+  UX Architecture Study · The Acuity-First Front Door · September 2026
+</footer>
