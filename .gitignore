@@ -1,2 +1,5 @@
 clinic-poc
 /clinic-poc
+__pycache__/
+*.pyc
+.env
